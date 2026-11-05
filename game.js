@@ -997,7 +997,8 @@
         <div class="craft-content"><strong>${escapeHTML(item.name)}</strong><small>${escapeHTML(item.desc)}</small>
           <small class="craft-cost">${costs}</small></div>
         <button class="mini-button" data-craft="${item.id}" type="button" ${!crafted && canCraft(item) && !game.pendingChoice && !modalOpen?'':'disabled'}>${crafted?'제작 완료':'제작'}</button></article>`;
-    }).join('');    qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
+    }).join('');
+    qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
       const region=B.expeditions.regions.find(r=>r.id===t.region);
       const resource=B.resources.find(r=>r.id===t.resource);
       return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}</span><strong>${resource.icon} +${t.amount}</strong></div>`;
