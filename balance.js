@@ -4,12 +4,18 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.1.0',
+  version: '0.2.0',
   maxLevel: 10, // MVP 상한. 정식 버전 목표는 LV.50.
   initial: { level: 1, exp: 0, motivation: 60, stress: 20, laziness: 10 },
   actions: {
     carrot: { motivation: +15, stress: -10, laziness: +5 },
     whip:   { motivation:  -5, stress: +15, laziness: -5, baseExp: 10 }
+  },
+  // v0.2 상태 대응 회복 보너스: 반드시 행동 직전 능력치로 판정.
+  // 기본 행동 효과와 별도로 적용되며, 이벤트 확률·경험치·진화 비율은 변경하지 않습니다.
+  conditionalRecovery: {
+    carrot: { stat: 'stress', threshold: 60, extra: -10 },
+    whip: { stat: 'laziness', threshold: 60, extra: -5 }
   },
   expRequired(level) { return 50 + 10 * (level - 1); },
   efficiency: {

@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.1
+ * 개미 키우기 MVP v0.2
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -67,6 +67,7 @@
         stats: {motivation:clamp(r.stats?.motivation ?? 60),stress:clamp(r.stats?.stress ?? 20),laziness:clamp(r.stats?.laziness ?? 10)},
         carrotCount:num(r.carrotCount,0),whipCount:num(r.whipCount,0),
         totalExp:num(r.totalExp,0),eventCount:num(r.eventCount,0),
+        balanceVersion:typeof r.balanceVersion==='string'?r.balanceVersion.slice(0,24):'0.1.0',
         eventsByType:r.eventsByType&&typeof r.eventsByType==='object'?r.eventsByType:{}
       })) : [];
       return {
@@ -144,8 +145,12 @@
     const before={...game.stats};
     const eventId=pickEvent(action,before); // Q20: 행동 직전 능력치로 판정
     const changes=B.actions[action];
+    const recovery=B.conditionalRecovery?.[action];
+    const recoveryBonus=Boolean(recovery && before[recovery.stat]>=recovery.threshold);
     let gained=action==='whip' ? Math.max(1,Math.round(changes.baseExp*efficiency(before))) : 0;
     for(const key of ['motivation','stress','laziness']) game.stats[key]=clamp(game.stats[key]+changes[key]);
+    // 조건 판정은 이벤트 및 기본 행동 적용 이전의 상태 기준입니다.
+    if(recoveryBonus) game.stats[recovery.stat]=clamp(game.stats[recovery.stat]+recovery.extra);
     if(action==='carrot') game.carrotCount++; else game.whipCount++;
 
     let eventMessage='';
@@ -188,6 +193,7 @@
     if(didLevelUp && !game.finished) game.lastSpeech=`야호! LV.${game.level} 달성!`;
 
     let feedback=action==='carrot'?'당근: 의욕 ↑ · 스트레스 ↓ · 나태함 ↑':`채찍: EXP +${gained} · 스트레스 ↑`;
+    if(recoveryBonus) feedback+=action==='carrot'?' · 스트레스 집중 회복(-10 추가)':' · 나태함 집중 교정(-5 추가)';
     if(eventId) feedback+=` · ${eventMessage}`;
     if(didLevelUp && !game.finished) feedback+=` · LV.${game.level} 레벨업!`;
     if(game.finished) feedback='첫 진화 달성! 결과를 확인해 보세요.';
@@ -215,7 +221,7 @@
       id:`ant-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
       timestamp:Date.now(), type, level:10,
       stats:{...game.stats}, carrotCount:game.carrotCount, whipCount:game.whipCount,
-      totalExp:game.totalExp, eventCount:game.eventCount, eventsByType:{...game.eventsByType}
+      totalExp:game.totalExp, eventCount:game.eventCount, balanceVersion:B.version, eventsByType:{...game.eventsByType}
     };
     game.finished=true;
     game.evolution=type;
@@ -440,7 +446,7 @@
     const type=B.types[record.type];
     showModal(`<p class="modal-eyebrow">ANT NEST ARCHIVE</p><h2 id="modal-title">${type.name}</h2><p class="modal-subtitle">${dateLabel(record.timestamp)} · LV.${record.level} 진화 완료</p>
       <div class="evolution-portrait" id="modal-portrait"></div><div class="passive-chip"><strong>✦ ${type.passive}</strong><br>${type.description}</div>
-      ${recordSummary(record)}<p class="modal-subtitle">총 획득 경험치 ${record.totalExp} EXP · 누적 행동 ${record.carrotCount+record.whipCount}회</p>
+      ${recordSummary(record)}<p class="modal-subtitle">총 획득 경험치 ${record.totalExp} EXP · 누적 행동 ${record.carrotCount+record.whipCount}회 · 밸런스 v${escapeHTML(record.balanceVersion||'0.1.0')}</p>
       <div class="modal-buttons"><button type="button" class="modal-primary" id="record-close">기록 닫기</button></div>`);
     const clone=qs('ant-figure').cloneNode(true);
     clone.removeAttribute('id');clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
@@ -466,6 +472,7 @@
       <div class="modal-info"><strong>1. 당근</strong> · 의욕 +15, 스트레스 −10, 나태함 +5<br>
       <strong>2. 채찍</strong> · 경험치 획득, 의욕 −5, 스트레스 +15, 나태함 −5<br>
       <strong>3. 상태 관리</strong> · 의욕·스트레스·나태함이 성장 효율 및 이벤트 확률에 영향<br>
+      <strong>추가 회복</strong> · 행동 직전 스트레스 60 이상: 당근 스트레스 −10 추가 / 나태함 60 이상: 채찍 나태함 −5 추가<br>
       <strong>4. 최초 진화</strong> · LV.10에서 당근/채찍의 누적 비율로 3종 진화</div>
       <div class="modal-buttons"><button class="modal-primary" id="tutorial-review-close" type="button">확인</button></div>`);
     qs('tutorial-review-close').addEventListener('click',closeModal);
