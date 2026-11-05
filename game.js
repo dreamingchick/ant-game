@@ -159,6 +159,10 @@
       const stats = prev.stats && typeof prev.stats === 'object' ? prev.stats : {};
       const num = (v, fallback, max=Number.MAX_SAFE_INTEGER) => typeof v === 'number' && Number.isFinite(v) ? Math.max(0,Math.min(max,Math.floor(v))) : fallback;
       const validTypes = Object.keys(B.types);
+      // v0.5 선택 이벤트는 행동 횟수만 먼저 증가하고, 선택 후 완결됩니다.
+      // 이전 세이브에서 진행 중인 선택은 원정권으로 아직 환산하지 않습니다.
+      const legacyCompletedActions=Math.max(0,num(prev.carrotCount,0)+num(prev.whipCount,0)-
+        (prev.pendingChoice && !prev.finished ? 1 : 0));
       const records = Array.isArray(prev.records) ? prev.records.filter(r => r && validTypes.includes(r.type) && typeof r.id === 'string').map(r=>({
         id:r.id.slice(0,96),type:r.type,
         timestamp:num(r.timestamp,Date.now()),
@@ -220,9 +224,9 @@
         },
         expedition: {
           tickets: prev.expedition ? num(prev.expedition.tickets,0,B.expeditions.maxTickets) :
-            Math.min(B.expeditions.maxTickets,Math.floor((num(prev.carrotCount,0)+num(prev.whipCount,0))/B.expeditions.actionsPerTicket)),
+            Math.min(B.expeditions.maxTickets,Math.floor(legacyCompletedActions/B.expeditions.actionsPerTicket)),
           ticks: prev.expedition ? num(prev.expedition.ticks,0,B.expeditions.actionsPerTicket-1) :
-            (num(prev.carrotCount,0)+num(prev.whipCount,0))%B.expeditions.actionsPerTicket,
+            legacyCompletedActions%B.expeditions.actionsPerTicket,
           inventory:Object.fromEntries(RESOURCE_IDS.map(id=>[id,num(prev.expedition?.inventory?.[id],0,999999)])),
           crafted:Array.isArray(prev.expedition?.crafted) ?
             [...new Set(prev.expedition.crafted)].filter(validCraft):[],
@@ -993,11 +997,11 @@
     try {
       const Context=window.AudioContext||window.webkitAudioContext;
       if(!Context)return;
-      if(!audioCtx)audioCtx=new Context();
-      if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+      if(!audioCtx)audioCtx=new Context();      if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
       const patterns={
         carrot:[[550,0,.10],[740,.09,.13]], whip:[[255,0,.07],[350,.1,.08]],
-        positive:[[660,0,.11],[880,.11,.16]],negative:[[370,0,.12],[260,.12,.18]],        level:[[523,0,.10],[659,.11,.1],[784,.22,.17]],
+        positive:[[660,0,.11],[880,.11,.16]],negative:[[370,0,.12],[260,.12,.18]],
+        level:[[523,0,.10],[659,.11,.1],[784,.22,.17]],
         evolution:[[392,0,.11],[523,.13,.11],[659,.26,.15],[784,.43,.14],[1047,.58,.38]]
       };
       const volume=game.settings.volume/100*.12;
