@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.4
+ * 개미 키우기 MVP v0.5
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -12,6 +12,18 @@
   // 게임 데이터와 별도 보관하는, 마지막으로 확인한 패치 버전입니다.
   // v0.1/v0.2의 저장 키와 schemaVersion은 절대 변경하지 않습니다.
   const PATCH_SEEN_KEY = 'little-ant-game-last-patch-seen';
+  const PRE_V05_BACKUP_KEY = 'little-ant-game-before-v0.5';
+  // v0.1~v0.4 원본 세이브를 v0.5로 최초 이전하기 전에 딱 한 번 백업합니다.
+  function preserveOriginalSave() {
+    try {
+      const original=localStorage.getItem(KEY);
+      if(!original || localStorage.getItem(PRE_V05_BACKUP_KEY))return;
+      const parsed=JSON.parse(original);
+      if(parsed && parsed.schemaVersion===1 && !Object.prototype.hasOwnProperty.call(parsed,'phase'))
+        localStorage.setItem(PRE_V05_BACKUP_KEY,original);
+    } catch(_error) { /* 백업 실패 시 원본 데이터는 계속 보호됩니다. */ }
+  }
+  preserveOriginalSave();
   const ANALYTICS_CONSENT_KEY = 'little-ant-game-analytics-consent';
   const analyticsMeasurementId = typeof B.analytics?.measurementId === 'string' &&
     /^G-[A-Z0-9]{5,16}$/i.test(B.analytics.measurementId.trim()) ? B.analytics.measurementId.trim() : '';
@@ -78,11 +90,16 @@
   const percent = n => `${(n * 100).toFixed(1).replace(/\.0$/, '')}%`;
   const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
   const portraitEmoji = { easy: '🍀', genius: '💡', diligent: '🛠️' };
+  const SECOND_TYPES = B.secondEvolution.types;
+  const SECOND_THRESH = B.secondEvolution.threshold;
+  const secondEvolutionIds = Object.keys(SECOND_TYPES);
+  const validFirst = type => Boolean(B.types[type]);
+  const validSecond = (type,parent) => Boolean(SECOND_TYPES[type] && SECOND_TYPES[type].parent===parent);
   const tutorial = [
     { title:'먼저 당근을 주세요!', description:'당근은 의욕을 높이고 스트레스를 줄여 줍니다. 대신 나태함은 조금 올라가요.', button:null },
     { title:'이제 채찍으로 훈련!', description:'채찍은 경험치를 주지만 스트레스도 높여요. 실제 개미를 때리는 것이 아닌 훈련을 뜻합니다.', button:null },
     { title:'세 가지 상태를 확인하세요!', description:'의욕이 높고 스트레스·나태함이 낮을수록 훈련에 유리해요. 돌발 이벤트 확률도 상태에 따라 달라져요.', button:'이해했어요' },
-    { title:'LV.10에서 첫 진화!', description:'당근과 채찍을 사용한 누적 비율과 진화 시점의 상태가 성장에 영향을 줘요. 지금부터 자유롭게 키워 보세요!', button:'육성 시작' }
+    { title:'LV.10과 LV.20, 두 번의 진화!', description:'LV.10에서 첫 진화와 고유 패시브를 얻고, LV.20에서 두 번째 진화를 완성해요. 계속 키워 보세요!', button:'육성 시작' }
   ];
   const dialogue = {
     idle: ['오늘도 한 뼘 자라 볼까?', '조금씩, 차근차근!', '오늘은 무얼 해 볼까?', '이 개미집, 꽤 포근한걸.'],
@@ -107,6 +124,7 @@
       stats: { motivation:B.initial.motivation, stress:B.initial.stress, laziness:B.initial.laziness },
       carrotCount:0, whipCount:0, totalExp:0, eventCount:0, eventsByType:{},
       recentEvents:[], records:[], finished:false, finishedRecordId:null, evolution:null,
+      phase:'phase1', firstEvolution:null, stage2Counters:{carrot:0,whip:0}, secondEvolution:null,
       pendingChoice:null, unlockedAchievements:[],
       decor:{unlocked:[],equipped:{floor:null,wall:null,light:null}},
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
@@ -129,7 +147,17 @@
       const validTypes = Object.keys(B.types);
       const records = Array.isArray(prev.records) ? prev.records.filter(r => r && validTypes.includes(r.type) && typeof r.id === 'string').map(r=>({
         id:r.id.slice(0,96),type:r.type,
-        timestamp:num(r.timestamp,Date.now()),level:10,
+        timestamp:num(r.timestamp,Date.now()),
+        level:r.level===20 && validSecond(r.secondEvolution,r.type) ? 20 : 10,
+        secondEvolution:validSecond(r.secondEvolution,r.type) ? r.secondEvolution : null,
+        firstEvolution:r.firstEvolution && r.firstEvolution.type===r.type ? {
+          type:r.type,
+          reachedAt:num(r.firstEvolution.reachedAt,0),
+          carrotCountAtFirst:num(r.firstEvolution.carrotCountAtFirst,0),
+          whipCountAtFirst:num(r.firstEvolution.whipCountAtFirst,0),
+          statsAtFirst:{motivation:clamp(r.firstEvolution.statsAtFirst?.motivation ?? 60),stress:clamp(r.firstEvolution.statsAtFirst?.stress ?? 20),laziness:clamp(r.firstEvolution.statsAtFirst?.laziness ?? 10)}
+        } : null,
+        stage2Counters:{carrot:num(r.stage2Counters?.carrot,0),whip:num(r.stage2Counters?.whip,0)},
         stats: {motivation:clamp(r.stats?.motivation ?? 60),stress:clamp(r.stats?.stress ?? 20),laziness:clamp(r.stats?.laziness ?? 10)},
         carrotCount:num(r.carrotCount,0),whipCount:num(r.whipCount,0),
         totalExp:num(r.totalExp,0),eventCount:num(r.eventCount,0),
@@ -139,6 +167,19 @@
       return {
         ...base,
         level: Math.max(1,num(prev.level,1,B.maxLevel)), exp:num(prev.exp,0,10000000),
+        // 구버전 LV.10 완료는 확장하지 않고 영구 완료 기록으로 보존합니다.
+        phase:prev.finished ? (validSecond(prev.secondEvolution,prev.evolution)?'completed':'legacyComplete') :
+          (validFirst(prev.firstEvolution?.type) && prev.level>=10 ? 'phase2':'phase1'),
+        firstEvolution:validFirst(prev.firstEvolution?.type) && prev.firstEvolution?.type===prev.evolution ? {
+          type:prev.firstEvolution.type,
+          reachedAt:num(prev.firstEvolution.reachedAt,0),
+          carrotCountAtFirst:num(prev.firstEvolution.carrotCountAtFirst,0),
+          whipCountAtFirst:num(prev.firstEvolution.whipCountAtFirst,0),
+          statsAtFirst:{motivation:clamp(prev.firstEvolution.statsAtFirst?.motivation ?? 60),stress:clamp(prev.firstEvolution.statsAtFirst?.stress ?? 20),laziness:clamp(prev.firstEvolution.statsAtFirst?.laziness ?? 10)},
+          acknowledged:prev.firstEvolution.acknowledged!==false
+        } : null,
+        stage2Counters:{carrot:num(prev.stage2Counters?.carrot,0),whip:num(prev.stage2Counters?.whip,0)},
+        secondEvolution:validSecond(prev.secondEvolution,prev.evolution)?prev.secondEvolution:null,
         stats:{ motivation:clamp(stats.motivation ?? 60), stress:clamp(stats.stress ?? 20), laziness:clamp(stats.laziness ?? 10) },
         carrotCount:num(prev.carrotCount,0), whipCount:num(prev.whipCount,0), totalExp:num(prev.totalExp,0),eventCount:num(prev.eventCount,0),
         eventsByType: prev.eventsByType && typeof prev.eventsByType === 'object' ? prev.eventsByType : {},
@@ -247,6 +288,32 @@
     const total=game.carrotCount+game.whipCount;
     return total?game.whipCount/total:0;
   }
+  function stage2Ratio() {
+    const total=game.stage2Counters.carrot+game.stage2Counters.whip;
+    return total ? game.stage2Counters.whip/total : 0;
+  }
+  function secondTypeFor(parent,whipRatio) {
+    return secondEvolutionIds.find(id=>SECOND_TYPES[id].parent===parent &&
+      SECOND_TYPES[id].branch===(whipRatio<SECOND_THRESH?'A':'B'))||null;
+  }
+  function secondEvolutionType() { return secondTypeFor(game.evolution,stage2Ratio()); }
+  function growthRating(stats) {
+    if(stats.motivation>=60 && stats.stress<=50 && stats.laziness<=50)return '균형 잡힌 성장을 이뤘습니다.';
+    if(stats.stress>=85 || stats.laziness>=85 || stats.motivation<=15)return '험난한 여정 끝에 진화를 달성했습니다.';
+    return '꾸준한 선택이 새로운 모습으로 이어졌습니다.';
+  }
+  function passiveDescription(type) {
+    return {easy:'당근 사용 시 스트레스 −5 추가',genius:'긍정 이벤트의 유익한 효과 +20%',diligent:'채찍 EXP +15%'}[type]||'';
+  }
+  function positiveBenefit(value) {
+    return value<0 ? Math.round(value*B.passive.genius.positiveEventBenefitMultiplier) : value>0 ? Math.round(value*B.passive.genius.positiveEventBenefitMultiplier) : value;
+  }
+  // 오직 긍정 이벤트에서 유익한 변화만 강화합니다.
+  function eventStatDelta(event,stat,raw) {
+    if(game.phase!=='phase2' || game.evolution!=='genius' || event.kind!=='positive')return raw;
+    const beneficial=(stat==='motivation' && raw>0) || ((stat==='stress'||stat==='laziness') && raw<0);
+    return beneficial?positiveBenefit(raw):raw;
+  }
 
   // 이벤트는 기존 확률을 유지하며 행동 직전 상태에서 단 한 번 추첨합니다.
   // 선택 이벤트의 경우 행동/기본 이벤트 효과만 먼저 저장하고 경험치·진화를 보류합니다.
@@ -257,16 +324,29 @@
     const changes=B.actions[action];
     const recovery=B.conditionalRecovery?.[action];
     const recoveryBonus=Boolean(recovery && before[recovery.stat]>=recovery.threshold);
-    let gained=action==='whip' ? Math.max(1,Math.round(changes.baseExp*efficiency(before))) : 0;
+    const stage2=game.phase==='phase2';
+    const baseExp=stage2 ? B.phaseTwoBaseExp : changes.baseExp;
+    let gained=action==='whip' ? Math.max(1,Math.round(baseExp*efficiency(before))) : 0;
+    if(stage2 && game.evolution==='diligent' && action==='whip') {
+      gained=Math.max(1,Math.round(gained*B.passive.diligent.whipExpMultiplier));
+    }
     for(const key of ['motivation','stress','laziness']) game.stats[key]=clamp(game.stats[key]+changes[key]);
     if(recoveryBonus) game.stats[recovery.stat]=clamp(game.stats[recovery.stat]+recovery.extra);
+    if(stage2 && game.evolution==='easy' && action==='carrot')
+      game.stats.stress=clamp(game.stats.stress+B.passive.easy.extraCarrotStressRecovery);
     if(action==='carrot') game.carrotCount++; else game.whipCount++;
+    if(stage2) game.stage2Counters[action]++;
 
     if(eventId) {
       const event=B.events[eventId];
-      if(event.expMultiplier && action==='whip') gained=Math.max(1,Math.round(gained*event.expMultiplier));
+      if(event.expMultiplier && action==='whip') {
+        const multiplier=(stage2 && game.evolution==='genius' && event.kind==='positive') ?
+          1+(event.expMultiplier-1)*B.passive.genius.positiveEventBenefitMultiplier : event.expMultiplier;
+        gained=Math.max(1,Math.round(gained*multiplier));
+      }
       if(event.cancelExp) gained=0;
-      for(const key of ['motivation','stress','laziness']) if(event[key]) game.stats[key]=clamp(game.stats[key]+event[key]);
+      for(const key of ['motivation','stress','laziness']) if(event[key])
+        game.stats[key]=clamp(game.stats[key]+eventStatDelta(event,key,event[key]));
       game.eventCount++;
       game.eventsByType[eventId]=(game.eventsByType[eventId]||0)+1;
       game.recentEvents.unshift({id:eventId,name:event.name,action,at:Date.now()});
@@ -294,14 +374,18 @@
     game.totalExp+=gained;
     game.exp+=gained;
     const priorLevel=game.level;
+    let firstEvolutionReached=false;
     while(game.level<B.maxLevel && game.exp>=B.expRequired(game.level)) {
       game.exp-=B.expRequired(game.level);
       game.level++;
+      if(game.level===10 && game.phase==='phase1') {
+        finishFirstEvolution(); firstEvolutionReached=true;
+      }
     }
     const didLevelUp=game.level>priorLevel;
     if(game.level>=B.maxLevel) {
       game.exp=0;
-      finishEvolution();
+      finishFinalEvolution();
     }
     if(eventId) {
       game.lastReaction='event';
@@ -315,14 +399,15 @@
     }
     if(!eventId && game.stats.stress>=85) game.lastSpeech=choose(dialogue.stress);
     else if(!eventId && game.stats.laziness>=85) game.lastSpeech=choose(dialogue.lazy);
-    if(didLevelUp && !game.finished) game.lastSpeech=`야호! LV.${game.level} 달성!`;
+    if(didLevelUp && !game.finished) game.lastSpeech=firstEvolutionReached ?
+      `LV.10 첫 진화! ${B.types[game.evolution].name}가 되었어!` : `야호! LV.${game.level} 달성!`;
 
     let feedback=action==='carrot'?'당근: 의욕 ↑ · 스트레스 ↓ · 나태함 ↑':`채찍: EXP +${gained} · 스트레스 ↑`;
     if(recoveryBonus) feedback+=action==='carrot'?' · 스트레스 집중 회복(-10 추가)':' · 나태함 집중 교정(-5 추가)';
     if(eventId) feedback+=` · 돌발 이벤트 · ${B.events[eventId].name}`;
     if(choiceLabel) feedback+=` · ${choiceLabel}`;
-    if(didLevelUp && !game.finished) feedback+=` · LV.${game.level} 레벨업!`;
-    if(game.finished) feedback='첫 진화 달성! 결과를 확인해 보세요.';
+    if(didLevelUp && !game.finished) feedback+=firstEvolutionReached?' · LV.10 첫 진화 달성!':` · LV.${game.level} 레벨업!`;
+    if(game.finished) feedback='LV.20 두 번째 진화 달성! 결과를 확인해 보세요.';
     game.lastFeedback=feedback;
     updateTutorial(action);
     const gainedAchievements=reconcileAchievements();
@@ -347,6 +432,9 @@
     if(game.finished) {
       playSound('evolution');
       showEvolutionResult(findFinishRecord());
+    } else if(firstEvolutionReached) {
+      playSound('evolution');
+      showFirstEvolutionResult();
     } else if(didLevelUp) {
       playSound('level');toast(`레벨 업! LV.${game.level}`);
     } else if(eventId) {
@@ -376,7 +464,9 @@
     const choice=B.events[pending.eventId]?.choices?.find(option=>option.id===choiceId);
     if(!choice) return;
     game.pendingChoice=null; // 같은 이벤트를 두 번 확정할 수 없음
-    for(const [stat,delta] of Object.entries(choice.effects)) game.stats[stat]=clamp(game.stats[stat]+delta);
+    const event=B.events[pending.eventId];
+    for(const [stat,delta] of Object.entries(choice.effects))
+      game.stats[stat]=clamp(game.stats[stat]+eventStatDelta(event,stat,delta));
     game.lastSpeech=choice.response;
     closeModal();
     trackAnalytics('event_choice',{event_id:pending.eventId,choice_id:choiceId});
@@ -392,8 +482,9 @@
     const totalActions=records.reduce((sum,r)=>sum+r.carrotCount+r.whipCount,activeActions);
     const totalEvents=records.reduce((sum,r)=>sum+r.eventCount,activeEvents);
     const types=new Set(records.map(r=>r.type));
+    if(game.phase==='phase2' && validFirst(game.evolution))types.add(game.evolution);
     return {
-      ACH01:totalActions>=1, ACH02:records.length>0,
+      ACH01:totalActions>=1, ACH02:records.length>0 || game.phase==='phase2',
       ACH03:types.has('easy'), ACH04:types.has('genius'), ACH05:types.has('diligent'),
       ACH06:types.size===3, ACH07:totalActions>=300, ACH08:totalEvents>=30
     };
@@ -426,6 +517,10 @@
       career.carrots+=game.carrotCount;
       career.whips+=game.whipCount;
       career.events+=game.eventCount;
+      if(game.phase==='phase2' && validFirst(game.evolution)) {
+        career.evolutions++;
+        if(game.evolution==='genius')career.genius++;
+      }
     }
     career.actions=career.carrots+career.whips;
     return career;
@@ -492,17 +587,35 @@
     toast(equipped?`${item.name} 장식을 해제했어요.`:`${item.name}을(를) 개미집에 배치했어요!`);
   }
 
-  function finishEvolution() {
-    if(game.finished) return;
+  function finishFirstEvolution() {
+    if(game.phase!=='phase1') return;
     const type=evolutionType();
+    game.evolution=type;
+    game.phase='phase2';
+    game.firstEvolution={
+      type,reachedAt:Date.now(),carrotCountAtFirst:game.carrotCount,
+      whipCountAtFirst:game.whipCount,statsAtFirst:{...game.stats},acknowledged:false
+    };
+    game.stage2Counters={carrot:0,whip:0};
+    game.tutorialCompleted=true;
+  }
+  function finishFinalEvolution() {
+    if(game.finished || game.phase!=='phase2')return;
+    const type=secondEvolutionType();
+    if(!type)return;
+    game.secondEvolution=type;
+    game.finished=true;
+    game.phase='completed';
+    game.exp=0;
     const record={
       id:`ant-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
-      timestamp:Date.now(), type, level:10,
-      stats:{...game.stats}, carrotCount:game.carrotCount, whipCount:game.whipCount,
-      totalExp:game.totalExp, eventCount:game.eventCount, balanceVersion:B.version, eventsByType:{...game.eventsByType}
+      timestamp:Date.now(),type:game.evolution,secondEvolution:type,level:20,
+      firstEvolution:{...game.firstEvolution,statsAtFirst:{...game.firstEvolution.statsAtFirst}},
+      stage2Counters:{...game.stage2Counters},
+      stats:{...game.stats},carrotCount:game.carrotCount,whipCount:game.whipCount,
+      totalExp:game.totalExp,eventCount:game.eventCount,balanceVersion:B.version,
+      eventsByType:{...game.eventsByType}
     };
-    game.finished=true;
-    game.evolution=type;
     game.finishedRecordId=record.id;
     game.records.unshift(record);
     game.tutorialCompleted=true;
@@ -535,28 +648,44 @@
     return 'normal';
   }
   function moodLabel(){
-    if(game.finished)return '✧ 첫 진화 완료';
+    if(game.finished)return game.phase==='legacyComplete'?'✧ 첫 진화 완료':'✧ 두 번째 진화 완료';
     const tier=statusTier(game.stats);
     return {good:'☘ 기분 최고',normal:'☘ 평온한 상태',warn:'◈ 관리 필요',danger:'● 지친 상태'}[tier];
   }
   function render() {
-    qs('ant-name').textContent=game.finished?B.types[game.evolution]?.name||'진화 개미':'신입 개미';
-    qs('evolution-stage').textContent=game.finished?'첫 진화 달성':'첫 번째 여정';
+    const firstName=B.types[game.evolution]?.name||'신입 개미';
+    const secondName=SECOND_TYPES[game.secondEvolution]?.name;
+    qs('ant-name').textContent=game.phase==='completed' && secondName ? secondName : game.phase==='phase1' ? '신입 개미' : firstName;
+    qs('evolution-stage').textContent=game.phase==='phase1'?'첫 번째 여정':game.phase==='phase2'?'두 번째 여정':game.phase==='legacyComplete'?'첫 진화 달성':'두 번째 진화 달성';
+    qs('growth-stage-label').textContent=game.phase==='phase1'?'첫 번째 성장 · LV.1~10':
+      game.phase==='legacyComplete'?'구버전 육성 완료 · LV.10':'두 번째 성장 · LV.10~20';
     qs('level-badge').textContent=`LV. ${game.level}`;
     const required=game.finished?0:B.expRequired(game.level);
     qs('xp-text').textContent=game.finished?'MAX LEVEL':`${game.exp} / ${required} EXP`;
     qs('xp-fill').style.width=`${game.finished?100:Math.min(100,(game.exp/required)*100)}%`;
     qs('xp-progress').setAttribute('aria-valuenow',String(game.finished?100:Math.round(game.exp/required*100)));
-    qs('evolution-hint').textContent=game.finished?'첫 진화 완료':'LV.10 첫 진화';
-    qs('progress-narration').textContent=game.finished?'첫 성장의 완성!':`진화까지 ${B.maxLevel-game.level}레벨`;
+    qs('evolution-hint').textContent=game.finished?'육성 완료':game.phase==='phase1'?'LV.10 첫 진화':'LV.20 두 번째 진화';
+    qs('progress-narration').textContent=game.finished?'성장의 발자국 완성!':
+      game.phase==='phase1'?`첫 진화까지 ${10-game.level}레벨`:`두 번째 진화까지 ${20-game.level}레벨`;
     qs('scene-status').textContent=`● ${B.eventTiers[statusTier(game.stats)].label} 상태`;
     qs('scene-action-text').textContent=game.finished?'새로운 가능성 발견':`${game.carrotCount+game.whipCount}번의 작은 선택`;
     qs('speech-bubble').textContent=game.lastSpeech;
     qs('mood-label').textContent=moodLabel();
     const ant=qs('ant-figure');
     ant.dataset.evolution=game.evolution||'newbie';
+    ant.dataset.secondEvolution=game.secondEvolution||'none';
+    const secondMark=qs('second-evolution-mark');
+    secondMark.hidden=!game.secondEvolution;
+    secondMark.textContent=SECOND_TYPES[game.secondEvolution]?.icon||'';
+    secondMark.title=SECOND_TYPES[game.secondEvolution]?.name||'';
     ant.dataset.mood=reactionMood();
-    ant.setAttribute('aria-label',`${game.finished?B.types[game.evolution]?.name:'신입 개미'} 캐릭터`);
+    ant.setAttribute('aria-label',`${qs('ant-name').textContent} 캐릭터`);
+    const passive=qs('active-passive');
+    passive.hidden=game.phase!=='phase2';
+    if(game.phase==='phase2') {
+      qs('passive-name').textContent=`${firstName} · ${B.types[game.evolution].passive}`;
+      qs('passive-effect').textContent=passiveDescription(game.evolution);
+    }
     for(const stat of ['motivation','stress','laziness']) {
       qs(`${stat}-value`).textContent=game.stats[stat];
       qs(`${stat}-fill`).style.width=`${game.stats[stat]}%`;
@@ -574,7 +703,10 @@
     renderNestScene();
     renderDecorations();
     qs('finished-panel').hidden=!game.finished;
-    if(game.finished)qs('finished-name').textContent=B.types[game.evolution].name;
+    if(game.finished) {
+      qs('finished-name').textContent=game.phase==='completed'?secondName:firstName;
+      qs('finished-caption').textContent=game.phase==='completed'?'두 번째 진화를 마쳤어요!':'첫 진화를 마쳤어요! (구버전 기록)';
+    }
     renderTutorial();
     renderRecords();
     renderAchievements();
@@ -582,17 +714,27 @@
     showScreen(activeScreen,false);
   }
   function renderEvolutionGuide() {
-    const count=game.carrotCount+game.whipCount;
-    const ratio=getRatio();
-    const type=count?evolutionType():null;
-    qs('guide-prediction').textContent=game.finished?`${B.types[game.evolution].name} · 확정`:type?B.types[type].name:'아직 미정';
+    const inSecond=game.phase==='phase2' || game.phase==='completed';
+    const count=inSecond ? game.stage2Counters.carrot+game.stage2Counters.whip : game.carrotCount+game.whipCount;
+    const ratio=inSecond ? stage2Ratio() : getRatio();
+    const type=inSecond ? secondEvolutionType() : evolutionType();
+    const prediction=inSecond ? SECOND_TYPES[type]?.name : B.types[type]?.name;
+    qs('guide-stage-label').textContent=inSecond?'LV.20 두 번째 진화':'LV.10 첫 진화';
+    qs('guide-prediction').textContent=game.finished ?
+      (game.phase==='completed'?`${SECOND_TYPES[game.secondEvolution]?.name||'최종 개미'} · 확정`:`${B.types[game.evolution]?.name||'태평 개미'} · 확정`) :
+      count ? prediction||'아직 미정' : '아직 미정';
     qs('guide-ratio').textContent=count?`채찍 ${percent(ratio)}`:'행동 기록 없음';
-    qs('guide-note').textContent=game.finished?'진화가 확정되었습니다. 다음 개미를 만나 새로운 길을 찾아보세요.':
-      '예상 진화는 누적 행동 비율로 계산되며 LV.10까지 달라질 수 있습니다.';
+    qs('guide-note').textContent=game.finished?'최종 진화가 확정되었습니다. 새 개미를 만나 또 다른 길을 찾아보세요.':
+      inSecond?'LV.10 이후의 행동 비율만 두 번째 진화에 적용됩니다. 현재 예상은 바뀔 수 있습니다.':
+        '첫 진화는 누적 행동 비율로 계산되며 LV.10까지 달라질 수 있습니다.';
+    qs('guide-bar').dataset.phase=inSecond?'phase2':'phase1';
+    qs('guide-bar').setAttribute('aria-label',count?`현재 채찍 비율 ${percent(ratio)}, 예상 진화 ${prediction}`:'아직 행동하지 않아 진화를 예측할 수 없습니다');
+    qs('legend-easy').textContent=inSecond?'A 유형 <55%':'태평 ≤45%';
+    qs('legend-genius').textContent=inSecond?'':'천재 45~55%';
+    qs('legend-diligent').textContent=inSecond?'B 유형 ≥55%':'근면 ≥55%';
     const marker=qs('guide-marker');
     marker.hidden=!count;
     if(count)marker.style.left=`${Math.min(98,Math.max(2,ratio*100))}%`;
-    qs('guide-bar').setAttribute('aria-label',count?`현재 채찍 비율 ${percent(ratio)}, 예상 진화 ${B.types[type].name}`:'아직 행동하지 않아 진화를 예측할 수 없습니다');
   }
   function renderAchievements() {
     const unlocked=new Set(game.unlockedAchievements);
@@ -619,18 +761,29 @@
     qs('tutorial-next').textContent=step.button||'';
   }
   function renderRecords() {
-    const unlocked=Object.keys(B.types).filter(type=>game.records.some(r=>r.type===type));
-    qs('collection-count').textContent=`${unlocked.length} / 3`;
-    qs('collection-fill').style.width=`${100*unlocked.length/3}%`;
-    qs('record-count').textContent=`${game.records.length}개의 기록`;
-    const collection=qs('collection-grid');
-    collection.innerHTML=Object.entries(B.types).map(([type,info])=>{
+    const discovered=new Set(game.records.map(r=>r.type));
+    if(game.phase==='phase2' && validFirst(game.evolution))discovered.add(game.evolution);
+    qs('collection-count').textContent=`${discovered.size} / 3`;
+    qs('collection-fill').style.width=`${100*discovered.size/3}%`;
+    qs('record-count').textContent=`${game.records.length}개의 완료 기록`;
+    qs('collection-grid').innerHTML=Object.entries(B.types).map(([type,info])=>{
       const count=game.records.filter(r=>r.type===type).length;
-      return `<div class="collection-item ${count?'':'locked'}"><div class="collection-portrait">${count?portraitEmoji[type]:'?'}</div><h3>${count?info.name:'??? 개미'}</h3><p>${count?`${count}번 진화`:'미발견'}</p></div>`;
+      const active=game.phase==='phase2' && game.evolution===type;
+      return `<div class="collection-item ${count||active?'':'locked'}"><div class="collection-portrait">${count||active?portraitEmoji[type]:'?'}</div><h3>${count||active?info.name:'??? 개미'}</h3><p>${active?'현재 육성 중':count?`${count}번 발견`:'미발견'}</p></div>`;
+    }).join('');
+    const secondFound=new Set(game.records.filter(r=>validSecond(r.secondEvolution,r.type)).map(r=>r.secondEvolution));
+    qs('second-collection-count').textContent=`${secondFound.size} / ${secondEvolutionIds.length}`;
+    qs('second-collection-fill').style.width=`${100*secondFound.size/secondEvolutionIds.length}%`;
+    qs('second-collection-grid').innerHTML=secondEvolutionIds.map(id=>{
+      const info=SECOND_TYPES[id];const found=secondFound.has(id);
+      return `<div class="second-ant-card ${found?'':'locked'}"><span class="second-icon">${found?escapeHTML(info.icon):'🔒'}</span><span class="second-info"><strong>${found?escapeHTML(info.name):'미발견 개미'}</strong><small>${found?escapeHTML(B.types[info.parent].name):'두 번째 진화'}</small></span></div>`;
     }).join('');
     const list=qs('record-list');
-    if(!game.records.length){list.innerHTML='<div class="empty-records">아직 진화한 개미가 없어요.<br>LV.10까지 육성해 첫 기록을 만들어 보세요!</div>';return;}
-    list.innerHTML=game.records.map((r,i)=>`<button type="button" class="record-row" data-record-id="${escapeHTML(r.id)}"><span class="record-icon">${portraitEmoji[r.type]}</span><span class="record-info"><strong>${escapeHTML(B.types[r.type].name)}</strong><small>${dateLabel(r.timestamp)} · 채찍 비율 ${percent(r.whipCount/Math.max(1,r.whipCount+r.carrotCount))} · ${r.carrotCount+r.whipCount}회 행동</small></span><span class="record-arrow">›</span></button>`).join('');
+    if(!game.records.length) {list.innerHTML='<div class="empty-records">아직 완료한 육성 기록이 없어요.<br>LV.20에서 두 번째 진화에 도전해 보세요!</div>';return;}
+    list.innerHTML=game.records.map(r=>{
+      const next=r.level===20 && validSecond(r.secondEvolution,r.type)?SECOND_TYPES[r.secondEvolution]:null;
+      return `<button type="button" class="record-row" data-record-id="${escapeHTML(r.id)}"><span class="record-icon">${next?escapeHTML(next.icon):portraitEmoji[r.type]}</span><span class="record-info"><strong>${next?escapeHTML(next.name):escapeHTML(B.types[r.type].name)}</strong><small>LV.${r.level} ${next?'두 번째 진화':'첫 번째 진화 · 구버전'} · ${dateLabel(r.timestamp)} · ${r.carrotCount+r.whipCount}회 행동</small></span><span class="record-arrow">›</span></button>`;
+    }).join('');
   }
   function renderSettings() {
     qs('sound-toggle').checked=game.settings.soundEnabled;
@@ -724,6 +877,10 @@
     if(!modalOpen || (modalKind==='choice' && game.pendingChoice))return;
     // 닫기 / 바깥 클릭 / ESC / 확인 버튼 모두 '확인한 버전'으로 처리합니다.
     if(modalKind==='patch-notes') markPatchSeen();
+    if(modalKind==='first-evolution' && game.firstEvolution) {
+      game.firstEvolution.acknowledged=true;
+      saveState();
+    }
     modalKind=null;
     qs('modal-backdrop').hidden=true;
     document.body.style.overflow='';
@@ -808,21 +965,39 @@
       <div class="result-stat"><small>최종 스트레스 / 나태함</small><strong>${r.stats.stress} / ${r.stats.laziness}</strong></div>
     </div>`;
   }
+  function showFirstEvolutionResult() {
+    if(!game.firstEvolution || game.phase!=='phase2')return;
+    const info=B.types[game.evolution];
+    showModal(`<p class="modal-eyebrow">✦ FIRST EVOLUTION ✦</p><h2 id="modal-title">${escapeHTML(info.name)}</h2>
+      <p class="modal-subtitle">LV.10 첫 진화! 이제 LV.20을 향한 여정을 계속할 수 있어요.</p>
+      <div class="evolution-portrait" id="modal-portrait"></div>
+      <div class="evolution-quote">“${escapeHTML(info.quote)}”</div>
+      <div class="passive-chip"><strong>✦ 활성 고유 패시브 · ${escapeHTML(info.passive)}</strong><br>${escapeHTML(passiveDescription(game.evolution))}</div>
+      <div class="modal-info">두 번째 진화는 지금부터 사용하는 당근·채찍의 비율로 결정됩니다.</div>
+      <div class="modal-buttons"><button class="modal-primary" id="first-continue" type="button">LV.20까지 계속 키우기</button></div>`, 'first-evolution');
+    const clone=qs('ant-figure').cloneNode(true);
+    clone.removeAttribute('id');clone.dataset.evolution=game.evolution;clone.dataset.mood='happy';
+    clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
+    qs('modal-portrait').appendChild(clone);
+    qs('first-continue').addEventListener('click',closeModal);
+  }
   function showEvolutionResult(record) {
     if(!record)return;
     const type=B.types[record.type];
-    showModal(`<p class="modal-eyebrow">✦ FIRST EVOLUTION ✦</p><h2 id="modal-title">${type.name}</h2><p class="modal-subtitle">LV.10 최초 진화에 성공했어요!</p>
+    const next=validSecond(record.secondEvolution,record.type)?SECOND_TYPES[record.secondEvolution]:null;
+    const name=next?.name||type.name;
+    showModal(`<p class="modal-eyebrow">✦ ${next?'SECOND EVOLUTION':'FIRST EVOLUTION · LEGACY'} ✦</p>
+      <h2 id="modal-title">${escapeHTML(name)}</h2><p class="modal-subtitle">${next?'LV.20 두 번째 진화를 달성했습니다!':'구버전 LV.10 진화 기록입니다.'}</p>
       <div class="evolution-portrait" id="modal-portrait"></div>
-      <div class="evolution-quote">“${type.quote}”</div>
-      <div class="passive-chip"><strong>✦ 고유 패시브 · ${type.passive}</strong><br>${type.description}<br><small>패시브 효과는 LV.20 확장 버전부터 적용 예정</small></div>
+      <div class="evolution-quote">“${escapeHTML(next?.quote||type.quote)}”</div>
+      <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(passiveDescription(record.type))}${next?`<br><strong>${escapeHTML(next.label)}</strong>`:''}</div>
+      ${next?`<div class="second-evolution-badge">${escapeHTML(growthRating(record.stats))}</div>`:''}
       ${recordSummary(record)}
       <div class="modal-buttons"><button class="modal-primary" id="modal-new-ant" type="button">새로운 개미 키우기</button><button class="modal-secondary" id="modal-keep" type="button">지금 결과 더 살펴보기</button></div>`);
     const clone=qs('ant-figure').cloneNode(true);
-    clone.removeAttribute('id');
-    clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
-    clone.dataset.evolution=record.type;
-    clone.dataset.mood='happy';
-    qs('modal-portrait').appendChild(clone);
+    clone.removeAttribute('id');clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
+    clone.dataset.evolution=record.type;clone.dataset.secondEvolution=next?record.secondEvolution:'none';clone.dataset.mood='happy';
+    qs('modal-portrait').appendChild(clone);    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(next.icon)}</span>`);
     qs('modal-new-ant').addEventListener('click',()=>{closeModal();confirmNewAnt();});
     qs('modal-keep').addEventListener('click',closeModal);
   }
@@ -830,14 +1005,19 @@
     const record=game.records.find(r=>r.id===id);
     if(!record)return;
     const type=B.types[record.type];
-    showModal(`<p class="modal-eyebrow">ANT NEST ARCHIVE</p><h2 id="modal-title">${type.name}</h2><p class="modal-subtitle">${dateLabel(record.timestamp)} · LV.${record.level} 진화 완료</p>
-      <div class="evolution-portrait" id="modal-portrait"></div><div class="passive-chip"><strong>✦ ${type.passive}</strong><br>${type.description}</div>
+    const next=validSecond(record.secondEvolution,record.type)?SECOND_TYPES[record.secondEvolution]:null;
+    showModal(`<p class="modal-eyebrow">ANT NEST ARCHIVE</p><h2 id="modal-title">${escapeHTML(next?.name||type.name)}</h2>
+      <p class="modal-subtitle">${dateLabel(record.timestamp)} · LV.${record.level} ${next?'두 번째 진화':'첫 번째 진화 · 구버전'}</p>
+      <div class="evolution-portrait" id="modal-portrait"></div>
+      <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(type.description)}</div>
+      ${next?`<div class="second-evolution-badge">${escapeHTML(growthRating(record.stats))}</div>`:''}
       ${recordSummary(record)}<p class="modal-subtitle">총 획득 경험치 ${record.totalExp} EXP · 누적 행동 ${record.carrotCount+record.whipCount}회 · 밸런스 v${escapeHTML(record.balanceVersion||'0.1.0')}</p>
       <div class="modal-buttons"><button type="button" class="modal-primary" id="record-close">기록 닫기</button></div>`);
     const clone=qs('ant-figure').cloneNode(true);
     clone.removeAttribute('id');clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
-    clone.dataset.evolution=record.type;clone.dataset.mood='happy';
+    clone.dataset.evolution=record.type;clone.dataset.secondEvolution=next?record.secondEvolution:'none';clone.dataset.mood='happy';
     qs('modal-portrait').appendChild(clone);
+    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(next.icon)}</span>`);
     qs('record-close').addEventListener('click',closeModal);
   }
   function confirmNewAnt() {
@@ -845,6 +1025,7 @@
       <div class="modal-info">이전에 모은 개미 기록: <strong>${game.records.length}개</strong><br>시작 능력치: 의욕 60 · 스트레스 20 · 나태함 10</div>
       <div class="modal-buttons"><button class="modal-primary" id="confirm-new-ant" type="button">새 개미 만나기</button><button class="modal-secondary" id="cancel-new-ant" type="button">취소</button></div>`);
     qs('confirm-new-ant').addEventListener('click',()=>{
+      if(!game.finished)return; // 진행 중인 개미를 실수로 버리지 않도록 합니다.
       const records=game.records;
       const settings=game.settings;
       const unlockedAchievements=game.unlockedAchievements;
@@ -861,9 +1042,28 @@
       <strong>2. 채찍</strong> · 경험치 획득, 의욕 −5, 스트레스 +15, 나태함 −5<br>
       <strong>3. 상태 관리</strong> · 의욕·스트레스·나태함이 성장 효율 및 이벤트 확률에 영향<br>
       <strong>추가 회복</strong> · 행동 직전 스트레스 60 이상: 당근 스트레스 −10 추가 / 나태함 60 이상: 채찍 나태함 −5 추가<br>
-      <strong>4. 최초 진화</strong> · LV.10에서 당근/채찍의 누적 비율로 3종 진화</div>
+      <strong>4. 두 단계 진화</strong> · LV.10에서 첫 진화와 고유 패시브, LV.20에서 두 번째 진화 6종 중 하나 완성</div>
       <div class="modal-buttons"><button class="modal-primary" id="tutorial-review-close" type="button">확인</button></div>`);
     qs('tutorial-review-close').addEventListener('click',closeModal);
+  }
+
+  function exportSaveData() {
+    try {
+      const raw=localStorage.getItem(KEY);
+      if(!raw) {toast('저장된 게임 데이터가 없습니다.');return;}
+      const bundle={
+        format:'ant-game-save',exportVersion:B.version,exportedAt:new Date().toISOString(),
+        save:JSON.parse(raw),
+        originalBeforeV05:localStorage.getItem(PRE_V05_BACKUP_KEY)
+      };
+      const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const link=document.createElement('a');link.href=url;
+      link.download=`ant-game-save-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(link);link.click();link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      toast('게임 데이터 백업 파일을 저장했습니다.');
+    } catch(error) {console.warn('게임 데이터 내보내기 실패',error);toast('백업 파일을 만들 수 없습니다.');}
   }
 
   function confirmReset() {
@@ -916,6 +1116,7 @@
     qs('analytics-consent').addEventListener('change',event=>setAnalyticsChoice(event.target.checked));
     qs('analytics-allow').addEventListener('click',()=>setAnalyticsChoice(true));
     qs('analytics-deny').addEventListener('click',()=>setAnalyticsChoice(false));
+    qs('export-save').addEventListener('click',exportSaveData);
     qs('reset-button').addEventListener('click',confirmReset);
     qs('modal-close').addEventListener('click',closeModal);
     qs('modal-backdrop').addEventListener('click',e=>{if(e.target===qs('modal-backdrop'))closeModal();});
@@ -928,5 +1129,6 @@
   saveState();
   // 미완료 선택이 있으면 제일 먼저 복구합니다. 패치노트는 선택 종료 이후로 미룹니다.
   if(game.pendingChoice) showChoiceEvent();
+  else if(game.phase==='phase2' && game.firstEvolution && !game.firstEvolution.acknowledged)showFirstEvolutionResult();
   showPatchNotesOnLaunch();
 })();
