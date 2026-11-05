@@ -397,6 +397,9 @@
   let autoMode = game.settings.autoCare.mode;
   let autoTarget = game.settings.autoCare.batch;
   let autoResumeAvailable = false;
+  // 실행 중 발생한 선택형 이벤트/첫 진화 확인을 마치면 남은 자동 육성을 이어갑니다.
+  // 이 값은 세션 메모리에만 보관하며 새로고침 이후 자동 실행하지 않습니다.
+  let autoResumeAfterDecision = false;
   let autoStatusMessage = '설정을 선택하고 자동 육성을 시작하세요.';
   let lastExploreClick = 0;
   let modalOpen = false;
@@ -675,6 +678,7 @@
     const wasActive=autoTimer!==null || autoResumeAvailable;
     if(autoTimer!==null){clearInterval(autoTimer);autoTimer=null;}
     autoResumeAvailable=Boolean(allowResume && !game.finished && autoActions<autoTarget);
+    if(!autoResumeAvailable)autoResumeAfterDecision=false;
     if(reason)autoStatusMessage=reason;
     else if(wasActive)autoStatusMessage='수동 행동으로 자동 육성을 중지했습니다.';
     renderAutoCare();
@@ -706,6 +710,7 @@
       autoTarget=game.settings.autoCare.batch;
     }
     autoResumeAvailable=false;
+    autoResumeAfterDecision=false;
     autoMode=game.settings.autoCare.mode;
     autoStatusMessage='자동 육성을 진행 중입니다.';
     autoTimer=setInterval(runAutoTick,B.autoCare.speeds[game.settings.autoCare.speed]);
@@ -721,6 +726,7 @@
     else return;
     autoMode=pref.mode;
     autoResumeAvailable=false;
+    autoResumeAfterDecision=false;
     autoActions=0;
     autoTarget=pref.batch;
     autoStatusMessage='자동 육성 설정을 저장했습니다.';
@@ -1537,7 +1543,13 @@
     if(scroll)window.scrollTo({top:0,behavior:'instant'});
   }
   function showModal(content, kind = null) {
-    if(autoTimer!==null)stopAuto('이벤트 또는 진화 내용을 확인하세요.',kind==='choice'||kind==='first-evolution');
+    // 사용자 선택이나 첫 진화 안내가 자동 육성을 막았다면 확인이 끝나는 즉시 재개합니다.
+    // 일반 팝업, 수동 행동, 화면 이탈, 저장 오류에서는 자동 재개하지 않습니다.
+    if(autoTimer!==null) {
+      const resumable=kind==='choice'||kind==='first-evolution';
+      stopAuto('이벤트 선택을 완료하면 남은 자동 육성을 이어갑니다.',resumable);
+      autoResumeAfterDecision=resumable && autoResumeAvailable;
+    }
     modalKind = kind;
     qs('modal-close').hidden=kind==='choice';
     previousFocus=document.activeElement;
@@ -1574,6 +1586,20 @@
         queuedPatchOnLaunch=false;showPatchNotes();
       }
       if(!modalOpen) scheduleAchievementNotices();
+      // 선택 결과와 진화 내용을 저장한 뒤에만 자동 재개합니다. 여기서 재개하면
+      // 선택 이벤트가 EXP/행동 횟수에 중복 반영되지 않습니다.
+      if(autoResumeAfterDecision && autoResumeAvailable && !modalOpen && !game.pendingChoice) {
+        if(game.finished || !storageWorks || storageCorrupt || document.hidden || activeScreen!=='game') {
+          stopAuto('자동 육성 재개 조건이 충족되지 않아 중단했습니다.');
+        } else if(game.settings.autoCare.safeStop && statusTier(game.stats)==='danger') {
+          stopAuto('위험 상태여서 자동 육성을 중단했습니다. 직접 상태를 확인하세요.');
+        } else if(autoActions>=autoTarget) {
+          stopAuto(`자동 육성 ${autoTarget}회 완료 · 다시 시작할 수 있습니다.`);
+        } else {
+          autoResumeAfterDecision=false;
+          toggleAutoCare();
+        }
+      }
     });
   }
   function markPatchSeen() {
