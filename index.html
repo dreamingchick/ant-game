@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f5ecd9">
-  <meta name="description" content="당근과 채찍으로 개미를 육성하고 LV.10 진화를 발견하는 모바일 웹 게임">
+  <meta name="description" content="당근과 채찍으로 개미를 육성하고 LV.20 두 번째 진화를 발견하는 모바일 웹 게임">
   <title>개미 키우기 · Ant Nest</title>
   <link rel="stylesheet" href="style.css">
   <script src="balance.js" defer></script>
@@ -35,7 +35,7 @@
           <div class="level-target"><span id="xp-text">0 / 50 EXP</span><small id="evolution-hint">LV.10 첫 진화</small></div>
         </div>
         <div class="xp-track" role="progressbar" aria-label="레벨 경험치" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="xp-progress"><span id="xp-fill"></span></div>
-        <div class="level-foot"><span>성장의 발자국</span><span id="progress-narration">첫 번째 진화를 향해!</span></div>
+        <div class="level-foot"><span id="growth-stage-label">첫 번째 성장 · LV.1~10</span><span id="progress-narration">첫 번째 진화를 향해!</span></div>
       </section>
 
       <section class="habitat" id="habitat" aria-label="개미집 속 개미 캐릭터">
@@ -88,6 +88,7 @@
               <g class="ant-bow"><path d="M189 204 Q177 194 174 213 Q178 229 193 218 Q199 237 210 228 Q218 216 201 208" fill="#8fc2c0" stroke="#397b78" stroke-width="3"/><circle cx="195" cy="213" r="6" fill="#f5d77c"/></g>
             </g>
           </svg>
+          <span id="second-evolution-mark" class="second-evolution-mark" aria-hidden="true" hidden></span>
         </div>
         <div class="scene-bottom"><span id="mood-label">☘ 기분 좋음</span><span id="scene-action-text">천천히 자라는 중</span></div>
       </section>
@@ -114,19 +115,23 @@
         </div>
         <p class="action-feedback" id="action-feedback" role="status" aria-live="polite">작은 선택이 개미의 내일을 바꿉니다.</p>
       </section>
+      <section class="active-passive" id="active-passive" aria-label="활성 고유 패시브" hidden>
+        <span class="passive-emblem" aria-hidden="true">✦</span>
+        <div><strong id="passive-name">고유 패시브</strong><small id="passive-effect">첫 진화 이후 활성화됩니다.</small></div>
+      </section>
       <section class="evolution-guide" aria-label="진화 예상 가이드">
-        <div class="guide-top"><span>EVOLUTION FORECAST</span><span>LV.10 첫 진화</span></div>
+        <div class="guide-top"><span>EVOLUTION FORECAST</span><span id="guide-stage-label">LV.10 첫 진화</span></div>
         <div class="guide-main"><div><small>현재 예상 진화</small><strong id="guide-prediction">아직 미정</strong></div><span class="guide-ratio" id="guide-ratio">행동 기록 없음</span></div>
         <div class="guide-bar" id="guide-bar" role="img" aria-label="진화 비율 안내">
           <span class="guide-slice easy"></span><span class="guide-slice genius"></span><span class="guide-slice diligent"></span>
           <span id="guide-marker" class="guide-marker" hidden></span>
         </div>
-        <div class="guide-legend"><span>태평 ≤45%</span><span>천재 45~55%</span><span>근면 ≥55%</span></div>
+        <div class="guide-legend"><span id="legend-easy">태평 ≤45%</span><span id="legend-genius">천재 45~55%</span><span id="legend-diligent">근면 ≥55%</span></div>
         <p id="guide-note" class="guide-note">누적 행동 비율에 따라 진화가 달라집니다.</p>
       </section>
 
       <section id="finished-panel" class="finished-panel" hidden>
-        <p>첫 진화를 마쳤어요!</p><h2 id="finished-name">천재 개미</h2>
+        <p id="finished-caption">진화를 마쳤어요!</p><h2 id="finished-name">천재 개미</h2>
         <div class="finished-buttons"><button class="mini-button" type="button" id="view-finish">진화 결과 보기</button><button class="mini-button dark" type="button" id="new-ant-button">새 개미 키우기</button></div>
       </section>
       <section class="tiny-summary" aria-label="육성 기록 현황">
@@ -136,8 +141,13 @@
 
     <main id="screen-records" class="screen records-screen" hidden>
       <div class="page-heading"><span class="overline">THE ANT CHRONICLES</span><h2>개미 진화 기록</h2><p>한 마리의 작은 선택이 한 권의 이야기가 됩니다.</p></div>
-      <section class="collection-progress"><div class="collection-title"><span>처음 발견한 진화</span><strong id="collection-count">0 / 3</strong></div><div class="collection-track"><span id="collection-fill"></span></div></section>
+      <section class="collection-progress"><div class="collection-title"><span>첫 번째 진화 · 3종</span><strong id="collection-count">0 / 3</strong></div><div class="collection-track"><span id="collection-fill"></span></div></section>
       <div id="collection-grid" class="collection-grid"></div>
+      <section class="second-collection" aria-label="두 번째 진화 도감">
+        <div class="collection-title"><span>두 번째 진화 · 6종</span><strong id="second-collection-count">0 / 6</strong></div>
+        <div class="collection-track"><span id="second-collection-fill"></span></div>
+        <div class="second-collection-grid" id="second-collection-grid"></div>
+      </section>
       <section class="achievements-section" aria-label="도전과제">
         <div class="achievement-header"><h3>개미집 도전과제</h3><span id="achievement-count">0 / 8</span></div>
         <div class="achievement-progress"><span id="achievement-fill"></span></div>
@@ -163,12 +173,12 @@
     <main id="screen-settings" class="screen settings-screen" hidden>
       <div class="page-heading"><span class="overline">A QUIET LITTLE CORNER</span><h2>게임 설정</h2><p>당신의 개미집을 편안하게 가꾸세요.</p></div>
       <section class="setting-group"><h3>사운드</h3><label class="setting-line" for="sound-toggle"><span><strong>효과음 사용</strong><small>배경음악 없이 행동·진화 효과음만 재생</small></span><input id="sound-toggle" type="checkbox" checked></label><label class="volume-label" for="sound-volume">효과음 크기 <output id="sound-volume-text">65%</output></label><input class="volume-slider" type="range" min="0" max="100" step="5" value="65" id="sound-volume"></section>
-      <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복: 행동 전 스트레스 60 이상에서는 당근의 스트레스 감소가 −20, 나태함 60 이상에서는 채찍의 나태함 감소가 −10으로 강화됩니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
+      <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복을 유지합니다. LV.10에서 첫 진화 시 패시브가 활성화되고, LV.20에서 두 번째 진화가 완성됩니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
       <section class="setting-group"><h3>업데이트 소식</h3><p>업데이트 후 첫 접속에는 최신 소식을 안내합니다. 이전 업데이트 기록도 버전별로 확인할 수 있습니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="view-patch-notes">최신 패치노트</button><button class="outline-button" type="button" id="view-patch-history">전체 업데이트 기록</button></div></section>
       <section class="setting-group" id="analytics-section" hidden><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
-      <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span></section>
+      <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span><p>업데이트 이전 저장 상태는 최초 전환 시 브라우저에 별도 백업됩니다. 아래 버튼으로 현재 게임 데이터를 파일로 내보낼 수 있습니다.</p><button class="outline-button" type="button" id="export-save">게임 데이터 백업 파일 받기</button></section>
       <section class="setting-group danger-zone"><h3>데이터 초기화</h3><p>현재 육성 중인 개미와 모든 진화 기록을 삭제합니다. 되돌릴 수 없습니다.</p><button class="outline-button danger" type="button" id="reset-button">전체 데이터 초기화</button></section>
-      <p class="version-label">개미 키우기 · MVP v0.4.0</p>
+      <p class="version-label">개미 키우기 · MVP v0.5.0</p>
     </main>
 
     <nav class="bottom-nav" aria-label="게임 메뉴">
