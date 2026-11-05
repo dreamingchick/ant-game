@@ -4,29 +4,38 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.8.0',
+  version: '0.9.0',
   // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
   releaseNotes: {
-    version: '0.8.0',
+    version: '0.9.0',
     date: '2026-11-05',
-    title: '개미 왕국의 일꾼들',
-    summary: '완료한 개미를 시설에 배치하고, 세 가지 시설을 LV.5까지 발전시키며 안전하게 게임 데이터를 복원할 수 있습니다.',
+    title: '원정대의 발자취',
+    summary: 'LV.10부터 원정권이 적립됩니다. 원정대 3인 편성, 신규 지역 3곳, 희귀 발견물 6종과 주간 목표가 열렸습니다.',
     sections: [
-      {heading:'왕국 운영',items:[
-        '식량 창고, 운반 작업장, 수정 연구실을 건설·강화해 원정 획득량을 높입니다.',
-        '구버전 LV.10 및 LV.20 완료 개미를 각 시설에 배치하고 특화 유형 보너스를 받습니다.',
-        '꾸미기 화면 안에 왕국 시설과 일꾼 배치 탭을 추가했습니다.'
+      {heading:'원정권 규칙 개선',items:[
+        'LV.1~9에는 원정권이 적립되지 않으며 LV.10 달성 후 완료한 육성 행동부터 6회마다 1장씩 지급합니다.',
+        '원정 화면에 LV.10 해금 안내를 추가했습니다. 기존에 보유한 원정권은 보존합니다.'
+      ]},
+      {heading:'새로운 원정 콘텐츠',items:[
+        '기존 완료 개미 최대 3마리를 원정대로 편성하고 지역 특화 보너스를 받습니다.',
+        '깊은 숲, 고대 유적, 수정 심연 지역과 희귀 발견물 도감 6종을 추가했습니다.',
+        '원정 횟수, 자원 획득, 원정대 참가에 따른 주간 목표 3종을 추가했습니다.'
       ]},
       {heading:'데이터 보호',items:[
-        'JSON 저장 파일 가져오기와 복원 미리보기, 복원 전 별도 백업을 추가했습니다.',
-        '기존 육성·원정·제작·장식·자동 돌봄·패치노트를 그대로 유지합니다.',
-        '통계 수집은 계속 비활성화합니다.'
+        '기존 v0.1~0.8 기록·시설·장식·자원·원정권은 그대로 보존하고 새 정보만 추가합니다.',
+        'GA4 플레이 통계는 계속 비활성화합니다.'
       ]}
     ]
   },
   // 과거 배포 버전을 순서대로 보관합니다. 미배포 v0.2.1은 목록에 포함하지 않습니다.
   // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
   releaseNotesHistory: [
+    {
+      version: '0.8.0',date:'2026-11-05',title:'개미 왕국의 일꾼들',
+      summary:'완료 개미 역할 배치, 왕국 시설 성장, 저장 데이터 안전 복원 기능을 추가했습니다.',
+      sections:[{heading:'왕국 운영',items:['시설 3종을 LV.5까지 성장시킬 수 있습니다.','완료 개미를 시설에 배치해 원정 자원을 추가로 획득합니다.']},
+        {heading:'데이터 보호',items:['JSON 백업 파일 가져오기, 사전 검증 및 복원 전 백업을 지원합니다.']}]
+    },
     {
     version: '0.7.0',
     date: '2026-11-05',
@@ -122,11 +131,28 @@ window.ANT_BALANCE = Object.freeze({
     actionsPerTicket: 6,
     maxTickets: 5,
     regions: [
-      { id:'meadow', name:'풀잎 초원', icon:'🌿', minLevel:10, main:'food', reward:6, bonusChance:0.20, bonus:3, description:'햇살 아래 씨앗과 식량을 발견합니다.' },
-      { id:'forest', name:'오래된 숲', icon:'🌳', minLevel:14, main:'wood', reward:4, bonusChance:0.20, bonus:2, description:'오래된 나무 사이에서 목재를 수집합니다.' },
-      { id:'cave', name:'빛나는 동굴', icon:'💎', minLevel:18, main:'crystal', reward:2, bonusChance:0.20, bonus:1, description:'깊은 굴 속에서 빛나는 수정을 찾습니다.' }
+      { id:'meadow', name:'풀잎 초원', icon:'🌿', minLevel:10, main:'food', facilityId:'pantry', specialty:'easy', reward:6, bonusChance:0.20, bonus:3, description:'햇살 아래 씨앗과 식량을 발견합니다.' },
+      { id:'forest', name:'오래된 숲', icon:'🌳', minLevel:14, main:'wood', facilityId:'workshop', specialty:'diligent', reward:4, bonusChance:0.20, bonus:2, description:'오래된 나무 사이에서 목재를 수집합니다.' },
+      { id:'cave', name:'빛나는 동굴', icon:'💎', minLevel:18, main:'crystal', facilityId:'laboratory', specialty:'genius', reward:2, bonusChance:0.20, bonus:1, description:'깊은 굴 속에서 빛나는 수정을 찾습니다.' },
+      { id:'deep_forest', name:'깊은 숲', icon:'🌲', minLevel:16, main:'wood', facilityId:'workshop', specialty:'diligent', reward:6, bonusChance:0.25, bonus:3, description:'오래된 숲 너머에서 튼튼한 목재를 발견합니다.' },
+      { id:'ancient_ruins', name:'고대 유적', icon:'🏛️', minLevel:18, main:'food', facilityId:'pantry', specialty:'easy', reward:8, bonusChance:0.25, bonus:4, description:'옛 개미 왕국이 남긴 식량 창고를 발견합니다.' },
+      { id:'crystal_abyss', name:'수정 심연', icon:'🌀', minLevel:20, main:'crystal', facilityId:'laboratory', specialty:'genius', reward:4, bonusChance:0.25, bonus:2, description:'심연의 희귀 수정을 찾아 깊은 원정을 떠납니다.' }
     ]
   },
+  expeditionSquad: { maxMembers:3, memberBonus:1, specialtyBonus:1 },
+  rareFinds: [
+    {id:'amber_seed',region:'meadow',name:'호박빛 씨앗',icon:'🌰',chance:0.12,description:'햇살을 머금은 신비로운 씨앗'},
+    {id:'ancient_acorn',region:'forest',name:'고목의 도토리',icon:'🌳',chance:0.12,description:'수백 해의 흔적이 깃든 도토리'},
+    {id:'moon_stone',region:'cave',name:'달빛 조약돌',icon:'🌙',chance:0.12,description:'동굴 벽을 밝히는 작은 돌'},
+    {id:'forest_crest',region:'deep_forest',name:'푸른 숲의 문장',icon:'🍃',chance:0.10,description:'오래된 나무에 새겨진 문장'},
+    {id:'royal_tablet',region:'ancient_ruins',name:'옛 왕국의 서판',icon:'📜',chance:0.10,description:'사라진 왕국의 이야기를 담은 서판'},
+    {id:'abyss_prism',region:'crystal_abyss',name:'심연의 프리즘',icon:'🔷',chance:0.08,description:'깊은 곳에서 발견한 투명한 결정'}
+  ],
+  weeklyGoals: [
+    {id:'trips',name:'이번 주의 발걸음',target:4,description:'이번 주 원정 4회',reward:{food:8}},
+    {id:'resources',name:'왕국의 보급',target:24,description:'이번 주 자원 24개 획득',reward:{wood:6}},
+    {id:'squadTrips',name:'함께 떠나는 원정',target:2,description:'2마리 이상 편성하여 원정 2회',reward:{crystal:4}}
+  ],
   resources: [
     { id:'food', name:'식량', icon:'🌾' },
     { id:'wood', name:'목재', icon:'🪵' },
