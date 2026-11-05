@@ -173,19 +173,36 @@
     </main>
 
     <main id="screen-expedition" class="screen expedition-screen" hidden>
-      <div class="page-heading"><span class="overline">ANT EXPLORERS</span><h2>개미 왕국의 첫 원정</h2><p>육성으로 얻은 원정권을 사용해 자원을 수집하고 새로운 개미집 장식을 제작하세요.</p></div>
+      <div class="page-heading"><span class="overline">ANT EXPLORERS</span><h2>개미 왕국의 원정대</h2><p>LV.10부터 원정권을 모아 지역을 탐험하고, 원정대를 꾸려 왕국의 보물을 찾아보세요.</p></div>
+      <p id="expedition-level-notice" class="expedition-level-notice" role="status">🔒 LV.10에 활성화됩니다. LV.1~9에는 원정권이 적립되지 않습니다.</p>
       <section class="expedition-wallet">
         <div class="ticket-count"><strong>🎟 원정권</strong><span id="expedition-tickets">0 / 5</span></div>
         <p id="expedition-next-ticket">육성 행동 6회마다 원정권 1장</p>
         <div class="resource-wallet" id="resource-wallet"></div>
       </section>
+      <section class="expedition-section" aria-label="원정대 편성">
+        <div class="mini-heading"><h3>나의 원정대</h3><button id="edit-expedition-squad" class="mini-button" type="button">편성 변경</button></div>
+        <p>완료한 개미 최대 3마리로 편성합니다. 각 개미가 보상을 +1개, 지역 특화 개미가 추가 +1개 제공합니다.</p>
+        <div id="expedition-squad-summary" class="expedition-squad-summary"></div>
+        <div id="expedition-squad-roster" class="expedition-squad-roster"></div>
+      </section>
       <section class="expedition-section">
-        <h3>탐험 지역</h3><div id="expedition-regions" class="expedition-regions"></div>
+        <h3>탐험 지역 · 6곳</h3><div id="expedition-regions" class="expedition-regions"></div>
+      </section>
+      <section class="expedition-section" aria-label="희귀 발견물 도감">
+        <div class="mini-heading"><h3>희귀 발견물 도감</h3><strong id="rare-find-count">0 / 6</strong></div>
+        <p>각 지역에서 희귀 발견물을 처음 찾으면 도감에 등록됩니다. 획득한 발견물은 영구 보존됩니다.</p>
+        <div id="rare-finds-grid" class="rare-finds-grid"></div>
       </section>
       <section class="expedition-section">
         <div class="mini-heading"><h3>제작 공방</h3><small id="craft-progress">0 / 6 제작</small></div>
         <p>재료를 소비해 제작한 장식품은 꾸미기 화면에서 배치할 수 있습니다.</p>
         <div id="craft-grid" class="craft-grid"></div>
+      </section>
+      <section class="expedition-section" aria-label="주간 목표">
+        <div class="mini-heading"><h3>이번 주 원정 목표</h3><span id="weekly-goal-label" class="weekly-goal-label"></span></div>
+        <p>한국 시간 매주 월요일에 초기화됩니다. 목표를 달성하면 자원 보상을 한 번 받을 수 있습니다.</p>
+        <div id="weekly-goals-grid" class="weekly-goals-grid"></div>
       </section>
       <section class="expedition-section"><h3>최근 원정</h3><div id="expedition-history" class="expedition-history">아직 원정 기록이 없습니다.</div></section>
     </main>
@@ -242,12 +259,12 @@
     <main id="screen-settings" class="screen settings-screen" hidden>
       <div class="page-heading"><span class="overline">A QUIET LITTLE CORNER</span><h2>게임 설정</h2><p>당신의 개미집을 편안하게 가꾸세요.</p></div>
       <section class="setting-group"><h3>사운드</h3><label class="setting-line" for="sound-toggle"><span><strong>효과음 사용</strong><small>배경음악 없이 행동·진화 효과음만 재생</small></span><input id="sound-toggle" type="checkbox" checked></label><label class="volume-label" for="sound-volume">효과음 크기 <output id="sound-volume-text">65%</output></label><input class="volume-slider" type="range" min="0" max="100" step="5" value="65" id="sound-volume"></section>
-      <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복을 유지합니다. LV.10 첫 진화와 LV.20 두 번째 진화도 유지됩니다. 원정은 LV.10부터 가능하며, 당근도 소량의 EXP를 제공합니다. 자동 육성은 실행 횟수와 속도를 선택하고, 이벤트·진화 때 확인 후 수동 재개할 수 있습니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
+      <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복을 유지합니다. LV.10 첫 진화와 LV.20 두 번째 진화도 유지됩니다. LV.10 전에는 원정권을 획득할 수 없으며, LV.10 이후 완료 행동 6회마다 원정권을 획득합니다. 완료 개미 최대 3마리를 원정대로 편성할 수 있습니다. 당근도 소량의 EXP를 제공합니다. 자동 육성은 실행 횟수와 속도를 선택하고, 이벤트·진화 때 확인 후 수동 재개할 수 있습니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
       <section class="setting-group"><h3>업데이트 소식</h3><p>업데이트 후 첫 접속에는 최신 소식을 안내합니다. 이전 업데이트 기록도 버전별로 확인할 수 있습니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="view-patch-notes">최신 패치노트</button><button class="outline-button" type="button" id="view-patch-history">전체 업데이트 기록</button></div></section>
       <section class="setting-group" id="analytics-section" hidden><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
       <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span><p>업데이트 이전 저장 상태는 최초 전환 시 브라우저에 별도 백업됩니다. 현재 게임 데이터를 JSON 파일로 내보내거나, 이전에 내보낸 파일에서 복원할 수 있습니다. 복원은 기존 데이터를 대체하며, 먼저 별도 백업을 만듭니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="export-save">게임 데이터 백업 파일 받기</button><button class="outline-button" type="button" id="import-save">저장 데이터 가져오기</button></div><input id="import-save-file" type="file" accept=".json,application/json" hidden aria-label="개미 키우기 저장 JSON 파일 선택"><p class="import-help" id="import-help">최대 5MB JSON 파일 · 기존 게임 데이터와 병합하지 않습니다.</p></section>
       <section class="setting-group danger-zone"><h3>데이터 초기화</h3><p>현재 육성 중인 개미와 모든 진화 기록을 삭제합니다. 되돌릴 수 없습니다.</p><button class="outline-button danger" type="button" id="reset-button">전체 데이터 초기화</button></section>
-      <p class="version-label">개미 키우기 · MVP v0.8.0</p>
+      <p class="version-label">개미 키우기 · MVP v0.9.0</p>
     </main>
 
     <nav class="bottom-nav" aria-label="게임 메뉴">
