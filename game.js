@@ -12,6 +12,60 @@
   // 게임 데이터와 별도 보관하는, 마지막으로 확인한 패치 버전입니다.
   // v0.1/v0.2의 저장 키와 schemaVersion은 절대 변경하지 않습니다.
   const PATCH_SEEN_KEY = 'little-ant-game-last-patch-seen';
+  const ANALYTICS_CONSENT_KEY = 'little-ant-game-analytics-consent';
+  const analyticsMeasurementId = typeof B.analytics?.measurementId === 'string' &&
+    /^G-[A-Z0-9]{5,16}$/i.test(B.analytics.measurementId.trim()) ? B.analytics.measurementId.trim() : '';
+  let analyticsStarted = false;
+  let trackedGameStartThisVisit = false;
+  function analyticsChoice() {
+    try { return localStorage.getItem(ANALYTICS_CONSENT_KEY); }
+    catch (_error) { return null; }
+  }
+  // 기본 동의 방식: 동의하기 전에는 Google 스크립트를 불러오지 않습니다.
+  function startAnalytics() {
+    if(!analyticsMeasurementId || analyticsStarted || analyticsChoice() !== 'yes') return;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){window.dataLayer.push(arguments);};
+    window.gtag('consent','default',{
+      analytics_storage:'granted', ad_storage:'denied',
+      ad_user_data:'denied', ad_personalization:'denied'
+    });
+    window.gtag('js',new Date());
+    window.gtag('config', analyticsMeasurementId, {
+      send_page_view:true, allow_google_signals:false,
+      allow_ad_personalization_signals:false
+    });
+    const script=document.createElement('script');
+    script.async=true;
+    script.src=`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(analyticsMeasurementId)}`;
+    document.head.appendChild(script);
+    analyticsStarted=true;
+  }
+  function trackAnalytics(eventName, properties={}) {
+    if(!analyticsStarted || analyticsChoice() !== 'yes') return;
+    window.gtag('event',eventName,properties);
+  }
+  function setAnalyticsChoice(granted) {
+    try {localStorage.setItem(ANALYTICS_CONSENT_KEY,granted?'yes':'no');}
+    catch (_error) {return;}
+    if(granted) startAnalytics();
+    else if(analyticsStarted) {
+      // 동의 철회 시 기존에 로드된 통계 스크립트까지 제거하도록 페이지를 다시 엽니다.
+      window.gtag('consent','update',{analytics_storage:'denied'});
+      window.location.reload();
+      return;
+    }
+    renderAnalyticsUI();
+  }
+  function renderAnalyticsUI() {
+    const configured=Boolean(analyticsMeasurementId);
+    qs('analytics-not-configured').hidden=configured;
+    qs('analytics-controls').hidden=!configured;
+    qs('analytics-consent').checked=analyticsChoice()==='yes';
+    const banner=qs('analytics-consent-banner');
+    banner.hidden=!configured || !game.tutorialCompleted || game.finished ||
+      analyticsChoice()!==null || modalOpen || Boolean(game.pendingChoice);
+  }
   const hadExistingSaveAtLaunch = (() => {
     try {
       const raw = localStorage.getItem(KEY);
@@ -224,6 +278,10 @@
 
   function completeAction({action,gained,recoveryBonus,eventId,choiceLabel}) {
     // 선택 이벤트의 행동 횟수와 기본 효과는 여기서 다시 적용하지 않습니다.
+    if(!trackedGameStartThisVisit) {
+      trackedGameStartThisVisit=true;
+      trackAnalytics('game_start',{game_version:B.version});
+    }
     game.totalExp+=gained;
     game.exp+=gained;
     const priorLevel=game.level;
@@ -259,7 +317,17 @@
     game.lastFeedback=feedback;
     updateTutorial(action);
     const gainedAchievements=reconcileAchievements();
-    if(gainedAchievements.length) achievementNoticeQueue.push(...gainedAchievements);
+    if(gainedAchievements.length) {
+      achievementNoticeQueue.push(...gainedAchievements);
+      for(const title of gainedAchievements) {
+        const match=B.achievements.find(a=>a.title===title);
+        if(match)trackAnalytics('achievement_unlocked',{achievement_id:match.id});
+      }
+    }
+    if(game.finished) trackAnalytics('ant_evolved',{
+      ant_type:game.evolution, completed_level:game.level,
+      action_count:game.carrotCount+game.whipCount
+    });
     saveState();render();animateAnt(eventId?'event':action,didLevelUp);
     scheduleAchievementNotices();
     if(game.finished) {
@@ -297,6 +365,7 @@
     for(const [stat,delta] of Object.entries(choice.effects)) game.stats[stat]=clamp(game.stats[stat]+delta);
     game.lastSpeech=choice.response;
     closeModal();
+    trackAnalytics('event_choice',{event_id:pending.eventId,choice_id:choiceId});
     completeAction({...pending,choiceLabel:choice.label});
   }
 
@@ -353,7 +422,11 @@
   function advanceTutorial() {
     if(game.tutorialCompleted)return;
     if(game.tutorialStep===2) game.tutorialStep=3;
-    else if(game.tutorialStep===3){ game.tutorialCompleted=true; toast('이제 자유롭게 개미를 키워 보세요!'); }
+    else if(game.tutorialStep===3){
+      game.tutorialCompleted=true;
+      trackAnalytics('tutorial_complete',{game_version:B.version});
+      toast('이제 자유롭게 개미를 키워 보세요!');
+    }
     saveState(); render();
   }
   function skipTutorial() {game.tutorialCompleted=true;saveState();render();toast('튜토리얼을 건너뛰었습니다.');}
@@ -468,6 +541,7 @@
     qs('sound-volume').disabled=!game.settings.soundEnabled;
     qs('sound-volume-text').textContent=`${game.settings.volume}%`;
     renderStorageStatus();
+    renderAnalyticsUI();
   }
   function renderStorageStatus() {
     const el=qs('save-status');
@@ -547,6 +621,7 @@
     modalOpen=true;
     document.body.style.overflow='hidden';
     qs('modal-close').focus();
+    renderAnalyticsUI();
   }
   function closeModal() {
     if(!modalOpen || (modalKind==='choice' && game.pendingChoice))return;
@@ -559,6 +634,7 @@
     qs('modal-body').innerHTML='';
     qs('modal-close').hidden=false;
     if(previousFocus && typeof previousFocus.focus==='function')previousFocus.focus();
+    renderAnalyticsUI();
     // 선택형 이벤트/진화 팝업 종료 후, 대기 중인 업데이트 안내를 보여 줍니다.
     queueMicrotask(()=>{
       if(queuedPatchOnLaunch && !modalOpen && !game.pendingChoice) {
@@ -572,20 +648,46 @@
     catch(error) { console.warn('패치노트 확인 기록 저장 실패:',error); }
   }
 
-  function showPatchNotes() {
-    const notes=B.releaseNotes;
-    if(!notes || notes.version!==B.version) return;
+  function allReleaseNotes() {
+    const versions=[B.releaseNotes,...(B.releaseNotesHistory||[])].filter(note=>note && note.version);
+    const unique=new Map();
+    for(const note of versions) if(!unique.has(note.version))unique.set(note.version,note);
+    return [...unique.values()].sort((a,b)=>{
+      const av=a.version.split('.').map(Number),bv=b.version.split('.').map(Number);
+      for(let i=0;i<3;i++)if((bv[i]||0)!==(av[i]||0))return (bv[i]||0)-(av[i]||0);
+      return 0;
+    });
+  }
+  function showPatchNotes(notes=B.releaseNotes, fromArchive=false) {
+    if(!notes || !notes.version)return;
     const sections=(notes.sections||[]).map(section=>
       `<section class="patch-section"><h3>${escapeHTML(section.heading)}</h3><ul>${(section.items||[]).map(item=>`<li>${escapeHTML(item)}</li>`).join('')}</ul></section>`
     ).join('');
-    showModal(`<p class="modal-eyebrow">WHAT'S NEW</p>
+    showModal(`<p class="modal-eyebrow">${fromArchive?'UPDATE HISTORY':"WHAT'S NEW"}</p>
       <div class="patch-version-pill">v${escapeHTML(notes.version)} 업데이트</div>
       <h2 id="modal-title">${escapeHTML(notes.title)}</h2>
-      <span class="patch-date">${escapeHTML(notes.date)}</span>
+      <span class="patch-date">${escapeHTML(notes.date||'출시일 미기록')}</span>
       <p class="patch-summary">${escapeHTML(notes.summary)}</p>
       <div class="patch-notes-list">${sections}</div>
-      <div class="modal-buttons"><button type="button" class="modal-primary" id="patch-notes-confirm">확인하고 게임하기</button></div>`, 'patch-notes');
-    qs('patch-notes-confirm').addEventListener('click', closeModal);
+      <div class="modal-buttons">${fromArchive?'<button type="button" class="modal-secondary" id="patch-back-history">전체 업데이트 기록으로</button>':''}<button type="button" class="modal-primary" id="patch-notes-confirm">확인하고 게임하기</button></div>`, fromArchive?'patch-history-detail':'patch-notes');
+    qs('patch-notes-confirm').addEventListener('click',closeModal);
+    if(fromArchive)qs('patch-back-history').addEventListener('click',showPatchNotesArchive);
+  }
+  function showPatchNotesArchive() {
+    if(game.pendingChoice)return;
+    const cards=allReleaseNotes().map(note=>`<button class="patch-archive-item" type="button" data-patch-version="${escapeHTML(note.version)}">
+      <span><strong>v${escapeHTML(note.version)} · ${escapeHTML(note.title)}</strong><span>${escapeHTML(note.summary)}</span></span>
+      <span class="patch-archive-arrow" aria-hidden="true">›</span>
+    </button>`).join('');
+    showModal(`<p class="modal-eyebrow">ANT NEST ARCHIVE</p><h2 id="modal-title">전체 업데이트 기록</h2>
+      <p class="modal-subtitle">가장 최근 업데이트부터 이전 패치노트까지 확인할 수 있습니다.</p>
+      <div class="patch-archive">${cards}</div>
+      <div class="modal-buttons"><button class="modal-secondary" type="button" id="patch-archive-close">닫기</button></div>`, 'patch-history');
+    qs('modal-body').querySelectorAll('[data-patch-version]').forEach(button=>button.addEventListener('click',()=>{
+      const note=allReleaseNotes().find(n=>n.version===button.dataset.patchVersion);
+      if(note)showPatchNotes(note,true);
+    }));
+    qs('patch-archive-close').addEventListener('click',closeModal);
   }
 
   function showPatchNotesOnLaunch() {
@@ -707,7 +809,11 @@
       game.tutorialCompleted=false;game.tutorialStep=0;
       saveState();render();showScreen('game');toast('튜토리얼을 다시 시작합니다.');
     });
-    qs('view-patch-notes').addEventListener('click',showPatchNotes);
+    qs('view-patch-notes').addEventListener('click',()=>showPatchNotes());
+    qs('view-patch-history').addEventListener('click',showPatchNotesArchive);
+    qs('analytics-consent').addEventListener('change',event=>setAnalyticsChoice(event.target.checked));
+    qs('analytics-allow').addEventListener('click',()=>setAnalyticsChoice(true));
+    qs('analytics-deny').addEventListener('click',()=>setAnalyticsChoice(false));
     qs('reset-button').addEventListener('click',confirmReset);
     qs('modal-close').addEventListener('click',closeModal);
     qs('modal-backdrop').addEventListener('click',e=>{if(e.target===qs('modal-backdrop'))closeModal();});
@@ -715,6 +821,7 @@
     window.addEventListener('storage',e=>{if(e.key!==KEY)return;game=loadState();render();toast('다른 탭에서 변경된 저장 데이터를 불러왔습니다.');});
   }
   bindEvents();
+  startAnalytics();
   render();
   saveState();
   // 미완료 선택이 있으면 제일 먼저 복구합니다. 패치노트는 선택 종료 이후로 미룹니다.
