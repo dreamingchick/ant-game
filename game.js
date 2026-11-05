@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.6
+ * 개미 키우기 MVP v0.7
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -14,6 +14,7 @@
   const PATCH_SEEN_KEY = 'little-ant-game-last-patch-seen';
   const PRE_V05_BACKUP_KEY = 'little-ant-game-before-v0.5';
   const PRE_V06_BACKUP_KEY = 'little-ant-game-before-v0.6';
+  const PRE_V07_BACKUP_KEY = 'little-ant-game-before-v0.7';
   // v0.1~v0.4 원본 세이브를 v0.5로 최초 이전하기 전에 딱 한 번 백업합니다.
   function preserveOriginalSave() {
     try {
@@ -33,6 +34,15 @@
       if(obj?.schemaVersion===1 && !obj.expedition)localStorage.setItem(PRE_V06_BACKUP_KEY,raw);
     }
   } catch(_error) { /* 백업 실패로 인해 원본 저장을 변경하지 않습니다. */ }
+  // v0.7 마이그레이션 전에 구버전 원본을 1회 보관합니다.
+  try {
+    const raw=localStorage.getItem(KEY);
+    if(raw && !localStorage.getItem(PRE_V07_BACKUP_KEY)) {
+      const obj=JSON.parse(raw);
+      if(obj?.schemaVersion===1 && !obj.settings?.autoCare)
+        localStorage.setItem(PRE_V07_BACKUP_KEY,raw);
+    }
+  } catch(_error) { /* 백업 실패 시 원본 저장을 변경하지 않습니다. */ }
   const ANALYTICS_CONSENT_KEY = 'little-ant-game-analytics-consent';
   const analyticsMeasurementId = typeof B.analytics?.measurementId === 'string' &&
     /^G-[A-Z0-9]{5,16}$/i.test(B.analytics.measurementId.trim()) ? B.analytics.measurementId.trim() : '';
@@ -143,7 +153,7 @@
       recentActions:[],
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
       tutorialCompleted:false, tutorialStep:0,
-      settings:{ soundEnabled:true, volume:65 }
+      settings:{ soundEnabled:true, volume:65, autoCare:{mode:B.autoCare.defaultMode,batch:B.autoCare.defaultBatch,speed:B.autoCare.defaultSpeed,safeStop:B.autoCare.defaultSafeStop} }
     };
   }
 
@@ -248,7 +258,15 @@
         lastFeedback:typeof prev.lastFeedback==='string'?prev.lastFeedback.slice(0,180):base.lastFeedback,
         lastReaction:'idle',
         tutorialCompleted:Boolean(prev.tutorialCompleted),tutorialStep: num(prev.tutorialStep,0,3),
-        settings: {soundEnabled:prev.settings?.soundEnabled!==false,volume:num(prev.settings?.volume,65,100)}
+        settings: {
+          soundEnabled:prev.settings?.soundEnabled!==false,volume:num(prev.settings?.volume,65,100),
+          autoCare:{
+            mode:['balanced','growth','recover'].includes(prev.settings?.autoCare?.mode) ? prev.settings.autoCare.mode : B.autoCare.defaultMode,
+            batch:B.autoCare.batches.includes(prev.settings?.autoCare?.batch) ? prev.settings.autoCare.batch : B.autoCare.defaultBatch,
+            speed:Object.hasOwn(B.autoCare.speeds,prev.settings?.autoCare?.speed) ? prev.settings.autoCare.speed : B.autoCare.defaultSpeed,
+            safeStop:prev.settings?.autoCare?.safeStop!==false
+          }
+        }
       };
     } catch (error) {
       console.warn('자동 저장을 불러올 수 없습니다.',error);
@@ -268,7 +286,10 @@
   let activeScreen = 'game';
   let autoTimer = null;
   let autoActions = 0;
-  let autoMode = 'balanced';
+  let autoMode = game.settings.autoCare.mode;
+  let autoTarget = game.settings.autoCare.batch;
+  let autoResumeAvailable = false;
+  let autoStatusMessage = '설정을 선택하고 자동 육성을 시작하세요.';
   let lastExploreClick = 0;
   let modalOpen = false;
   let modalKind = null;
@@ -366,43 +387,82 @@
     if(laziness>=60)return 'whip';
     return stress>=35?'carrot':'whip';
   }
-  function stopAuto(reason='') {
+  function stopAuto(reason='',allowResume=false) {
+    const wasActive=autoTimer!==null || autoResumeAvailable;
     if(autoTimer!==null){clearInterval(autoTimer);autoTimer=null;}
-    if(reason)qs('auto-status').textContent=reason;
+    autoResumeAvailable=Boolean(allowResume && !game.finished && autoActions<autoTarget);
+    if(reason)autoStatusMessage=reason;
+    else if(wasActive)autoStatusMessage='수동 행동으로 자동 육성을 중지했습니다.';
     renderAutoCare();
   }
   function runAutoTick() {
     if(document.hidden || activeScreen!=='game' || game.finished || game.pendingChoice || modalOpen || !game.tutorialCompleted) {
       stopAuto('자동 육성 중단 · 게임 화면 또는 이벤트 상태를 확인하세요.');return;
     }
-    if(autoActions>=B.autoCare.maxActions){stopAuto('자동 육성 25회 완료 · 다시 시작할 수 있습니다.');return;}
+    if(autoActions>=autoTarget){stopAuto(`자동 육성 ${autoTarget}회 완료 · 다시 시작할 수 있습니다.`);return;}
     const before=game.carrotCount+game.whipCount;
     playAction(autoChoice());
     if(game.carrotCount+game.whipCount>before)autoActions++;
-    if(autoTimer!==null) {
-      qs('auto-status').textContent=`자동 육성 중 · ${autoActions}/${B.autoCare.maxActions}회 · 선택 이벤트에서 정지`;
-      if(autoActions>=B.autoCare.maxActions)stopAuto('자동 육성 25회 완료 · 다시 시작할 수 있습니다.');
-    }
+    if(autoActions>=autoTarget)stopAuto(`자동 육성 ${autoTarget}회 완료 · 다시 시작할 수 있습니다.`);
+    else if(autoTimer!==null && game.settings.autoCare.safeStop && statusTier(game.stats)==='danger')
+      stopAuto('위험 상태에 도달해 자동 육성을 중지했습니다. 상태를 확인한 뒤 재시작하세요.');
+    else renderAutoCare();
   }
   function toggleAutoCare() {
     if(autoTimer!==null){stopAuto('사용자가 자동 육성을 중지했습니다.');return;}
-    if(game.finished || game.pendingChoice || modalOpen || !game.tutorialCompleted){
-      qs('auto-status').textContent='튜토리얼·진화·이벤트가 끝난 뒤 시작할 수 있습니다.';return;
+    if(game.finished || game.pendingChoice || modalOpen || !game.tutorialCompleted || document.hidden || activeScreen!=='game') {
+      autoStatusMessage='튜토리얼·진화·이벤트가 끝난 뒤 육성 화면에서 시작할 수 있습니다.';
+      renderAutoCare();return;
     }
-    autoMode=qs('auto-mode').value;
+    if(!autoResumeAvailable) {
+      autoActions=0;
+      autoTarget=game.settings.autoCare.batch;
+    }
+    autoResumeAvailable=false;
+    autoMode=game.settings.autoCare.mode;
+    autoStatusMessage='자동 육성을 진행 중입니다.';
+    autoTimer=setInterval(runAutoTick,B.autoCare.speeds[game.settings.autoCare.speed]);
+    renderAutoCare();
+  }
+  function updateAutoPreference(field,value) {
+    if(autoTimer!==null)return;
+    const pref=game.settings.autoCare;
+    if(field==='mode' && ['balanced','growth','recover'].includes(value))pref.mode=value;
+    else if(field==='batch' && B.autoCare.batches.includes(Number(value)))pref.batch=Number(value);
+    else if(field==='speed' && Object.hasOwn(B.autoCare.speeds,value))pref.speed=value;
+    else if(field==='safeStop')pref.safeStop=Boolean(value);
+    else return;
+    autoMode=pref.mode;
+    autoResumeAvailable=false;
     autoActions=0;
-    autoTimer=setInterval(runAutoTick,B.autoCare.intervalMs);
-    qs('auto-status').textContent='자동 육성 준비 · 다음 행동부터 시작';
+    autoTarget=pref.batch;
+    autoStatusMessage='자동 육성 설정을 저장했습니다.';
+    saveState();
     renderAutoCare();
   }
   function renderAutoCare() {
-    qs('auto-toggle').textContent=autoTimer!==null?'자동 육성 중지':'자동 육성 시작';
-    qs('auto-toggle').disabled=autoTimer===null && (game.finished || Boolean(game.pendingChoice) || !game.tutorialCompleted);
-    qs('auto-mode').disabled=autoTimer!==null;
+    const pref=game.settings.autoCare;
+    const running=autoTimer!==null;
+    const resumable=autoResumeAvailable && !game.pendingChoice && !modalOpen && !game.finished;
+    const blocked=game.finished || Boolean(game.pendingChoice) || !game.tutorialCompleted || modalOpen;
+    qs('auto-mode').value=pref.mode;
+    qs('auto-batch').value=String(pref.batch);
+    qs('auto-speed').value=pref.speed;
+    qs('auto-safe-stop').checked=pref.safeStop;
+    qs('auto-toggle').textContent=running?'자동 육성 중지':resumable?`남은 ${autoTarget-autoActions}회 재개`:'자동 육성 시작';
+    qs('auto-toggle').disabled=!running && blocked;
+    for(const id of ['auto-mode','auto-batch','auto-speed','auto-safe-stop'])qs(id).disabled=running;
+    qs('auto-progress-fill').style.width=`${Math.round(100*Math.min(autoActions,autoTarget)/autoTarget)}%`;
+    const next=game.finished?'육성 완료':game.pendingChoice?'선택 이벤트 처리 필요':
+      game.tutorialCompleted?(autoChoice()==='carrot'?'당근':'채찍'):'튜토리얼 완료 후 이용';
+    qs('auto-next-action').textContent=`다음 예상 행동: ${next}`;
+    if(running)qs('auto-status').textContent=`자동 육성 중 · ${autoActions}/${autoTarget}회 · ${autoMode==='balanced'?'균형 관리':autoMode==='growth'?'성장 집중':'안정 회복'}`;
+    else if(autoResumeAvailable)qs('auto-status').textContent=`${autoStatusMessage} · 진행 ${autoActions}/${autoTarget}회. 확인 후 재개하세요.`;
+    else qs('auto-status').textContent=autoStatusMessage;
   }
   function renderRecentActions() {
     qs('recent-action-list').innerHTML=game.recentActions.length ? game.recentActions.slice(0,8).map(item=>
-      `<div class="recent-action-row"><span>${item.action==='carrot'?'🥕 당근':'⚡ 채찍'}</span><span>${item.action==='whip'?`EXP +${item.gained}`:'상태 회복'}${item.eventId?' · '+escapeHTML(B.events[item.eventId]?.name||'이벤트'):''}</span></div>`
+      `<div class="recent-action-row"><span>${item.action==='carrot'?'🥕 당근':'⚡ 채찍'}</span><span>${`EXP +${item.gained}`}${item.eventId?' · '+escapeHTML(B.events[item.eventId]?.name||'이벤트'):''}</span></div>`
     ).join(''):'아직 기록이 없습니다.';
   }
 
@@ -416,8 +476,10 @@
     const recovery=B.conditionalRecovery?.[action];
     const recoveryBonus=Boolean(recovery && before[recovery.stat]>=recovery.threshold);
     const stage2=game.phase==='phase2';
-    const baseExp=stage2 ? B.phaseTwoBaseExp : changes.baseExp;
-    let gained=action==='whip' ? Math.max(1,Math.round(baseExp*efficiency(before))) : 0;
+    const baseExp=action==='carrot' ? (stage2?B.carrotExp.phase2:B.carrotExp.phase1) :
+      (stage2 ? B.phaseTwoBaseExp : changes.baseExp);
+    // 당근: 소량 고정 경험치. 기존 채찍의 훈련 효율·패시브와 별도로 계산합니다.
+    let gained=action==='carrot' ? baseExp : Math.max(1,Math.round(baseExp*efficiency(before)));
     if(stage2 && game.evolution==='diligent' && action==='whip') {
       gained=Math.max(1,Math.round(gained*B.passive.diligent.whipExpMultiplier));
     }
@@ -493,7 +555,7 @@
     if(didLevelUp && !game.finished) game.lastSpeech=firstEvolutionReached ?
       `LV.10 첫 진화! ${B.types[game.evolution].name}가 되었어!` : `야호! LV.${game.level} 달성!`;
 
-    let feedback=action==='carrot'?'당근: 의욕 ↑ · 스트레스 ↓ · 나태함 ↑':`채찍: EXP +${gained} · 스트레스 ↑`;
+    let feedback=action==='carrot'?`당근: EXP +${gained} · 의욕 ↑ · 스트레스 ↓ · 나태함 ↑`:`채찍: EXP +${gained} · 스트레스 ↑`;
     if(recoveryBonus) feedback+=action==='carrot'?' · 스트레스 집중 회복(-10 추가)':' · 나태함 집중 교정(-5 추가)';
     if(eventId) feedback+=` · 돌발 이벤트 · ${B.events[eventId].name}`;
     if(choiceLabel) feedback+=` · ${choiceLabel}`;
@@ -935,8 +997,7 @@
     qs('collection-count').textContent=`${discovered.size} / 3`;
     qs('collection-fill').style.width=`${100*discovered.size/3}%`;
     qs('record-count').textContent=`${game.records.length}개의 완료 기록`;
-    qs('collection-grid').innerHTML=Object.entries(B.types).map(([type,info])=>{
-      const count=game.records.filter(r=>r.type===type).length;
+    qs('collection-grid').innerHTML=Object.entries(B.types).map(([type,info])=>{      const count=game.records.filter(r=>r.type===type).length;
       const active=game.phase==='phase2' && game.evolution===type;
       return `<div class="collection-item ${count||active?'':'locked'}"><div class="collection-portrait">${count||active?portraitEmoji[type]:'?'}</div><h3>${count||active?info.name:'??? 개미'}</h3><p>${active?'현재 육성 중':count?`${count}번 발견`:'미발견'}</p></div>`;
     }).join('');
@@ -997,7 +1058,8 @@
     try {
       const Context=window.AudioContext||window.webkitAudioContext;
       if(!Context)return;
-      if(!audioCtx)audioCtx=new Context();      if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+      if(!audioCtx)audioCtx=new Context();
+      if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
       const patterns={
         carrot:[[550,0,.10],[740,.09,.13]], whip:[[255,0,.07],[350,.1,.08]],
         positive:[[660,0,.11],[880,.11,.16]],negative:[[370,0,.12],[260,.12,.18]],
@@ -1022,7 +1084,7 @@
 
   function showScreen(name,scroll=true) {
     activeScreen=name;
-    if(name!=='game' && autoTimer!==null)stopAuto('화면 이동으로 자동 육성을 중단했습니다.');
+    if(name!=='game' && (autoTimer!==null || autoResumeAvailable))stopAuto('화면 이동으로 자동 육성을 중단했습니다.');
     for(const screen of ['game','expedition','records','nest','settings'])qs(`screen-${screen}`).hidden=screen!==name;
     document.querySelectorAll('[data-screen]').forEach(button=>{
       const active=button.dataset.screen===name;
@@ -1032,7 +1094,7 @@
     if(scroll)window.scrollTo({top:0,behavior:'instant'});
   }
   function showModal(content, kind = null) {
-    if(autoTimer!==null)stopAuto('팝업이 열려 자동 육성을 중지했습니다.');
+    if(autoTimer!==null)stopAuto('이벤트 또는 진화 내용을 확인하세요.',kind==='choice'||kind==='first-evolution');
     modalKind = kind;
     qs('modal-close').hidden=kind==='choice';
     previousFocus=document.activeElement;
@@ -1059,6 +1121,7 @@
     qs('modal-close').hidden=false;
     if(previousFocus && typeof previousFocus.focus==='function')previousFocus.focus();
     renderAnalyticsUI();
+    renderAutoCare();
     // 선택형 이벤트/진화 팝업 종료 후, 대기 중인 업데이트 안내를 보여 줍니다.
     queueMicrotask(()=>{
       if(queuedPatchOnLaunch && !modalOpen && !game.pendingChoice) {
@@ -1227,7 +1290,8 @@
         format:'ant-game-save',exportVersion:B.version,exportedAt:new Date().toISOString(),
         save:JSON.parse(raw),
         originalBeforeV05:localStorage.getItem(PRE_V05_BACKUP_KEY),
-        originalBeforeV06:localStorage.getItem(PRE_V06_BACKUP_KEY)
+        originalBeforeV06:localStorage.getItem(PRE_V06_BACKUP_KEY),
+        originalBeforeV07:localStorage.getItem(PRE_V07_BACKUP_KEY)
       };
       const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json;charset=utf-8'});
       const url=URL.createObjectURL(blob);
@@ -1254,7 +1318,10 @@
     qs('carrot-button').addEventListener('click',()=>{stopAuto();playAction('carrot');});
     qs('whip-button').addEventListener('click',()=>{stopAuto();playAction('whip');});
     qs('auto-toggle').addEventListener('click',toggleAutoCare);
-    qs('auto-mode').addEventListener('change',e=>{autoMode=e.target.value;});
+    qs('auto-mode').addEventListener('change',e=>updateAutoPreference('mode',e.target.value));
+    qs('auto-batch').addEventListener('change',e=>updateAutoPreference('batch',e.target.value));
+    qs('auto-speed').addEventListener('change',e=>updateAutoPreference('speed',e.target.value));
+    qs('auto-safe-stop').addEventListener('change',e=>updateAutoPreference('safeStop',e.target.checked));
     qs('expedition-regions').addEventListener('click',e=>{
       const btn=e.target.closest('[data-expedition]');if(btn)exploreRegion(btn.dataset.expedition);
     });
