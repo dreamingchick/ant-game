@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.2
+ * 개미 키우기 MVP v0.3
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -9,6 +9,15 @@
   if (!B) { window.alert('balance.js를 불러오지 못했습니다. 게임 파일을 같은 폴더에 두세요.'); return; }
 
   const KEY = 'little-ant-game-mvp-v1';
+  // 게임 데이터와 별도 보관하는, 마지막으로 확인한 패치 버전입니다.
+  // v0.1/v0.2의 저장 키와 schemaVersion은 절대 변경하지 않습니다.
+  const PATCH_SEEN_KEY = 'little-ant-game-last-patch-seen';
+  const hadExistingSaveAtLaunch = (() => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      return !!raw && JSON.parse(raw)?.schemaVersion === 1;
+    } catch (_error) { return false; }
+  })();
   const qs = id => document.getElementById(id);
   const clamp = value => Math.max(0, Math.min(100, Math.round(value)));
   const choose = values => values[Math.floor(Math.random() * values.length)];
@@ -44,6 +53,7 @@
       stats: { motivation:B.initial.motivation, stress:B.initial.stress, laziness:B.initial.laziness },
       carrotCount:0, whipCount:0, totalExp:0, eventCount:0, eventsByType:{},
       recentEvents:[], records:[], finished:false, finishedRecordId:null, evolution:null,
+      pendingChoice:null, unlockedAchievements:[],
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
       tutorialCompleted:false, tutorialStep:0,
       settings:{ soundEnabled:true, volume:65 }
@@ -51,13 +61,14 @@
   }
 
   let storageWorks = true;
+  let storageCorrupt = false; // 손상되거나 다른 스키마의 저장 데이터를 자동 덮어쓰지 않습니다.
   function loadState() {
     const base = freshState();
     try {
       const text = localStorage.getItem(KEY);
       if (!text) return base;
       const prev = JSON.parse(text);
-      if (!prev || prev.schemaVersion !== 1 || typeof prev !== 'object') return base;
+      if (!prev || prev.schemaVersion !== 1 || typeof prev !== 'object') { storageCorrupt=true; return base; }
       const stats = prev.stats && typeof prev.stats === 'object' ? prev.stats : {};
       const num = (v, fallback, max=Number.MAX_SAFE_INTEGER) => typeof v === 'number' && Number.isFinite(v) ? Math.max(0,Math.min(max,Math.floor(v))) : fallback;
       const validTypes = Object.keys(B.types);
@@ -77,6 +88,19 @@
         carrotCount:num(prev.carrotCount,0), whipCount:num(prev.whipCount,0), totalExp:num(prev.totalExp,0),eventCount:num(prev.eventCount,0),
         eventsByType: prev.eventsByType && typeof prev.eventsByType === 'object' ? prev.eventsByType : {},
         recentEvents: Array.isArray(prev.recentEvents)?prev.recentEvents.slice(0,25):[],
+        // 기존 schemaVersion 1을 그대로 유지하고, 신규 선택 상태만 선택적으로 복원합니다.
+        pendingChoice:!prev.finished && prev.pendingChoice &&
+          B.events[prev.pendingChoice.eventId]?.choices?.length &&
+          ['carrot','whip'].includes(prev.pendingChoice.action) &&
+          typeof prev.pendingChoice.gained==='number' && Number.isFinite(prev.pendingChoice.gained) &&
+          typeof prev.pendingChoice.recoveryBonus==='boolean' ? {
+            eventId:prev.pendingChoice.eventId,
+            action:prev.pendingChoice.action,
+            gained:num(prev.pendingChoice.gained,0,1000000),
+            recoveryBonus:prev.pendingChoice.recoveryBonus
+          } : null,
+        unlockedAchievements:Array.isArray(prev.unlockedAchievements) ?
+          [...new Set(prev.unlockedAchievements)].filter(id=>B.achievements.some(a=>a.id===id)) : [],
         records,
         finished: Boolean(prev.finished), finishedRecordId: prev.finishedRecordId ?? null,
         evolution:validTypes.includes(prev.evolution)?prev.evolution:null,
@@ -89,19 +113,40 @@
     } catch (error) {
       console.warn('자동 저장을 불러올 수 없습니다.',error);
       storageWorks = false;
+      storageCorrupt = true;
       return base;
     }
   }
 
   let game = loadState();
+  // 과거 육성 기록을 이용해 첫 접속 시 도전과제를 소급 인정하되 알림은 발생시키지 않습니다.
+  // reconcileAchievements는 선언식 함수이므로 초기화 시점에서 참조 가능합니다.
+  reconcileAchievements();
   let activeScreen = 'game';
   let modalOpen = false;
+  let modalKind = null;
   let previousFocus = null;
   let toastTimer = 0;
   let reactionTimer = 0;
   let audioCtx = null;
+  let queuedPatchOnLaunch = false;
+  let achievementNoticeQueue = [];
+  let achievementToastScheduled = false;
+  // 메인 이벤트·레벨업·진화 팝업을 방해하지 않고 배지 달성 소식을 순서대로 안내합니다.
+  function scheduleAchievementNotices() {
+    if(achievementToastScheduled || !achievementNoticeQueue.length) return;
+    achievementToastScheduled=true;
+    setTimeout(()=>{
+      achievementToastScheduled=false;
+      if(modalOpen || game.pendingChoice) return; // 팝업 종료 시 재개
+      const title=achievementNoticeQueue.shift();
+      if(title) toast(`🏅 도전과제 달성 · ${title}`);
+      if(achievementNoticeQueue.length) scheduleAchievementNotices();
+    },2000);
+  }
 
   function saveState() {
+    if(storageCorrupt) {storageWorks=false;renderStorageStatus();return;}
     try { localStorage.setItem(KEY,JSON.stringify(game)); storageWorks = true; }
     catch(error) {storageWorks=false; console.warn('자동 저장 실패:',error);}
     renderStorageStatus();
@@ -140,20 +185,20 @@
     return total?game.whipCount/total:0;
   }
 
+  // 이벤트는 기존 확률을 유지하며 행동 직전 상태에서 단 한 번 추첨합니다.
+  // 선택 이벤트의 경우 행동/기본 이벤트 효과만 먼저 저장하고 경험치·진화를 보류합니다.
   function playAction(action) {
-    if(game.finished) return;
+    if(game.finished || game.pendingChoice || modalOpen) return;
     const before={...game.stats};
-    const eventId=pickEvent(action,before); // Q20: 행동 직전 능력치로 판정
+    const eventId=pickEvent(action,before);
     const changes=B.actions[action];
     const recovery=B.conditionalRecovery?.[action];
     const recoveryBonus=Boolean(recovery && before[recovery.stat]>=recovery.threshold);
     let gained=action==='whip' ? Math.max(1,Math.round(changes.baseExp*efficiency(before))) : 0;
     for(const key of ['motivation','stress','laziness']) game.stats[key]=clamp(game.stats[key]+changes[key]);
-    // 조건 판정은 이벤트 및 기본 행동 적용 이전의 상태 기준입니다.
     if(recoveryBonus) game.stats[recovery.stat]=clamp(game.stats[recovery.stat]+recovery.extra);
     if(action==='carrot') game.carrotCount++; else game.whipCount++;
 
-    let eventMessage='';
     if(eventId) {
       const event=B.events[eventId];
       if(event.expMultiplier && action==='whip') gained=Math.max(1,Math.round(gained*event.expMultiplier));
@@ -161,10 +206,24 @@
       for(const key of ['motivation','stress','laziness']) if(event[key]) game.stats[key]=clamp(game.stats[key]+event[key]);
       game.eventCount++;
       game.eventsByType[eventId]=(game.eventsByType[eventId]||0)+1;
-      eventMessage=`돌발 이벤트 · ${event.name}`;
       game.recentEvents.unshift({id:eventId,name:event.name,action,at:Date.now()});
       game.recentEvents=game.recentEvents.slice(0,25);
+      game.lastSpeech=dialogue.event[eventId];
+      game.lastReaction='event';
+      if(event.choices?.length) {
+        game.pendingChoice={eventId,action,gained,recoveryBonus};
+        game.lastFeedback=`돌발 이벤트 · ${event.name} · 대응 방법을 골라 주세요.`;
+        saveState();render();animateAnt('event',false);
+        playSound(event.kind==='positive'?'positive':'negative');
+        showChoiceEvent();
+        return;
+      }
     }
+    completeAction({action,gained,recoveryBonus,eventId});
+  }
+
+  function completeAction({action,gained,recoveryBonus,eventId,choiceLabel}) {
+    // 선택 이벤트의 행동 횟수와 기본 효과는 여기서 다시 적용하지 않습니다.
     game.totalExp+=gained;
     game.exp+=gained;
     const priorLevel=game.level;
@@ -177,10 +236,9 @@
       game.exp=0;
       finishEvolution();
     }
-
     if(eventId) {
-      game.lastSpeech=dialogue.event[eventId];
       game.lastReaction='event';
+      if(!choiceLabel) game.lastSpeech=dialogue.event[eventId];
     } else if(action==='carrot') {
       game.lastSpeech=choose(dialogue.carrot);
       game.lastReaction='carrot';
@@ -194,24 +252,80 @@
 
     let feedback=action==='carrot'?'당근: 의욕 ↑ · 스트레스 ↓ · 나태함 ↑':`채찍: EXP +${gained} · 스트레스 ↑`;
     if(recoveryBonus) feedback+=action==='carrot'?' · 스트레스 집중 회복(-10 추가)':' · 나태함 집중 교정(-5 추가)';
-    if(eventId) feedback+=` · ${eventMessage}`;
+    if(eventId) feedback+=` · 돌발 이벤트 · ${B.events[eventId].name}`;
+    if(choiceLabel) feedback+=` · ${choiceLabel}`;
     if(didLevelUp && !game.finished) feedback+=` · LV.${game.level} 레벨업!`;
     if(game.finished) feedback='첫 진화 달성! 결과를 확인해 보세요.';
     game.lastFeedback=feedback;
     updateTutorial(action);
-    saveState();
-    render();
-    animateAnt(eventId?'event':action,didLevelUp);
+    const gainedAchievements=reconcileAchievements();
+    if(gainedAchievements.length) achievementNoticeQueue.push(...gainedAchievements);
+    saveState();render();animateAnt(eventId?'event':action,didLevelUp);
+    scheduleAchievementNotices();
     if(game.finished) {
       playSound('evolution');
       showEvolutionResult(findFinishRecord());
     } else if(didLevelUp) {
-      playSound('level');
-      toast(`레벨 업! LV.${game.level}`);
+      playSound('level');toast(`레벨 업! LV.${game.level}`);
     } else if(eventId) {
       playSound(B.events[eventId].kind==='positive'?'positive':'negative');
-      toast(eventMessage);
-    } else playSound(action);
+      toast(`돌발 이벤트 · ${B.events[eventId].name}${choiceLabel?' · '+choiceLabel:''}`);
+    } else {
+      playSound(action);
+    }
+  }
+
+  function showChoiceEvent() {
+    const pending=game.pendingChoice;
+    if(!pending || game.finished) return;
+    const event=B.events[pending.eventId];
+    const options=event.choices.map((choice,index)=>`<button class="choice-option" type="button" data-choice="${escapeHTML(choice.id)}">
+      <span class="choice-number">${index===0?'A':'B'}</span><span class="choice-content"><strong>${escapeHTML(choice.label)}</strong><small>${escapeHTML(choice.details)}</small></span><span class="choice-arrow">›</span>
+    </button>`).join('');
+    showModal(`<p class="modal-eyebrow">A LITTLE CHOICE</p><h2 id="modal-title">${escapeHTML(event.name)}</h2>
+      <p class="modal-subtitle">${escapeHTML(event.prompt)}</p><div class="choice-options">${options}</div>
+      <p class="choice-caption">기존 이벤트 효과가 먼저 적용됩니다. 선택지는 행동 횟수에 포함되지 않습니다.</p>`, 'choice');
+    qs('modal-body').querySelectorAll('[data-choice]').forEach(button=>button.addEventListener('click',()=>resolveChoice(button.dataset.choice)));
+  }
+
+  function resolveChoice(choiceId) {
+    const pending=game.pendingChoice;
+    if(!pending) return; // 연속 클릭, 복원 중복 처리 차단
+    const choice=B.events[pending.eventId]?.choices?.find(option=>option.id===choiceId);
+    if(!choice) return;
+    game.pendingChoice=null; // 같은 이벤트를 두 번 확정할 수 없음
+    for(const [stat,delta] of Object.entries(choice.effects)) game.stats[stat]=clamp(game.stats[stat]+delta);
+    game.lastSpeech=choice.response;
+    closeModal();
+    completeAction({...pending,choiceLabel:choice.label});
+  }
+
+  // 저장된 과거 완료 기록 + 현재 진행 중인 개미만 합산합니다.
+  // 진화 완료 직후 game의 행동 횟수는 이미 records에 포함되므로 이중 집계하지 않습니다.
+  function achievementProgress() {
+    const records=game.records;
+    const activeActions=game.finished?0:game.carrotCount+game.whipCount;
+    const activeEvents=game.finished?0:game.eventCount;
+    const totalActions=records.reduce((sum,r)=>sum+r.carrotCount+r.whipCount,activeActions);
+    const totalEvents=records.reduce((sum,r)=>sum+r.eventCount,activeEvents);
+    const types=new Set(records.map(r=>r.type));
+    return {
+      ACH01:totalActions>=1, ACH02:records.length>0,
+      ACH03:types.has('easy'), ACH04:types.has('genius'), ACH05:types.has('diligent'),
+      ACH06:types.size===3, ACH07:totalActions>=300, ACH08:totalEvents>=30
+    };
+  }
+  function reconcileAchievements() {
+    const progress=achievementProgress();
+    const unlocked=new Set(game.unlockedAchievements);
+    const newly=[];
+    for(const achievement of B.achievements) {
+      if(progress[achievement.id] && !unlocked.has(achievement.id)) {
+        unlocked.add(achievement.id); newly.push(achievement.title);
+      }
+    }
+    game.unlockedAchievements=[...unlocked];
+    return newly;
   }
 
   function finishEvolution() {
@@ -286,14 +400,42 @@
     qs('count-whip').textContent=game.whipCount;
     qs('whip-ratio').textContent=percent(getRatio());
     qs('count-event').textContent=game.eventCount;
-    qs('carrot-button').disabled=game.finished;
-    qs('whip-button').disabled=game.finished;
+    qs('carrot-button').disabled=game.finished||Boolean(game.pendingChoice);
+    qs('whip-button').disabled=game.finished||Boolean(game.pendingChoice);
+    renderEvolutionGuide();
     qs('finished-panel').hidden=!game.finished;
     if(game.finished)qs('finished-name').textContent=B.types[game.evolution].name;
     renderTutorial();
     renderRecords();
+    renderAchievements();
     renderSettings();
     showScreen(activeScreen,false);
+  }
+  function renderEvolutionGuide() {
+    const count=game.carrotCount+game.whipCount;
+    const ratio=getRatio();
+    const type=count?evolutionType():null;
+    qs('guide-prediction').textContent=game.finished?`${B.types[game.evolution].name} · 확정`:type?B.types[type].name:'아직 미정';
+    qs('guide-ratio').textContent=count?`채찍 ${percent(ratio)}`:'행동 기록 없음';
+    qs('guide-note').textContent=game.finished?'진화가 확정되었습니다. 다음 개미를 만나 새로운 길을 찾아보세요.':
+      '예상 진화는 누적 행동 비율로 계산되며 LV.10까지 달라질 수 있습니다.';
+    const marker=qs('guide-marker');
+    marker.hidden=!count;
+    if(count)marker.style.left=`${Math.min(98,Math.max(2,ratio*100))}%`;
+    qs('guide-bar').setAttribute('aria-label',count?`현재 채찍 비율 ${percent(ratio)}, 예상 진화 ${B.types[type].name}`:'아직 행동하지 않아 진화를 예측할 수 없습니다');
+  }
+  function renderAchievements() {
+    const unlocked=new Set(game.unlockedAchievements);
+    qs('achievement-count').textContent=`${unlocked.size} / ${B.achievements.length}`;
+    qs('achievement-fill').style.width=`${unlocked.size/B.achievements.length*100}%`;
+    qs('achievements-grid').innerHTML=B.achievements.map(a=>{
+      const found=unlocked.has(a.id);
+      return `<div class="achievement-item ${found?'unlocked':'locked'}">
+        <span class="achievement-icon" aria-hidden="true">${found?escapeHTML(a.icon):'🔒'}</span>
+        <span class="achievement-content"><strong>${escapeHTML(a.title)}</strong><small>${escapeHTML(a.description)}</small></span>
+        <span class="achievement-status">${found?'달성':'진행 중'}</span>
+      </div>`;
+    }).join('');
   }
   function renderTutorial() {
     const visible=!game.tutorialCompleted&&!game.finished;
@@ -330,7 +472,7 @@
   function renderStorageStatus() {
     const el=qs('save-status');
     if(!el)return;
-    el.innerHTML=storageWorks?'<span class="save-dot"></span> 자동 저장 사용 중':'<span aria-hidden="true">!</span> 저장할 수 없음 · 브라우저 설정 확인';
+    el.innerHTML=storageWorks?'<span class="save-dot"></span> 자동 저장 사용 중':'<span aria-hidden="true">!</span> 저장 불가 · 기존 데이터가 손상되었거나 브라우저 저장이 제한됨';
   }
   function dateLabel(timestamp) {
     const value=typeof timestamp==='number'?timestamp:Date.now();
@@ -396,7 +538,9 @@
     });
     if(scroll)window.scrollTo({top:0,behavior:'instant'});
   }
-  function showModal(content) {
+  function showModal(content, kind = null) {
+    modalKind = kind;
+    qs('modal-close').hidden=kind==='choice';
     previousFocus=document.activeElement;
     qs('modal-body').innerHTML=content;
     qs('modal-backdrop').hidden=false;
@@ -405,13 +549,56 @@
     qs('modal-close').focus();
   }
   function closeModal() {
-    if(!modalOpen)return;
+    if(!modalOpen || (modalKind==='choice' && game.pendingChoice))return;
+    // 닫기 / 바깥 클릭 / ESC / 확인 버튼 모두 '확인한 버전'으로 처리합니다.
+    if(modalKind==='patch-notes') markPatchSeen();
+    modalKind=null;
     qs('modal-backdrop').hidden=true;
     document.body.style.overflow='';
     modalOpen=false;
     qs('modal-body').innerHTML='';
+    qs('modal-close').hidden=false;
     if(previousFocus && typeof previousFocus.focus==='function')previousFocus.focus();
+    // 선택형 이벤트/진화 팝업 종료 후, 대기 중인 업데이트 안내를 보여 줍니다.
+    queueMicrotask(()=>{
+      if(queuedPatchOnLaunch && !modalOpen && !game.pendingChoice) {
+        queuedPatchOnLaunch=false;showPatchNotes();
+      }
+      if(!modalOpen) scheduleAchievementNotices();
+    });
   }
+  function markPatchSeen() {
+    try { localStorage.setItem(PATCH_SEEN_KEY, B.version); }
+    catch(error) { console.warn('패치노트 확인 기록 저장 실패:',error); }
+  }
+
+  function showPatchNotes() {
+    const notes=B.releaseNotes;
+    if(!notes || notes.version!==B.version) return;
+    const sections=(notes.sections||[]).map(section=>
+      `<section class="patch-section"><h3>${escapeHTML(section.heading)}</h3><ul>${(section.items||[]).map(item=>`<li>${escapeHTML(item)}</li>`).join('')}</ul></section>`
+    ).join('');
+    showModal(`<p class="modal-eyebrow">WHAT'S NEW</p>
+      <div class="patch-version-pill">v${escapeHTML(notes.version)} 업데이트</div>
+      <h2 id="modal-title">${escapeHTML(notes.title)}</h2>
+      <span class="patch-date">${escapeHTML(notes.date)}</span>
+      <p class="patch-summary">${escapeHTML(notes.summary)}</p>
+      <div class="patch-notes-list">${sections}</div>
+      <div class="modal-buttons"><button type="button" class="modal-primary" id="patch-notes-confirm">확인하고 게임하기</button></div>`, 'patch-notes');
+    qs('patch-notes-confirm').addEventListener('click', closeModal);
+  }
+
+  function showPatchNotesOnLaunch() {
+    try {
+      const seen=localStorage.getItem(PATCH_SEEN_KEY);
+      if(seen===B.version) return;
+      // 완전 신규 이용자에겐 패치노트 대신 튜토리얼을 먼저 보여줍니다.
+      if(!hadExistingSaveAtLaunch) { markPatchSeen(); return; }
+      if(game.pendingChoice || modalOpen) { queuedPatchOnLaunch=true; return; }
+      showPatchNotes();
+    } catch(error) { console.warn('패치노트 자동 표시 확인 실패:',error); }
+  }
+
   function recordSummary(r){
     return `<div class="result-stats">
       <div class="result-stat"><small>당근 사용</small><strong>${r.carrotCount}회</strong></div>
@@ -461,7 +648,8 @@
     qs('confirm-new-ant').addEventListener('click',()=>{
       const records=game.records;
       const settings=game.settings;
-      game=freshState();game.records=records;game.settings=settings;game.tutorialCompleted=true;
+      const unlockedAchievements=game.unlockedAchievements;
+      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.tutorialCompleted=true;
       saveState();closeModal();showScreen('game');render();toast('새로운 신입 개미가 찾아왔어요!');
     });
     qs('cancel-new-ant').addEventListener('click',closeModal);
@@ -483,8 +671,8 @@
       <p class="modal-subtitle">현재 육성과 모든 진화 기록을 완전히 지웁니다. 삭제한 내용은 복구할 수 없습니다.</p>
       <div class="modal-buttons"><button type="button" class="modal-primary danger" id="confirm-reset">모든 기록 삭제</button><button type="button" class="modal-secondary" id="cancel-reset">취소</button></div>`);
     qs('confirm-reset').addEventListener('click',()=>{
-      try{localStorage.removeItem(KEY);}catch(error){console.warn(error);}
-      game=freshState();saveState();closeModal();showScreen('game');render();toast('게임이 초기화되었습니다.');
+      try{localStorage.removeItem(KEY);storageCorrupt=false;}catch(error){console.warn(error);}
+      game=freshState();achievementNoticeQueue=[];saveState();closeModal();showScreen('game');render();toast('게임이 초기화되었습니다.');
     });
     qs('cancel-reset').addEventListener('click',closeModal);
   }
@@ -496,8 +684,8 @@
     qs('new-ant-button').addEventListener('click',confirmNewAnt);
     qs('tutorial-skip').addEventListener('click',skipTutorial);
     qs('tutorial-next').addEventListener('click',advanceTutorial);
-    qs('header-settings').addEventListener('click',()=>showScreen('settings'));
-    document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>showScreen(button.dataset.screen)));
+    qs('header-settings').addEventListener('click',()=>{if(!game.pendingChoice)showScreen('settings');});
+    document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>{if(!game.pendingChoice) showScreen(button.dataset.screen);}));
     qs('record-list').addEventListener('click',event=>{
       const button=event.target.closest('[data-record-id]');
       if(button)showRecordDetails(button.dataset.recordId);
@@ -519,6 +707,7 @@
       game.tutorialCompleted=false;game.tutorialStep=0;
       saveState();render();showScreen('game');toast('튜토리얼을 다시 시작합니다.');
     });
+    qs('view-patch-notes').addEventListener('click',showPatchNotes);
     qs('reset-button').addEventListener('click',confirmReset);
     qs('modal-close').addEventListener('click',closeModal);
     qs('modal-backdrop').addEventListener('click',e=>{if(e.target===qs('modal-backdrop'))closeModal();});
@@ -528,4 +717,7 @@
   bindEvents();
   render();
   saveState();
+  // 미완료 선택이 있으면 제일 먼저 복구합니다. 패치노트는 선택 종료 이후로 미룹니다.
+  if(game.pendingChoice) showChoiceEvent();
+  showPatchNotesOnLaunch();
 })();
