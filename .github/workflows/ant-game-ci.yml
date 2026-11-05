@@ -1,0 +1,93 @@
+name: Ant Game · Automated Browser Verification and Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ant-game-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify game behavior (Chromium)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements-test.txt
+          python -m playwright install --with-deps chromium
+      - name: Check JavaScript syntax and static asset contracts
+        run: |
+          node --check balance.js
+          node --check game.js
+          python tests/structure.py
+      - name: Run browser regression and mobile layouts
+        run: |
+          mkdir -p test-results
+          python tests/regression.py 2>&1 | tee test-results/regression.log
+      - name: Save evidence (screenshots and logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ant-game-browser-report
+          path: test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  publish:
+    name: Deploy verified game to GitHub Pages
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare static site artifact (game files only)
+        run: |
+          mkdir -p dist
+          cp index.html style.css balance.js game.js dist/
+          touch dist/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Publish to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  smoke:
+    name: Verify public Pages files after deployment
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm live files exactly match verified sources
+        env:
+          PAGES_URL: https://dreamingchick.github.io/ant-game/
+        run: python tests/verify_live.py
