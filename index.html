@@ -149,7 +149,8 @@
       <div class="page-heading"><span class="overline">A QUIET LITTLE CORNER</span><h2>게임 설정</h2><p>당신의 개미집을 편안하게 가꾸세요.</p></div>
       <section class="setting-group"><h3>사운드</h3><label class="setting-line" for="sound-toggle"><span><strong>효과음 사용</strong><small>배경음악 없이 행동·진화 효과음만 재생</small></span><input id="sound-toggle" type="checkbox" checked></label><label class="volume-label" for="sound-volume">효과음 크기 <output id="sound-volume-text">65%</output></label><input class="volume-slider" type="range" min="0" max="100" step="5" value="65" id="sound-volume"></section>
       <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복: 행동 전 스트레스 60 이상에서는 당근의 스트레스 감소가 −20, 나태함 60 이상에서는 채찍의 나태함 감소가 −10으로 강화됩니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
-      <section class="setting-group"><h3>업데이트 소식</h3><p>새 버전에서 달라진 내용을 확인하세요. 업데이트 후 첫 방문 시 한 번 자동으로 안내됩니다.</p><button class="outline-button" type="button" id="view-patch-notes">패치노트 다시 보기</button></section>
+      <section class="setting-group"><h3>업데이트 소식</h3><p>업데이트 후 첫 접속에는 최신 소식을 안내합니다. 이전 업데이트 기록도 버전별로 확인할 수 있습니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="view-patch-notes">최신 패치노트</button><button class="outline-button" type="button" id="view-patch-history">전체 업데이트 기록</button></div></section>
+      <section class="setting-group" id="analytics-section"><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
       <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span></section>
       <section class="setting-group danger-zone"><h3>데이터 초기화</h3><p>현재 육성 중인 개미와 모든 진화 기록을 삭제합니다. 되돌릴 수 없습니다.</p><button class="outline-button danger" type="button" id="reset-button">전체 데이터 초기화</button></section>
       <p class="version-label">개미 키우기 · MVP v0.3.0</p>
@@ -162,6 +163,11 @@
     </nav>
   </div>
 
+  <aside id="analytics-consent-banner" class="analytics-consent-banner" aria-label="익명 플레이 통계 수집 동의" hidden>
+    <strong>개미집을 더 좋은 곳으로 만들기</strong>
+    <p>익명 방문·육성 통계를 수집해 게임을 개선하고 싶습니다. 동의하지 않아도 모든 기능을 사용할 수 있습니다.</p>
+    <div class="analytics-banner-actions"><button id="analytics-allow" type="button">동의하기</button><button id="analytics-deny" type="button">거절하기</button></div>
+  </aside>
   <div id="modal-backdrop" class="modal-backdrop" hidden>
     <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <button type="button" id="modal-close" class="modal-close" aria-label="팝업 닫기">×</button>
