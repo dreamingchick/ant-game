@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.8
+ * 개미 키우기 MVP v0.9
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -16,6 +16,16 @@
   const PRE_V06_BACKUP_KEY = 'little-ant-game-before-v0.6';
   const PRE_V07_BACKUP_KEY = 'little-ant-game-before-v0.7';
   const PRE_V08_BACKUP_KEY = 'little-ant-game-before-v0.8';
+  const PRE_V09_BACKUP_KEY = 'little-ant-game-before-v0.9';
+  // 과거 원정권·자원·완료 기록은 삭제하지 않고 v0.9 규칙만 적용합니다.
+  try {
+    const raw=localStorage.getItem(KEY);
+    if(raw && !localStorage.getItem(PRE_V09_BACKUP_KEY)){
+      const previous=JSON.parse(raw);
+      if(previous?.schemaVersion===1 && !previous.expedition?.ticketRuleVersion)
+        localStorage.setItem(PRE_V09_BACKUP_KEY,raw);
+    }
+  }catch(_error){ /* 백업 오류로 원본 저장을 변경하지 않습니다. */ }
   const PRE_IMPORT_KEY = 'little-ant-game-before-import-v0.8';
   // v0.8 첫 실행: 이전 버전 원문을 별도 슬롯에 1회만 보존합니다.
   try {
@@ -123,7 +133,29 @@
   const ALL_DECOR = [...B.decorations,...B.craftingItems];
   const RESOURCE_IDS = B.resources.map(item=>item.id);
   const FACILITY_IDS = B.kingdomFacilities.map(item=>item.id);
-  const FACILITY_BY_REGION = Object.fromEntries(B.kingdomFacilities.map(item=>[item.region,item]));
+  const FACILITY_BY_REGION = Object.fromEntries(B.expeditions.regions.map(region=>[
+    region.id,B.kingdomFacilities.find(facility=>facility.id===region.facilityId)
+  ]));
+  const RARE_BY_REGION=Object.fromEntries(B.rareFinds.map(item=>[item.region,item]));
+  const RARE_IDS=new Set(B.rareFinds.map(item=>item.id));
+  // 서울 기준 월요일~일요일 주간 미션, 로컬 브라우저만 사용합니다.
+  function currentWeekKey(now=Date.now()){
+    const date=new Date(now+9*3600000);
+    date.setUTCHours(0,0,0,0);
+    const day=date.getUTCDay()||7;
+    date.setUTCDate(date.getUTCDate()+4-day);
+    const year=date.getUTCFullYear();
+    const yearStart=new Date(Date.UTC(year,0,1));
+    const week=Math.ceil((((date-yearStart)/86400000)+1)/7);
+    return `${year}-W${String(week).padStart(2,'0')}`;
+  }
+  const freshWeekly = () => ({key:currentWeekKey(),trips:0,resources:0,squadTrips:0,claimed:[]});
+  function normalizeWeekly(raw){
+    if(!raw || raw.key!==currentWeekKey())return freshWeekly();
+    const n=v=>Number.isInteger(v)&&v>=0&&v<=999999?v:0;
+    return {key:raw.key,trips:n(raw.trips),resources:n(raw.resources),squadTrips:n(raw.squadTrips),
+      claimed:[...new Set(Array.isArray(raw.claimed)?raw.claimed:[])].filter(id=>B.weeklyGoals.some(g=>g.id===id))};
+  }
   const FACILITY_BY_ID = Object.fromEntries(B.kingdomFacilities.map(item=>[item.id,item]));
   const maximumResource = 999999;
   const KINGDOM_MAX_LEVEL = 5;
@@ -204,7 +236,8 @@
       phase:'phase1', firstEvolution:null, stage2Counters:{carrot:0,whip:0}, secondEvolution:null,
       pendingChoice:null, unlockedAchievements:[],
       decor:{unlocked:[],equipped:{floor:null,wall:null,light:null}},
-      expedition:{tickets:0,ticks:0,inventory:{food:0,wood:0,crystal:0},crafted:[],trips:[],totalTrips:0},
+      expedition:{tickets:0,ticks:0,ticketRuleVersion:2,inventory:{food:0,wood:0,crystal:0},crafted:[],trips:[],totalTrips:0,squad:[],discoveries:[]},
+      weekly:freshWeekly(),
       recentActions:[],
       kingdom:defaultKingdom(),
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
@@ -289,20 +322,28 @@
           ]))
         },
         expedition: {
-          tickets: prev.expedition ? num(prev.expedition.tickets,0,B.expeditions.maxTickets) :
-            Math.min(B.expeditions.maxTickets,Math.floor(legacyCompletedActions/B.expeditions.actionsPerTicket)),
-          ticks: prev.expedition ? num(prev.expedition.ticks,0,B.expeditions.actionsPerTicket-1) :
-            legacyCompletedActions%B.expeditions.actionsPerTicket,
+          // 구버전 원정권은 보존하고, LV.10 미만의 누적 진행도와 과거 미완료 행동은 소급 지급하지 않습니다.
+          tickets: prev.expedition ? num(prev.expedition.tickets,0,B.expeditions.maxTickets) : 0,
+          ticks:prev.level>=10 && prev.expedition?.ticketRuleVersion===2 ?
+            num(prev.expedition.ticks,0,B.expeditions.actionsPerTicket-1):0,
+          ticketRuleVersion:2,
           inventory:Object.fromEntries(RESOURCE_IDS.map(id=>[id,num(prev.expedition?.inventory?.[id],0,999999)])),
           crafted:Array.isArray(prev.expedition?.crafted) ?
             [...new Set(prev.expedition.crafted)].filter(validCraft):[],
           trips:Array.isArray(prev.expedition?.trips) ? prev.expedition.trips.slice(0,12).filter(t=>
             t && B.expeditions.regions.some(region=>region.id===t.region) && RESOURCE_IDS.includes(t.resource) &&
             Number.isFinite(t.amount) && t.amount>0).map(t=>({
-              region:t.region,resource:t.resource,amount:num(t.amount,1,1000),at:num(t.at,Date.now())
+              region:t.region,resource:t.resource,amount:num(t.amount,1,1000),at:num(t.at,Date.now()),
+              rareId:RARE_IDS.has(t.rareId)?t.rareId:null,
+              squadBonus:num(t.squadBonus,0,10)
             })):[],
-          totalTrips:num(prev.expedition?.totalTrips,0)
+          totalTrips:num(prev.expedition?.totalTrips,0),
+          squad:Array.isArray(prev.expedition?.squad) ? [...new Set(prev.expedition.squad)]
+            .filter(id=>typeof id==='string' && records.some(record=>record.id===id)).slice(0,B.expeditionSquad.maxMembers):[],
+          discoveries:Array.isArray(prev.expedition?.discoveries) ?
+            [...new Set(prev.expedition.discoveries)].filter(id=>RARE_IDS.has(id)):[]
         },
+        weekly:normalizeWeekly(prev.weekly),
         recentActions:Array.isArray(prev.recentActions) ? prev.recentActions.slice(0,12).filter(item=>
           item && ['carrot','whip'].includes(item.action) && Number.isFinite(item.gained)).map(item=>({
             action:item.action,gained:num(item.gained,0,100000),at:num(item.at,Date.now()),eventId: B.events[item.eventId]?item.eventId:null
@@ -787,8 +828,9 @@
     game.lastFeedback=feedback;
     game.recentActions.unshift({action,gained,eventId:eventId||null,at:Date.now()});
     game.recentActions=game.recentActions.slice(0,12);
-    // 6개의 완료된 육성 행동마다 원정권 하나. 미완료 선택 이벤트는 제외합니다.
-    if(game.expedition.tickets<B.expeditions.maxTickets) {
+    // v0.9: LV.10 이후 완료한 행동만 원정권 진행도에 반영합니다.
+    // LV.10 도달 행동은 포함합니다. 미완료 선택 이벤트는 완료 시점에만 한 번 계산합니다.
+    if(game.level>=10 && game.expedition.tickets<B.expeditions.maxTickets) {
       game.expedition.ticks++;
       if(game.expedition.ticks>=B.expeditions.actionsPerTicket){
         game.expedition.ticks=0;
@@ -929,7 +971,108 @@
     return newly;
   }
   const resourceCount = id => game.expedition.inventory[id]||0;
-  const canExplore = region => game.level>=region.minLevel && game.expedition.tickets>0 &&
+  function currentSquad(state=game){
+    return state.expedition.squad.map(id=>state.records.find(r=>r.id===id)).filter(Boolean);
+  }
+  function getSquadBonus(region,squad=currentSquad()){
+    const size=Math.min(squad.length,B.expeditionSquad.maxMembers);
+    const matching=squad.some(record=>record.type===region.specialty);
+    return {size,memberBonus:size*B.expeditionSquad.memberBonus,
+      specialtyBonus:matching?B.expeditionSquad.specialtyBonus:0};
+  }
+  function selectSquadMember(recordId){
+    const exists=game.records.some(r=>r.id===recordId);
+    if(!exists || !modalOpen || modalKind!=='expedition-squad')return;
+    const ok=applyKingdomTransaction(draft=>{
+      const current=draft.expedition.squad;
+      if(current.includes(recordId))draft.expedition.squad=current.filter(x=>x!==recordId);
+      else {
+        if(current.length>=B.expeditionSquad.maxMembers)return false;
+        draft.expedition.squad=[...current,recordId];
+      }
+      return true;
+    });
+    if(ok)renderSquadPicker();
+  }
+  function renderSquadPicker(){
+    const list=qs('expedition-squad-picker');if(!list)return;
+    const selected=new Set(game.expedition.squad);
+    list.innerHTML=game.records.map(record=>{
+      const name=validSecond(record.secondEvolution,record.type)?SECOND_TYPES[record.secondEvolution].name:B.types[record.type].name;
+      const active=selected.has(record.id);
+      const disabled=!active && selected.size>=B.expeditionSquad.maxMembers;
+      return `<button type="button" class="expedition-squad-item ${active?'selected':''}" data-squad-record="${escapeHTML(record.id)}" ${disabled?'disabled':''}>
+        <span><strong>${escapeHTML(name)}</strong><small>LV.${record.level} · ${dateLabel(record.timestamp)}</small></span>
+        <span class="squad-status">${active?'✓ 편성됨':disabled?'정원 초과':'편성'}</span></button>`;
+    }).join('')||'<p>아직 완료한 개미가 없습니다. LV.20까지 육성하거나 과거 완료 기록을 불러오세요.</p>';
+    qs('expedition-squad-selected').textContent=`${selected.size} / ${B.expeditionSquad.maxMembers}마리 편성`;
+  }
+  function showSquadPicker(){
+    if(game.pendingChoice)return;
+    showModal(`<p class="modal-eyebrow">ANT EXPEDITION TEAM</p><h2 id="modal-title">원정대 편성</h2>
+      <p class="modal-subtitle">완료한 개미 최대 ${B.expeditionSquad.maxMembers}마리를 편성하세요. 선택 즉시 저장됩니다.</p>
+      <p id="expedition-squad-selected" class="expedition-squad-summary"></p>
+      <div id="expedition-squad-picker" class="expedition-squad-list"></div>
+      <div class="modal-buttons"><button id="expedition-squad-close" type="button" class="modal-primary">편성 완료</button></div>`,'expedition-squad');
+    qs('expedition-squad-picker').addEventListener('click',e=>{
+      const target=e.target.closest('[data-squad-record]');if(target)selectSquadMember(target.dataset.squadRecord);
+    });
+    qs('expedition-squad-close').addEventListener('click',closeModal);
+    renderSquadPicker();
+  }
+  function renderSquad(){
+    const members=currentSquad();
+    qs('expedition-squad-summary').textContent=`${members.length} / ${B.expeditionSquad.maxMembers}마리 · 현재 원정대 보너스 기본 +${members.length}${members.length?' · 지역 특화 시 +1':''}`;
+    qs('expedition-squad-roster').innerHTML=Array.from({length:B.expeditionSquad.maxMembers},(_,i)=>{
+      const member=members[i];
+      if(!member)return '<div class="expedition-squad-member empty"><span class="squad-portrait">＋</span><strong>빈 자리</strong></div>';
+      const name=validSecond(member.secondEvolution,member.type)?SECOND_TYPES[member.secondEvolution].name:B.types[member.type].name;
+      return `<div class="expedition-squad-member"><span class="squad-portrait">${portraitEmoji[member.type]}</span><strong>${escapeHTML(name)}</strong><small>LV.${member.level}</small></div>`;
+    }).join('');
+  }
+  function weeklyForDisplay(){return game.weekly.key===currentWeekKey()?game.weekly:freshWeekly();}
+  function weeklyCounter(weekly,id){return id==='trips'?weekly.trips:id==='resources'?weekly.resources:weekly.squadTrips;}
+  function syncWeeklyForTransaction(draft){
+    if(draft.weekly.key!==currentWeekKey())draft.weekly=freshWeekly();
+  }
+  function claimWeeklyGoal(goalId){
+    const goal=B.weeklyGoals.find(x=>x.id===goalId);
+    if(!goal || modalOpen || game.pendingChoice)return;
+    const ok=applyKingdomTransaction(draft=>{
+      syncWeeklyForTransaction(draft);
+      if(draft.weekly.claimed.includes(goalId)||weeklyCounter(draft.weekly,goalId)<goal.target)return false;
+      for(const [resource,amount] of Object.entries(goal.reward)){
+        if(draft.expedition.inventory[resource]+amount>maximumResource)return false;
+      }
+      for(const [resource,amount] of Object.entries(goal.reward))draft.expedition.inventory[resource]+=amount;
+      draft.weekly.claimed.push(goalId);
+      return true;
+    });
+    if(ok)toast(`주간 목표 완료 · ${goal.name} 보상을 수령했습니다!`);
+  }
+  function renderWeekly(){
+    const weekly=weeklyForDisplay();
+    qs('weekly-goal-label').textContent=weekly.key+' (KST)';
+    qs('weekly-goals-grid').innerHTML=B.weeklyGoals.map(goal=>{
+      const count=weeklyCounter(weekly,goal.id),completed=weekly.claimed.includes(goal.id);
+      const reward=resourceCostLabel(goal.reward),canClaim=count>=goal.target&&!completed;
+      return `<article class="weekly-goal-card"><div class="weekly-goal-top"><strong>${escapeHTML(goal.name)}</strong><small>${Math.min(count,goal.target)} / ${goal.target}</small></div>
+        <small>${escapeHTML(goal.description)}</small><div class="weekly-goal-track"><span style="width:${Math.min(100,100*count/goal.target)}%"></span></div>
+        <div class="weekly-goal-actions"><span class="weekly-goal-reward">보상 ${reward}</span>
+        <button class="mini-button" type="button" data-claim-weekly="${goal.id}" ${canClaim?'':'disabled'}>${completed?'수령 완료':canClaim?'보상 받기':'진행 중'}</button></div></article>`;
+    }).join('');
+  }
+  function renderRareFinds(){
+    const found=new Set(game.expedition.discoveries);
+    qs('rare-find-count').textContent=`${found.size} / ${B.rareFinds.length}`;
+    qs('rare-finds-grid').innerHTML=B.rareFinds.map(item=>{
+      const unlocked=found.has(item.id);
+      const region=B.expeditions.regions.find(r=>r.id===item.region);
+      return `<article class="rare-find-card ${unlocked?'':'locked'}"><span class="rare-find-icon">${unlocked?item.icon:'❔'}</span>
+        <span><strong>${unlocked?escapeHTML(item.name):'아직 발견하지 못함'}</strong><small>${escapeHTML(region.name)}${unlocked?' · '+escapeHTML(item.description):' · 탐험으로 발견'}</small></span></article>`;
+    }).join('');
+  }
+  const canExplore = region => game.level>=region.minLevel && game.level>=10 && game.expedition.tickets>0 &&
     resourceCount(region.main)<maximumResource && !game.pendingChoice && !modalOpen && !storageCorrupt;
   function exploreRegion(regionId) {
     const region=B.expeditions.regions.find(r=>r.id===regionId);
@@ -937,20 +1080,29 @@
     if(Date.now()-lastExploreClick<450)return;
     const randomBonus=Math.random()<region.bonusChance?region.bonus:0;
     const b=getFacilityBonus(region.id);
+    const squad=getSquadBonus(region);
     const available=maximumResource-resourceCount(region.main);
-    const amount=Math.min(available,region.reward+randomBonus+b.total);
+    const amount=Math.min(available,region.reward+randomBonus+b.total+squad.memberBonus+squad.specialtyBonus);
     if(amount<=0)return;
+    const rare=RARE_BY_REGION[region.id];
+    const foundRare=rare && !game.expedition.discoveries.includes(rare.id) && Math.random()<rare.chance ? rare.id:null;
     const succeeded=applyKingdomTransaction(draft=>{
-      if(draft.expedition.tickets<=0 || draft.expedition.inventory[region.main]>=maximumResource)return false;
+      if(draft.level<region.minLevel || draft.expedition.tickets<=0 || draft.expedition.inventory[region.main]>=maximumResource)return false;
       draft.expedition.tickets--;
       draft.expedition.inventory[region.main]+=amount;
       draft.expedition.totalTrips++;
+      if(foundRare && !draft.expedition.discoveries.includes(foundRare))draft.expedition.discoveries.push(foundRare);
       draft.expedition.trips.unshift({region:region.id,resource:region.main,amount,at:Date.now(),
-        base:region.reward,randomBonus,facilityBonus:b.facilityBonus,workerBonus:b.workerBonus});
+        base:region.reward,randomBonus,facilityBonus:b.facilityBonus,workerBonus:b.workerBonus,
+        squadBonus:squad.memberBonus+squad.specialtyBonus,rareId:foundRare});
       draft.expedition.trips=draft.expedition.trips.slice(0,12);
+      syncWeeklyForTransaction(draft);
+      draft.weekly.trips++;
+      draft.weekly.resources+=amount;
+      if(squad.size>=2)draft.weekly.squadTrips++;
       return true;
     });
-    if(succeeded){lastExploreClick=Date.now();toast(`${region.name} 원정 완료 · ${B.resources.find(r=>r.id===region.main).name} +${amount}${b.total?' · 왕국 보너스 +'+b.total:''}${randomBonus?' · 특별 발견!':''}`);}
+    if(succeeded){lastExploreClick=Date.now();toast(`${region.name} 원정 · ${B.resources.find(r=>r.id===region.main).name} +${amount}${foundRare?' · 희귀 발견물 획득!':''}`);}
   }
   function canCraft(item) {
     return !game.expedition.crafted.includes(item.id) && Object.entries(item.cost).every(([id,amount])=>resourceCount(id)>=amount);
@@ -971,8 +1123,15 @@
   function renderExpedition() {
     const exp=game.expedition;
     qs('expedition-tickets').textContent=`${exp.tickets} / ${B.expeditions.maxTickets}`;
-    qs('expedition-next-ticket').textContent=exp.tickets===B.expeditions.maxTickets?
-      '원정권 최대 보유 · 더 이상 쌓이지 않습니다.':`다음 원정권까지 ${B.expeditions.actionsPerTicket-exp.ticks}회 육성 행동`;
+    const unlocked=game.level>=10;
+    const notice=qs('expedition-level-notice');
+    notice.classList.toggle('locked',!unlocked);
+    notice.textContent=unlocked?'✅ LV.10 해금 완료 · 완료된 육성 행동 6회마다 원정권 1장 지급':
+      `🔒 LV.10부터 원정과 원정권 획득이 활성화됩니다. 현재 LV.${game.level} · LV.1~9 행동은 원정권에 반영되지 않습니다.`;
+    qs('expedition-next-ticket').textContent=!unlocked?'LV.10 달성 후 적립 시작 · 기존 원정권은 보존됩니다.':
+      exp.tickets===B.expeditions.maxTickets?'원정권 최대 보유 · 더 이상 쌓이지 않습니다.':
+      `다음 원정권까지 ${B.expeditions.actionsPerTicket-exp.ticks}회 육성 행동`;
+    renderSquad();renderRareFinds();renderWeekly();
     qs('resource-wallet').innerHTML=B.resources.map(r=>
       `<div class="resource-pill"><span>${r.icon} ${r.name}</span><strong>${resourceCount(r.id).toLocaleString('ko-KR')}</strong></div>`
     ).join('');
@@ -980,10 +1139,14 @@
       const opened=game.level>=region.minLevel;
       const allowed=opened && canExplore(region);
       const b=getFacilityBonus(region.id);
-      const min=region.reward+b.total,max=min+region.bonus;
+      const squad=getSquadBonus(region);
+      const squadTotal=squad.memberBonus+squad.specialtyBonus;
+      const min=region.reward+b.total+squadTotal,max=min+region.bonus;
       return `<article class="region-card ${opened?'':'region-locked'}"><span class="region-icon">${region.icon}</span>
         <div class="region-content"><strong>${escapeHTML(region.name)} <small>LV.${region.minLevel}+</small></strong>
-          <p>${escapeHTML(region.description)}</p><small>원정권 1장 · ${escapeHTML(B.resources.find(r=>r.id===region.main).name)} ${min}~${max}개 · 왕국 +${b.total}</small><details class="kingdom-reward-breakdown"><summary>보너스 상세</summary>기본 ${region.reward} · 시설 +${b.facilityBonus} · 일꾼 +${b.workerBonus} · 특별 발견 시 +${region.bonus}</details></div>
+          <p>${escapeHTML(region.description)}</p><small>원정권 1장 · ${escapeHTML(B.resources.find(r=>r.id===region.main).name)} ${min}~${max}개</small>
+          <small class="squad-bonus-detail">왕국 +${b.total} · 원정대 +${squadTotal}</small>
+          <details class="kingdom-reward-breakdown"><summary>보너스 상세</summary>기본 ${region.reward} · 시설 +${b.facilityBonus} · 일꾼 +${b.workerBonus} · 원정대 +${squadTotal} · 특별 발견 시 +${region.bonus}</details></div>
         <button class="mini-button" data-expedition="${region.id}" type="button" ${allowed?'':'disabled'}>${!opened?'잠김':!exp.tickets?'원정권 부족':resourceCount(region.main)>=maximumResource?'재고 한도':'탐험'}</button></article>`;
     }).join('');
     qs('craft-progress').textContent=`${exp.crafted.length} / ${B.craftingItems.length} 제작`;
@@ -1001,7 +1164,7 @@
     qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
       const region=B.expeditions.regions.find(r=>r.id===t.region);
       const resource=B.resources.find(r=>r.id===t.resource);
-      return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}</span><strong>${resource.icon} +${t.amount}</strong></div>`;
+      return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}${t.rareId && RARE_IDS.has(t.rareId)?' ✨':''}</span><strong>${resource.icon} +${t.amount}</strong></div>`;
     }).join(''):'아직 원정 기록이 없습니다.';
   }
 
@@ -1504,9 +1667,12 @@
       const settings=game.settings;
       const unlockedAchievements=game.unlockedAchievements;
       const decor={unlocked:[...game.decor.unlocked],equipped:{...game.decor.equipped}};
-      const expedition={...game.expedition,inventory:{...game.expedition.inventory},crafted:[...game.expedition.crafted],trips:[...game.expedition.trips]};
+      const expedition={...game.expedition,ticks:0,ticketRuleVersion:2,inventory:{...game.expedition.inventory},crafted:[...game.expedition.crafted],
+        trips:[...game.expedition.trips],squad:[...game.expedition.squad],discoveries:[...game.expedition.discoveries]};
       const kingdom=JSON.parse(JSON.stringify(game.kingdom));
-      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;game.expedition=expedition;game.kingdom=kingdom;game.tutorialCompleted=true;
+      const weekly=JSON.parse(JSON.stringify(game.weekly));
+      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;
+      game.expedition=expedition;game.kingdom=kingdom;game.weekly=weekly;game.tutorialCompleted=true;
       saveState();closeModal();showScreen('game');render();toast('새로운 신입 개미가 찾아왔어요!');
     });
     qs('cancel-new-ant').addEventListener('click',closeModal);
@@ -1533,7 +1699,8 @@
         originalBeforeV05:localStorage.getItem(PRE_V05_BACKUP_KEY),
         originalBeforeV06:localStorage.getItem(PRE_V06_BACKUP_KEY),
         originalBeforeV07:localStorage.getItem(PRE_V07_BACKUP_KEY),
-        originalBeforeV08:localStorage.getItem(PRE_V08_BACKUP_KEY)
+        originalBeforeV08:localStorage.getItem(PRE_V08_BACKUP_KEY),
+        originalBeforeV09:localStorage.getItem(PRE_V09_BACKUP_KEY)
       };
       const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json;charset=utf-8'});
       const url=URL.createObjectURL(blob);
@@ -1588,7 +1755,20 @@
          !ex.inventory || RESOURCE_IDS.some(id=>!isCount(ex.inventory[id],999999)) ||
          (ex.crafted!==undefined&&(!Array.isArray(ex.crafted)||ex.crafted.some(id=>!validCraft(id)))))
         error('원정권·자원·제작 기록이 잘못됐습니다.');
+      if(ex.squad!==undefined && (!Array.isArray(ex.squad)||ex.squad.length>B.expeditionSquad.maxMembers||
+        new Set(ex.squad).size!==ex.squad.length||ex.squad.some(id=>!ids.has(id))))
+        error('원정대에 중복되거나 없는 개미가 있습니다.');
+      if(ex.discoveries!==undefined && (!Array.isArray(ex.discoveries)||
+        new Set(ex.discoveries).size!==ex.discoveries.length || ex.discoveries.some(id=>!RARE_IDS.has(id))))
+        error('희귀 발견물 기록이 올바르지 않습니다.');
+      if(ex.ticketRuleVersion!==undefined && ex.ticketRuleVersion!==2)error('원정권 지급 규칙 버전이 올바르지 않습니다.');
     }
+    if(raw.weekly!==undefined && (!raw.weekly||typeof raw.weekly.key!=='string'||
+      !/^\d{4}-W\d{2}$/.test(raw.weekly.key)||['trips','resources','squadTrips'].some(id=>
+        !isCount(raw.weekly[id],999999))|| !Array.isArray(raw.weekly.claimed)||
+      new Set(raw.weekly.claimed).size!==raw.weekly.claimed.length||
+      raw.weekly.claimed.some(id=>!B.weeklyGoals.some(goal=>goal.id===id))))
+      error('주간 목표 진행 기록이 올바르지 않습니다.');
     if(raw.decor!==undefined){
       if(!raw.decor || !Array.isArray(raw.decor.unlocked) ||
          raw.decor.unlocked.some(id=>!ALL_DECOR.some(d=>d.id===id)) ||
@@ -1621,13 +1801,15 @@
       food:inv.food||0,wood:inv.wood||0,crystal:inv.crystal||0,
       crafted:save.expedition?.crafted?.length||0,
       facilities:FACILITY_IDS.map(id=>kingdom.facilities[id]).join('/'),
-      workers:FACILITY_IDS.filter(id=>kingdom.assignments[id]).length
+      workers:FACILITY_IDS.filter(id=>kingdom.assignments[id]).length,
+      squad:save.expedition?.squad?.length||0,rare:save.expedition?.discoveries?.length||0
     };
   };
   function restoreInfoCard(info,title){
     return `<div class="import-preview-card"><strong>${escapeHTML(title)}</strong>LV.${info.level} · ${escapeHTML(info.phase)}<br>
       완료 개미 ${info.records}마리<br>원정권 ${info.tickets}장<br>식량 ${info.food} · 목재 ${info.wood} · 수정 ${info.crystal}<br>
-      제작품 ${info.crafted}종 · 시설 ${info.facilities} · 일꾼 ${info.workers}마리</div>`;
+      제작품 ${info.crafted}종 · 시설 ${info.facilities} · 일꾼 ${info.workers}마리<br>
+      원정대 ${info.squad}마리 · 희귀 발견물 ${info.rare}종</div>`;
   }
   async function previewImportedSave(file){
     if(!file)return;
@@ -1715,6 +1897,10 @@
     qs('auto-batch').addEventListener('change',e=>updateAutoPreference('batch',e.target.value));
     qs('auto-speed').addEventListener('change',e=>updateAutoPreference('speed',e.target.value));
     qs('auto-safe-stop').addEventListener('change',e=>updateAutoPreference('safeStop',e.target.checked));
+    qs('edit-expedition-squad').addEventListener('click',showSquadPicker);
+    qs('weekly-goals-grid').addEventListener('click',e=>{
+      const goal=e.target.closest('[data-claim-weekly]');if(goal)claimWeeklyGoal(goal.dataset.claimWeekly);
+    });
     qs('expedition-regions').addEventListener('click',e=>{
       const btn=e.target.closest('[data-expedition]');if(btn)exploreRegion(btn.dataset.expedition);
     });
