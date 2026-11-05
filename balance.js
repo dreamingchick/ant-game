@@ -4,33 +4,43 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.4.0',
+  version: '0.5.0',
   // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
   releaseNotes: {
-    version: '0.4.0',
+    version: '0.5.0',
     date: '2026-11-05',
-    title: '나만의 개미집',
-    summary: '개미의 성장 기록이 개미집을 채웁니다. 장식 9종을 발견하고 원하는 곳에 꾸며 보세요.',
+    title: '두 번째 진화',
+    summary: 'LV.20까지 성장하고, 첫 진화의 패시브를 활용해 여섯 가지 새로운 개미를 발견해 보세요.',
     sections: [
-      { heading: '새로운 개미집', items: [
-        '장식품 9종이 추가되었습니다. 누적 당근·채찍·이벤트·진화 기록으로 해금합니다.',
-        '바닥, 벽, 조명에 각 1개씩 장식을 배치하거나 해제할 수 있습니다.',
-        '당근과 채찍의 누적 비율에 따라 개미집의 배경 분위기가 바뀝니다.'
-      ] },
-      { heading: '기록 및 편의성', items: [
-        'v0.1부터의 육성·진화 기록으로 달성한 장식은 자동으로 열립니다.',
-        '꾸미기 배치는 새 개미를 키워도 유지되고 이전 패치노트도 계속 열람할 수 있습니다.',
-        '통계 수집은 요청에 따라 계속 비활성화합니다.'
-      ] },
-      { heading: '밸런스 유지', items: [
-        '장식은 외형 전용이며 경험치·돌발 이벤트·진화 확률에 영향을 주지 않습니다.',
-        'v0.2 조건부 회복과 v0.3 선택형 이벤트, 도전과제 8종을 유지합니다.'
-      ] }
+      { heading:'성장 확장', items:[
+        'LV.10에서 첫 진화 후에도 육성을 이어가며 LV.20에 두 번째 진화를 달성할 수 있습니다.',
+        'LV.10 첫 진화 유형에 따라 고유 패시브 3종이 실제로 작동합니다.'
+      ]},
+      { heading:'두 번째 진화', items:[
+        '태평·천재·근면 개미 계열마다 두 갈래씩, 신규 2차 진화 6종이 추가됩니다.',
+        'LV.10 이후 행동만으로 두 번째 진화를 예측하고, 2차 진화 도감에서 결과를 수집할 수 있습니다.'
+      ]},
+      { heading:'데이터·편의성', items:[
+        '기존 LV.10 완료 개미 기록을 그대로 보존하며, 새 육성부터 LV.20 확장을 적용합니다.',
+        '도전과제와 장식품, 패치노트 전체 이력은 유지됩니다.',
+        '외부 플레이 통계는 계속 수집하지 않습니다.'
+      ]}
     ]
   },
   // 과거 배포 버전을 순서대로 보관합니다. 미배포 v0.2.1은 목록에 포함하지 않습니다.
   // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
   releaseNotesHistory: [
+    {
+      version:'0.4.0', date:'2026-11-05', title:'나만의 개미집',
+      summary:'개미집 꾸미기, 장식품 9종과 육성 성향에 따른 배경이 추가되었습니다.',
+      sections:[
+        { heading:'나만의 개미집', items:[
+          '바닥·벽·조명 세 위치에 장식품을 배치할 수 있습니다.',
+          '육성 누적 기록으로 장식품 9종을 해금합니다.',
+          '이전 패치노트의 전체 이력을 열람할 수 있습니다.'
+        ]}
+      ]
+    },
     {
       version: '0.3.0', date: '2026-11-05', title: '개미의 선택',
       summary: '선택형 돌발 이벤트, 진화 예상 가이드, 도전과제 8종과 자동 패치노트가 추가되었습니다.',
@@ -73,7 +83,7 @@ window.ANT_BALANCE = Object.freeze({
   // GA4 측정 ID(G-...) 발급 후 이 값을 설정해야 통계 전송 기능이 준비됩니다.
   // 미입력 상태에서는 외부 통계 스크립트와 네트워크 요청을 발생시키지 않습니다.
   analytics: { measurementId: '' },
-  maxLevel: 10, // MVP 상한. 정식 버전 목표는 LV.50.
+  maxLevel: 20, // v0.5: LV.10은 체크포인트, LV.20이 완료. 정식 목표 LV.50.
   initial: { level: 1, exp: 0, motivation: 60, stress: 20, laziness: 10 },
   actions: {
     carrot: { motivation: +15, stress: -10, laziness: +5 },
@@ -84,6 +94,23 @@ window.ANT_BALANCE = Object.freeze({
   conditionalRecovery: {
     carrot: { stat: 'stress', threshold: 60, extra: -10 },
     whip: { stat: 'laziness', threshold: 60, extra: -5 }
+  },
+  phaseTwoBaseExp: 14,
+  passive: {
+    easy: { extraCarrotStressRecovery: -5 },
+    genius: { positiveEventBenefitMultiplier: 1.2 },
+    diligent: { whipExpMultiplier: 1.15 }
+  },
+  secondEvolution: {
+    threshold: 0.55,
+    types: {
+      garden_keeper: { parent:'easy', branch:'A', name:'꽃정원 개미', icon:'🌺', label:'돌봄의 달인', quote:'꽃 한 송이에도 온 정성을 담아!' },
+      meadow_explorer: { parent:'easy', branch:'B', name:'초원 개척 개미', icon:'🧭', label:'초원의 개척자', quote:'쉬엄쉬엄 가도 새로운 길은 열리지!' },
+      star_scholar: { parent:'genius', branch:'A', name:'별빛 학자 개미', icon:'🔭', label:'별의 연구자', quote:'작은 별에도 세상의 비밀이 있어!' },
+      clockwork_inventor: { parent:'genius', branch:'B', name:'태엽 발명 개미', icon:'⚙️', label:'발명의 달인', quote:'고장 난 세상도 다시 움직이게!' },
+      workshop_artisan: { parent:'diligent', branch:'A', name:'공방 장인 개미', icon:'🛠️', label:'정성의 장인', quote:'작은 손끝에 큰 꿈을 새긴다!' },
+      steel_guardian: { parent:'diligent', branch:'B', name:'강철 수호 개미', icon:'🛡️', label:'개미집의 수호자', quote:'우리의 집은 우리가 지킨다!' }
+    }
   },
   expRequired(level) { return 50 + 10 * (level - 1); },
   efficiency: {
@@ -156,8 +183,7 @@ window.ANT_BALANCE = Object.freeze({
     genius: { name: '천재 개미', passive: '기발한 발상', description: '긍정적인 돌발 이벤트 효과 강화', quote: '방법은 하나가 아니지!' },
     diligent: { name: '근면 개미', passive: '성실한 훈련', description: '채찍의 경험치 획득량 강화', quote: '작은 노력이 큰 성장을 만든다!' }
   },
-  // LV.10 MVP는 진화 시점에 육성이 끝나므로 패시브는 표시만 합니다.
-  // 우수 진화의 구체 조건 또한 향후 밸런싱 대상으로 비활성화합니다.
+  // LV.10 이후 패시브를 활성화합니다. 우수 진화는 향후 확장 대상입니다.
   superiorEvolutionEnabled: false,
-  passiveEffectsEnabled: false
+  passiveEffectsEnabled: true
 });
