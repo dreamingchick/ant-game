@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.3
+ * 개미 키우기 MVP v0.4
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -108,6 +108,7 @@
       carrotCount:0, whipCount:0, totalExp:0, eventCount:0, eventsByType:{},
       recentEvents:[], records:[], finished:false, finishedRecordId:null, evolution:null,
       pendingChoice:null, unlockedAchievements:[],
+      decor:{unlocked:[],equipped:{floor:null,wall:null,light:null}},
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
       tutorialCompleted:false, tutorialStep:0,
       settings:{ soundEnabled:true, volume:65 }
@@ -155,6 +156,13 @@
           } : null,
         unlockedAchievements:Array.isArray(prev.unlockedAchievements) ?
           [...new Set(prev.unlockedAchievements)].filter(id=>B.achievements.some(a=>a.id===id)) : [],
+        decor: {
+          unlocked:Array.isArray(prev.decor?.unlocked) ?
+            [...new Set(prev.decor.unlocked.filter(id=>typeof id==='string' && B.decorations.some(d=>d.id===id)))]:[],
+          equipped:Object.fromEntries(['floor','wall','light'].map(slot=>[
+            slot, B.decorations.some(d=>d.id===prev.decor?.equipped?.[slot] && d.slot===slot) ? prev.decor.equipped[slot] : null
+          ]))
+        },
         records,
         finished: Boolean(prev.finished), finishedRecordId: prev.finishedRecordId ?? null,
         evolution:validTypes.includes(prev.evolution)?prev.evolution:null,
@@ -176,6 +184,7 @@
   // 과거 육성 기록을 이용해 첫 접속 시 도전과제를 소급 인정하되 알림은 발생시키지 않습니다.
   // reconcileAchievements는 선언식 함수이므로 초기화 시점에서 참조 가능합니다.
   reconcileAchievements();
+  reconcileDecorations(); // 구버전 저장 데이터의 과거 육성 기록을 소급 인정
   let activeScreen = 'game';
   let modalOpen = false;
   let modalKind = null;
@@ -194,7 +203,7 @@
       achievementToastScheduled=false;
       if(modalOpen || game.pendingChoice) return; // 팝업 종료 시 재개
       const title=achievementNoticeQueue.shift();
-      if(title) toast(`🏅 도전과제 달성 · ${title}`);
+      if(title) toast(title.startsWith('장식 해금 · ')?`✿ ${title}`:`🏅 도전과제 달성 · ${title}`);
       if(achievementNoticeQueue.length) scheduleAchievementNotices();
     },2000);
   }
@@ -317,12 +326,17 @@
     game.lastFeedback=feedback;
     updateTutorial(action);
     const gainedAchievements=reconcileAchievements();
+    const gainedDecorations=reconcileDecorations();
     if(gainedAchievements.length) {
       achievementNoticeQueue.push(...gainedAchievements);
       for(const title of gainedAchievements) {
         const match=B.achievements.find(a=>a.title===title);
         if(match)trackAnalytics('achievement_unlocked',{achievement_id:match.id});
       }
+    }
+    if(gainedDecorations.length) {
+      // 선택형 이벤트 및 진화 결과보다 뒤에 간단한 해금 알림을 표시합니다.
+      for(const name of gainedDecorations) achievementNoticeQueue.push(`장식 해금 · ${name}`);
     }
     if(game.finished) trackAnalytics('ant_evolved',{
       ant_type:game.evolution, completed_level:game.level,
@@ -395,6 +409,87 @@
     }
     game.unlockedAchievements=[...unlocked];
     return newly;
+  }
+
+
+  // 현재 진행 개미 + 완료 기록을 중복 없이 합산해 장식 해금 조건을 검사합니다.
+  function decorProgress() {
+    const career=game.records.reduce((acc,r)=>{
+      acc.carrots+=r.carrotCount;
+      acc.whips+=r.whipCount;
+      acc.events+=r.eventCount;
+      acc.evolutions++;
+      if(r.type==='genius')acc.genius++;
+      return acc;
+    },{carrots:0,whips:0,events:0,evolutions:0,genius:0});
+    if(!game.finished) {
+      career.carrots+=game.carrotCount;
+      career.whips+=game.whipCount;
+      career.events+=game.eventCount;
+    }
+    career.actions=career.carrots+career.whips;
+    return career;
+  }
+  function reconcileDecorations() {
+    const progress=decorProgress();
+    const unlocked=new Set(game.decor.unlocked);
+    const newly=[];
+    for(const item of B.decorations) {
+      if(progress[item.req.kind] >= item.req.min && !unlocked.has(item.id)) {
+        unlocked.add(item.id); newly.push(item.name);
+      }
+    }
+    game.decor.unlocked=[...unlocked];
+    // 깨진 저장 상태에 고정된 잠금 장식이 남아 있을 경우 화면에 나타내지 않습니다.
+    for(const slot of ['floor','wall','light']) {
+      if(!unlocked.has(game.decor.equipped[slot])) game.decor.equipped[slot]=null;
+    }
+    return newly;
+  }
+  function nestTheme() {
+    const total=game.carrotCount+game.whipCount;
+    if(!total)return {id:'neutral',label:'포근한 흙집'};
+    const ratio=getRatio();
+    if(ratio<=B.evolution.easyMaxWhipRatio)return {id:'cozy',label:'초록빛 휴식처'};
+    if(ratio<B.evolution.geniusMaxWhipRatio)return {id:'balanced',label:'반짝이는 연구실'};
+    return {id:'workshop',label:'성실한 공방'};
+  }
+  function renderNestScene() {
+    const theme=nestTheme();
+    qs('habitat').dataset.theme=theme.id;
+    qs('scene-location').textContent=`⌂  ${theme.label}`;
+    for(const slot of ['floor','wall','light']) {
+      const item=B.decorations.find(d=>d.id===game.decor.equipped[slot] && d.slot===slot);
+      const el=qs(`nest-${slot}-display`);
+      el.textContent=item?.icon||'';
+      el.title=item?.name||'';
+    }
+  }
+  function renderDecorations() {
+    const owned=new Set(game.decor.unlocked);
+    qs('decor-count').textContent=`${owned.size} / ${B.decorations.length}`;
+    qs('decor-progress').style.width=`${Math.round(100*owned.size/B.decorations.length)}%`;
+    qs('nest-theme-caption').textContent=`현재 개미집 분위기: ${nestTheme().label}`;
+    qs('decorations-grid').innerHTML=B.decorations.map(item=>{
+      const unlocked=owned.has(item.id);
+      const equipped=game.decor.equipped[item.slot]===item.id;
+      return `<article class="decor-card ${unlocked?'':'locked'} ${equipped?'equipped':''}">
+        <span class="decor-icon" aria-hidden="true">${unlocked?escapeHTML(item.icon):'🔒'}</span>
+        <div class="decor-info"><strong>${escapeHTML(item.name)}</strong>
+          <small>${unlocked?escapeHTML(item.desc):`해금 조건 · ${escapeHTML(item.hint)}`}</small>
+          <span class="decor-slot">${{floor:'바닥',wall:'벽',light:'조명'}[item.slot]}</span></div>
+        <button class="decor-action" type="button" data-decor-id="${escapeHTML(item.id)}" ${unlocked?'':'disabled'} aria-label="${escapeHTML(item.name)} ${equipped?'해제':unlocked?'배치':'잠김'}">${equipped?'해제':unlocked?'배치':'미해금'}</button>
+      </article>`;
+    }).join('');
+  }
+  function toggleDecoration(id) {
+    if(modalOpen || game.pendingChoice || !game.decor.unlocked.includes(id))return;
+    const item=B.decorations.find(d=>d.id===id);
+    if(!item)return;
+    const equipped=game.decor.equipped[item.slot]===id;
+    game.decor.equipped[item.slot]=equipped?null:id;
+    saveState();render();
+    toast(equipped?`${item.name} 장식을 해제했어요.`:`${item.name}을(를) 개미집에 배치했어요!`);
   }
 
   function finishEvolution() {
@@ -476,6 +571,8 @@
     qs('carrot-button').disabled=game.finished||Boolean(game.pendingChoice);
     qs('whip-button').disabled=game.finished||Boolean(game.pendingChoice);
     renderEvolutionGuide();
+    renderNestScene();
+    renderDecorations();
     qs('finished-panel').hidden=!game.finished;
     if(game.finished)qs('finished-name').textContent=B.types[game.evolution].name;
     renderTutorial();
@@ -604,7 +701,7 @@
 
   function showScreen(name,scroll=true) {
     activeScreen=name;
-    for(const screen of ['game','records','settings'])qs(`screen-${screen}`).hidden=screen!==name;
+    for(const screen of ['game','records','nest','settings'])qs(`screen-${screen}`).hidden=screen!==name;
     document.querySelectorAll('[data-screen]').forEach(button=>{
       const active=button.dataset.screen===name;
       button.classList.toggle('active',active);
@@ -751,7 +848,8 @@
       const records=game.records;
       const settings=game.settings;
       const unlockedAchievements=game.unlockedAchievements;
-      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.tutorialCompleted=true;
+      const decor={unlocked:[...game.decor.unlocked],equipped:{...game.decor.equipped}};
+      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;game.tutorialCompleted=true;
       saveState();closeModal();showScreen('game');render();toast('새로운 신입 개미가 찾아왔어요!');
     });
     qs('cancel-new-ant').addEventListener('click',closeModal);
@@ -788,6 +886,10 @@
     qs('tutorial-next').addEventListener('click',advanceTutorial);
     qs('header-settings').addEventListener('click',()=>{if(!game.pendingChoice)showScreen('settings');});
     document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>{if(!game.pendingChoice) showScreen(button.dataset.screen);}));
+    qs('decorations-grid').addEventListener('click',event=>{
+      const button=event.target.closest('[data-decor-id]');
+      if(button)toggleDecoration(button.dataset.decorId);
+    });
     qs('record-list').addEventListener('click',event=>{
       const button=event.target.closest('[data-record-id]');
       if(button)showRecordDetails(button.dataset.recordId);
