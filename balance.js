@@ -4,33 +4,47 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.3.0',
+  version: '0.4.0',
   // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
   releaseNotes: {
-    version: '0.3.0',
+    version: '0.4.0',
     date: '2026-11-05',
-    title: '개미의 선택',
-    summary: '두 가지 선택형 돌발 이벤트와 진화 예상 가이드, 도전과제 8종이 개미집에 찾아왔습니다.',
+    title: '나만의 개미집',
+    summary: '개미의 성장 기록이 개미집을 채웁니다. 장식 9종을 발견하고 원하는 곳에 꾸며 보세요.',
     sections: [
-      { heading: '새로운 기능', items: [
-        '몰래 낮잠과 기분 전환 이벤트에서 직접 대응 방법을 선택할 수 있습니다.',
-        '행동 비율을 기반으로 현재 예상 진화를 확인할 수 있습니다.',
-        '도전과제 8종이 추가되었고, 과거 육성 기록도 달성에 반영됩니다.',
-        '업데이트 후 첫 접속 시 패치노트가 표시되며 설정에서 다시 볼 수 있습니다.'
+      { heading: '새로운 개미집', items: [
+        '장식품 9종이 추가되었습니다. 누적 당근·채찍·이벤트·진화 기록으로 해금합니다.',
+        '바닥, 벽, 조명에 각 1개씩 장식을 배치하거나 해제할 수 있습니다.',
+        '당근과 채찍의 누적 비율에 따라 개미집의 배경 분위기가 바뀝니다.'
       ] },
-      { heading: '기존 밸런스 유지', items: [
-        '스트레스 60 이상에서 당근 회복 -20, 나태함 60 이상에서 채찍 교정 -10 효과가 유지됩니다.',
-        '경험치 공식, 이벤트 발생 확률, 세 가지 진화 비율은 변경하지 않았습니다.'
+      { heading: '기록 및 편의성', items: [
+        'v0.1부터의 육성·진화 기록으로 달성한 장식은 자동으로 열립니다.',
+        '꾸미기 배치는 새 개미를 키워도 유지되고 이전 패치노트도 계속 열람할 수 있습니다.',
+        '통계 수집은 요청에 따라 계속 비활성화합니다.'
       ] },
-      { heading: '기록과 저장', items: [
-        'v0.1·v0.2에서 육성한 개미와 이전 진화 기록을 그대로 이어서 사용할 수 있습니다.',
-        '선택 중 새로고침하더라도 미완료 이벤트를 복원합니다.'
+      { heading: '밸런스 유지', items: [
+        '장식은 외형 전용이며 경험치·돌발 이벤트·진화 확률에 영향을 주지 않습니다.',
+        'v0.2 조건부 회복과 v0.3 선택형 이벤트, 도전과제 8종을 유지합니다.'
       ] }
     ]
   },
   // 과거 배포 버전을 순서대로 보관합니다. 미배포 v0.2.1은 목록에 포함하지 않습니다.
   // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
   releaseNotesHistory: [
+    {
+      version: '0.3.0', date: '2026-11-05', title: '개미의 선택',
+      summary: '선택형 돌발 이벤트, 진화 예상 가이드, 도전과제 8종과 자동 패치노트가 추가되었습니다.',
+      sections: [
+        { heading: '새로운 기능', items: [
+          '몰래 낮잠과 기분 전환 이벤트의 대응을 선택할 수 있습니다.',
+          '예상 진화 분기를 실시간으로 확인할 수 있습니다.',
+          '도전과제 8종이 추가되었습니다.'
+        ] },
+        { heading: '데이터 보호', items: [
+          '선택형 이벤트를 새로고침해도 복원하고 기존 육성 기록을 유지합니다.'
+        ] }
+      ]
+    },
     {
       version: '0.2.0', title: '육성 밸런스 개선',
       summary: '위험한 상태에서도 회복과 훈련 사이의 선택이 의미 있게 작동하도록 조정했습니다.',
@@ -121,6 +135,19 @@ window.ANT_BALANCE = Object.freeze({
     { id:'ACH06', title:'세 갈래의 길', description:'세 가지 진화를 모두 발견', icon:'🏆' },
     { id:'ACH07', title:'개미 돌봄 전문가', description:'누적 육성 행동 300회', icon:'📜' },
     { id:'ACH08', title:'사건의 목격자', description:'누적 돌발 이벤트 30회', icon:'🔎' }
+  ],
+  // v0.4 개미집 꾸미기: 오직 누적 기록에 따라 해금하는 외형 장식입니다.
+  // 슬롯당 하나만 장착합니다. 기존 능력치·EXP·진화 계산에는 관여하지 않습니다.
+  decorations: [
+    { id:'carrot-basket', slot:'floor', name:'당근 바구니', icon:'🥕', desc:'수확한 당근을 모아 두는 바구니', req:{kind:'carrots',min:5}, hint:'누적 당근 5회' },
+    { id:'leaf-bed', slot:'floor', name:'잎사귀 침대', icon:'🍃', desc:'말랑하고 푹신한 휴식 공간', req:{kind:'carrots',min:30}, hint:'누적 당근 30회' },
+    { id:'toolbox', slot:'floor', name:'훈련 도구함', icon:'🧰', desc:'성실한 개미의 작은 도구함', req:{kind:'whips',min:30}, hint:'누적 채찍 30회' },
+    { id:'growth-chart', slot:'wall', name:'성장 기록판', icon:'📜', desc:'매일의 선택을 적어 두는 기록판', req:{kind:'actions',min:15}, hint:'누적 행동 15회' },
+    { id:'flower-garland', slot:'wall', name:'꽃 덩굴 장식', icon:'🌸', desc:'개미집에 봄을 데려오는 꽃 장식', req:{kind:'carrots',min:20}, hint:'누적 당근 20회' },
+    { id:'trophy-shelf', slot:'wall', name:'진화 기념장', icon:'🏆', desc:'첫 진화를 기리는 작은 기념품', req:{kind:'evolutions',min:1}, hint:'진화 1회 완료' },
+    { id:'mushroom-light', slot:'light', name:'버섯 등불', icon:'🍄', desc:'따스한 빛의 버섯 조명', req:{kind:'events',min:5}, hint:'누적 돌발 이벤트 5회' },
+    { id:'firefly-jar', slot:'light', name:'반딧불 유리병', icon:'✨', desc:'어두운 굴을 밝히는 작은 별빛', req:{kind:'actions',min:60}, hint:'누적 행동 60회' },
+    { id:'star-lantern', slot:'light', name:'별빛 수정등', icon:'💎', desc:'천재 개미의 기발한 발상이 깃든 장식', req:{kind:'genius',min:1}, hint:'천재 개미 1회 진화' }
   ],
   // Q21 엄격한 균형 판정: <=45% 태평, (45%,55%) 천재, >=55% 근면.
   evolution: { easyMaxWhipRatio: 0.45, geniusMaxWhipRatio: 0.55 },
