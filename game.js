@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.7
+ * 개미 키우기 MVP v0.8
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -15,6 +15,17 @@
   const PRE_V05_BACKUP_KEY = 'little-ant-game-before-v0.5';
   const PRE_V06_BACKUP_KEY = 'little-ant-game-before-v0.6';
   const PRE_V07_BACKUP_KEY = 'little-ant-game-before-v0.7';
+  const PRE_V08_BACKUP_KEY = 'little-ant-game-before-v0.8';
+  const PRE_IMPORT_KEY = 'little-ant-game-before-import-v0.8';
+  // v0.8 첫 실행: 이전 버전 원문을 별도 슬롯에 1회만 보존합니다.
+  try {
+    const raw=localStorage.getItem(KEY);
+    if(raw && !localStorage.getItem(PRE_V08_BACKUP_KEY)) {
+      const prev=JSON.parse(raw);
+      if(prev?.schemaVersion===1 && !Object.prototype.hasOwnProperty.call(prev,'kingdom'))
+        localStorage.setItem(PRE_V08_BACKUP_KEY,raw);
+    }
+  } catch(_error) { /* 백업 오류라도 기존 저장 내용을 손대지 않습니다. */ }
   // v0.1~v0.4 원본 세이브를 v0.5로 최초 이전하기 전에 딱 한 번 백업합니다.
   function preserveOriginalSave() {
     try {
@@ -111,6 +122,50 @@
   const portraitEmoji = { easy: '🍀', genius: '💡', diligent: '🛠️' };
   const ALL_DECOR = [...B.decorations,...B.craftingItems];
   const RESOURCE_IDS = B.resources.map(item=>item.id);
+  const FACILITY_IDS = B.kingdomFacilities.map(item=>item.id);
+  const FACILITY_BY_REGION = Object.fromEntries(B.kingdomFacilities.map(item=>[item.region,item]));
+  const FACILITY_BY_ID = Object.fromEntries(B.kingdomFacilities.map(item=>[item.id,item]));
+  const maximumResource = 999999;
+  const KINGDOM_MAX_LEVEL = 5;
+  const defaultKingdom = () => ({
+    dataVersion:1,facilities:{pantry:1,workshop:0,laboratory:0},
+    assignments:{pantry:null,workshop:null,laboratory:null},upgradeLedger:[]
+  });
+  // 완료 기록의 ID만 참조하며 record 객체 자체는 절대 수정하지 않습니다.
+  function normalizeKingdom(raw,records) {
+    const base=defaultKingdom();
+    if(raw===undefined || raw===null)return base;
+    if(!raw || typeof raw!=='object' || Array.isArray(raw) || raw.dataVersion!==1)
+      throw new Error('지원하지 않는 왕국 데이터 형식');
+    if(!raw.facilities || typeof raw.facilities!=='object' || !raw.assignments || typeof raw.assignments!=='object')
+      throw new Error('왕국 시설·배치 데이터가 누락됐습니다.');
+    const assignments=new Set();
+    const idCounts=records.reduce((acc,record)=>(acc[record.id]=(acc[record.id]||0)+1,acc),Object.create(null));
+    for(const id of FACILITY_IDS){
+      const level=raw.facilities[id];
+      if(!Number.isInteger(level) || level<0 || level>KINGDOM_MAX_LEVEL || (id==='pantry' && level<1))
+        throw new Error('시설 레벨에 올바르지 않은 값이 있습니다.');
+      base.facilities[id]=level;
+      const worker=raw.assignments[id]??null;
+      if(worker!==null) {
+        if(typeof worker!=='string' || idCounts[worker]!==1 || level===0 || assignments.has(worker))
+          throw new Error('일꾼 배치에 중복 또는 없는 개미가 있습니다.');
+        assignments.add(worker);
+      }
+      base.assignments[id]=worker;
+    }
+    if(raw.upgradeLedger!==undefined) {
+      if(!Array.isArray(raw.upgradeLedger))throw new Error('시설 강화 기록 형식이 잘못됐습니다.');
+      base.upgradeLedger=raw.upgradeLedger.slice(0,30).filter(entry=>
+        entry && FACILITY_IDS.includes(entry.facilityId) &&
+        Number.isInteger(entry.fromLevel) && Number.isInteger(entry.toLevel) &&
+        entry.fromLevel>=0 && entry.toLevel===entry.fromLevel+1 && entry.toLevel<=5 &&
+        entry.cost && typeof entry.cost==='object' && Number.isFinite(entry.at)
+      ).map(entry=>({facilityId:entry.facilityId,fromLevel:entry.fromLevel,toLevel:entry.toLevel,
+        cost:Object.fromEntries(RESOURCE_IDS.map(id=>[id,Math.max(0,Math.floor(Number(entry.cost[id]||0)))])),at:entry.at}));
+    }
+    return base;
+  }
   const validCraft = id => B.craftingItems.some(item=>item.id===id);
   const SECOND_TYPES = B.secondEvolution.types;
   const SECOND_THRESH = B.secondEvolution.threshold;
@@ -151,6 +206,7 @@
       decor:{unlocked:[],equipped:{floor:null,wall:null,light:null}},
       expedition:{tickets:0,ticks:0,inventory:{food:0,wood:0,crystal:0},crafted:[],trips:[],totalTrips:0},
       recentActions:[],
+      kingdom:defaultKingdom(),
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
       tutorialCompleted:false, tutorialStep:0,
       settings:{ soundEnabled:true, volume:65, autoCare:{mode:B.autoCare.defaultMode,batch:B.autoCare.defaultBatch,speed:B.autoCare.defaultSpeed,safeStop:B.autoCare.defaultSafeStop} }
@@ -252,6 +308,7 @@
             action:item.action,gained:num(item.gained,0,100000),at:num(item.at,Date.now()),eventId: B.events[item.eventId]?item.eventId:null
           })):[],
         records,
+        kingdom:normalizeKingdom(prev.kingdom,records),
         finished: Boolean(prev.finished), finishedRecordId: prev.finishedRecordId ?? null,
         evolution:validTypes.includes(prev.evolution)?prev.evolution:null,
         lastSpeech:typeof prev.lastSpeech==='string'?prev.lastSpeech.slice(0,120):base.lastSpeech,
@@ -320,6 +377,172 @@
     renderStorageStatus();
   }
 
+  // v0.8 자원 소비/원정/배치 트랜잭션: 저장이 실패하면 메모리와 UI도 바뀌지 않습니다.
+  function applyKingdomTransaction(mutator) {
+    if(storageCorrupt)return false;
+    try {
+      const draft=JSON.parse(JSON.stringify(game));
+      if(mutator(draft)===false)return false;
+      const raw=JSON.stringify(draft);
+      localStorage.setItem(KEY,raw);
+      if(localStorage.getItem(KEY)!==raw)throw new Error('저장 확인 실패');
+      game=draft;
+      storageWorks=true;
+      render();
+      return true;
+    } catch(error) {
+      console.warn('왕국 작업 저장 실패:',error);
+      storageWorks=false;
+      renderStorageStatus();
+      toast('저장에 실패하여 작업을 적용하지 않았습니다.');
+      return false;
+    }
+  }
+  function getFacilityBonus(regionId,kingdom=game.kingdom,records=game.records) {
+    const facility=FACILITY_BY_REGION[regionId];
+    if(!facility)return {facilityBonus:0,workerBonus:0,total:0,worker:null};
+    const level=kingdom.facilities[facility.id]||0;
+    const facilityBonus=facility.levelBonus[level]||0;
+    const workerId=level>0?kingdom.assignments[facility.id]:null;
+    const matches=records.filter(record=>record.id===workerId);
+    const worker=matches.length===1?matches[0]:null;
+    const workerBonus=worker?1+(worker.type===facility.specialty?1:0):0;
+    return {facilityBonus,workerBonus,total:facilityBonus+workerBonus,worker};
+  }
+  function resourceCostLabel(cost){
+    return RESOURCE_IDS.filter(id=>cost[id]>0).map(id=>{
+      const name=B.resources.find(item=>item.id===id);
+      return `${name.icon} ${name.name} ${cost[id]}`;
+    }).join(' · ')||'무료';
+  }
+  function facilityById(id){return FACILITY_BY_ID[id]||null;}
+  function upgradeFacility(id, expectedLevel) {
+    const facility=facilityById(id);
+    if(!facility || game.pendingChoice || game.kingdom.facilities[id]!==expectedLevel || expectedLevel>=5)return false;
+    const nextLevel=expectedLevel+1;
+    const cost=facility.costs[nextLevel]||{};
+    const success=applyKingdomTransaction(draft=>{
+      if(draft.kingdom.facilities[id]!==expectedLevel ||
+         !Object.entries(cost).every(([key,count])=>draft.expedition.inventory[key]>=count))return false;
+      for(const [key,count] of Object.entries(cost))draft.expedition.inventory[key]-=count;
+      draft.kingdom.facilities[id]=nextLevel;
+      draft.kingdom.upgradeLedger.unshift({facilityId:id,fromLevel:expectedLevel,toLevel:nextLevel,cost:{...cost},at:Date.now()});
+      draft.kingdom.upgradeLedger=draft.kingdom.upgradeLedger.slice(0,30);
+      return true;
+    });
+    if(success)toast(`${facility.name} LV.${nextLevel} ${expectedLevel?'강화':'건설'} 완료!`);
+    return success;
+  }
+  function confirmUpgradeFacility(id){
+    const facility=facilityById(id);
+    if(!facility || modalOpen || game.pendingChoice)return;
+    const level=game.kingdom.facilities[id];
+    if(level>=5)return;
+    const cost=facility.costs[level+1]||{};
+    if(!Object.entries(cost).every(([key,count])=>resourceCount(key)>=count)){
+      toast('건설·강화에 필요한 자원이 부족합니다.');return;
+    }
+    showModal(`<p class="modal-eyebrow">KINGDOM BUILD</p><h2 id="modal-title">${escapeHTML(facility.name)} ${level?'강화':'건설'}</h2>
+      <p class="modal-subtitle">LV.${level} → LV.${level+1}</p>
+      <div class="modal-info">소모: ${escapeHTML(resourceCostLabel(cost))}<br>기본 원정 보너스: +${facility.levelBonus[level]} → +${facility.levelBonus[level+1]}</div>
+      <p class="import-warning">확인하면 자원은 한 번만 소비되며 되돌릴 수 없습니다.</p>
+      <div class="modal-buttons"><button class="modal-primary" type="button" id="confirm-facility-upgrade">${level?'강화':'건설'} 확정</button><button class="modal-secondary" type="button" id="cancel-facility-upgrade">취소</button></div>`);
+    qs('confirm-facility-upgrade').addEventListener('click',()=>{const ok=upgradeFacility(id,level);if(ok)closeModal();});
+    qs('cancel-facility-upgrade').addEventListener('click',closeModal);
+  }
+  function assignedFacilityFor(recordId,kingdom=game.kingdom){
+    return FACILITY_IDS.find(id=>kingdom.assignments[id]===recordId)||null;
+  }
+  function assignWorker(id,recordId){
+    const facility=facilityById(id);
+    if(!facility || game.kingdom.facilities[id]===0 || game.pendingChoice)return false;
+    const idMatches=game.records.filter(record=>record.id===recordId);
+    if(idMatches.length!==1)return false;
+    const success=applyKingdomTransaction(draft=>{
+      if(!draft.kingdom.facilities[id] || draft.records.filter(r=>r.id===recordId).length!==1)return false;
+      for(const fid of FACILITY_IDS)if(draft.kingdom.assignments[fid]===recordId)draft.kingdom.assignments[fid]=null;
+      draft.kingdom.assignments[id]=recordId;
+      return true;
+    });
+    if(success)toast(`${facility.role} 배치 완료!`);
+    return success;
+  }
+  function unassignWorker(id){
+    if(!facilityById(id) || !game.kingdom.assignments[id] || game.pendingChoice)return;
+    if(applyKingdomTransaction(draft=>{draft.kingdom.assignments[id]=null;return true;}))toast('일꾼 배치를 해제했습니다.');
+  }
+  function chooseWorker(id,filter='all') {
+    const facility=facilityById(id);
+    if(!facility || !game.kingdom.facilities[id] || game.pendingChoice)return;
+    const candidates=game.records.filter(record=>game.records.filter(r=>r.id===record.id).length===1)
+      .filter(record=>filter==='free'?!assignedFacilityFor(record.id):filter==='assigned'?!!assignedFacilityFor(record.id):true);
+    const filters=[['all','전체'],['free','미배치'],['assigned','배치 중']];
+    const cards=candidates.map(record=>{
+      const origin=assignedFacilityFor(record.id);
+      return `<button class="kingdom-picker-item" type="button" data-pick-worker="${escapeHTML(record.id)}"><span><strong>${escapeHTML(B.types[record.type].name)} · LV.${record.level}</strong>
+        <small>${escapeHTML(dateLabel(record.timestamp))} · ${record.type===facility.specialty?'특화 역할 · 추가 +1':'기본 역할 · +1'}${origin?' · '+escapeHTML(FACILITY_BY_ID[origin].name)+' 배치 중':''}</small></span><span>선택</span></button>`;
+    }).join('')||'<p class="modal-subtitle">해당 조건의 완료 개미가 없습니다.</p>';
+    showModal(`<p class="modal-eyebrow">WORKER ASSIGNMENT</p><h2 id="modal-title">${escapeHTML(facility.role)} 선택</h2>
+      <p class="modal-subtitle">완료한 개미 1마리를 ${escapeHTML(facility.name)}에 배치합니다. 같은 개미는 여러 시설에 배치할 수 없습니다.</p>
+      <div class="kingdom-picker-filters">${filters.map(([value,label])=>`<button type="button" class="${value===filter?'active':''}" data-worker-filter="${value}">${label}</button>`).join('')}</div>
+      <div class="kingdom-picker-list">${cards}</div><div class="modal-buttons"><button class="modal-secondary" type="button" id="cancel-worker-picker">닫기</button></div>`,'worker-picker');
+    qs('cancel-worker-picker').addEventListener('click',closeModal);
+    qs('modal-body').querySelectorAll('[data-worker-filter]').forEach(btn=>btn.addEventListener('click',()=>{closeModal();chooseWorker(id,btn.dataset.workerFilter);}));
+    qs('modal-body').querySelectorAll('[data-pick-worker]').forEach(btn=>btn.addEventListener('click',()=>{
+      const worker=game.records.find(rec=>rec.id===btn.dataset.pickWorker);
+      if(!worker)return;
+      const old=assignedFacilityFor(worker.id);
+      const oldFacility=game.kingdom.assignments[id];
+      closeModal();
+      showModal(`<p class="modal-eyebrow">WORKER ASSIGNMENT</p><h2 id="modal-title">일꾼 배치 확인</h2>
+        <p class="modal-subtitle">${escapeHTML(B.types[worker.type].name)} → ${escapeHTML(facility.name)}</p>
+        <div class="modal-info">${old && old!==id?`${escapeHTML(FACILITY_BY_ID[old].name)}에서 자동 해제 후 이동합니다.<br>`:''}${oldFacility && oldFacility!==worker.id?'기존 일꾼은 미배치 상태로 전환됩니다.<br>':''}원정 보너스: +${1+(worker.type===facility.specialty?1:0)}</div>
+        <div class="modal-buttons"><button class="modal-primary" type="button" id="confirm-worker">배치 확정</button><button class="modal-secondary" type="button" id="cancel-worker">취소</button></div>`);
+      qs('confirm-worker').addEventListener('click',()=>{if(assignWorker(id,worker.id))closeModal();});
+      qs('cancel-worker').addEventListener('click',closeModal);
+    }));
+  }
+  let activeNestTab='decor';
+  function switchNestTab(tab){
+    if(!['decor','facilities','workers'].includes(tab))return;
+    activeNestTab=tab;
+    for(const name of ['decor','facilities','workers']){
+      qs(`nest-${name}-panel`).hidden=name!==tab;
+      const btn=qs(`nest-tab-${name}`);
+      btn.classList.toggle('active',name===tab);
+      btn.setAttribute('aria-selected',String(name===tab));
+      btn.tabIndex=name===tab?0:-1;
+    }
+  }
+  function renderKingdom(){
+    const k=game.kingdom;
+    qs('kingdom-summary').textContent=`건설 시설 ${FACILITY_IDS.filter(id=>k.facilities[id]>0).length}/3 · 배치 일꾼 ${FACILITY_IDS.filter(id=>!!k.assignments[id]).length}/3`;
+    qs('kingdom-facilities').innerHTML=B.kingdomFacilities.map(f=>{
+      const level=k.facilities[f.id],next=level+1;
+      const bonus=getFacilityBonus(f.region);
+      const cost=level<5?f.costs[next]||{}:{};
+      const affordable=Object.entries(cost).every(([id,n])=>resourceCount(id)>=n);
+      return `<article class="kingdom-facility-card"><div class="kingdom-card-heading"><span class="kingdom-facility-icon">${escapeHTML(f.icon)}</span>
+        <div><strong>${escapeHTML(f.name)}</strong><small>${level?'LV.'+level+' / LV.5':'미건설 · LV.0 / LV.5'} · ${escapeHTML(f.role)}</small></div></div>
+        <div class="kingdom-facility-progress"><span style="width:${level/5*100}%"></span></div>
+        <p class="kingdom-facility-description">${escapeHTML(B.resources.find(r=>r.id===f.resource).name)} 원정 보너스: 시설 +${bonus.facilityBonus}, 일꾼 +${bonus.workerBonus} (총 +${bonus.total})</p>
+        <p class="kingdom-resource-cost">${level>=5?'최고 레벨 달성':`다음 LV.${next} 비용 · ${escapeHTML(resourceCostLabel(cost))}`}</p>
+        <div class="kingdom-facility-action-row"><small>${level>=5?'더 이상 강화할 수 없습니다.':affordable?'건설·강화 가능':'자원이 부족합니다.'}</small>
+          <button type="button" data-upgrade-facility="${f.id}" ${level>=5||!affordable||game.pendingChoice?'disabled':''}>${level>=5?'MAX':level===0?'건설하기':'강화하기'}</button></div></article>`;
+    }).join('');
+    qs('kingdom-worker-summary').textContent=`완료 개미 ${game.records.length}마리 · 배치 일꾼 ${FACILITY_IDS.filter(id=>!!k.assignments[id]).length}마리`;
+    qs('kingdom-workers').innerHTML=B.kingdomFacilities.map(f=>{
+      const level=k.facilities[f.id],id=k.assignments[f.id];
+      const worker=game.records.find(record=>record.id===id);
+      const roleBonus=getFacilityBonus(f.region).workerBonus;
+      return `<article class="kingdom-worker-card"><div class="kingdom-card-heading"><span class="kingdom-facility-icon">${escapeHTML(f.icon)}</span><div><strong>${escapeHTML(f.role)}</strong><small>${escapeHTML(f.name)} · ${level?'LV.'+level:'미건설'}</small></div></div>
+        <div class="kingdom-worker-status">${!level?'먼저 시설을 건설하세요.':worker?`${escapeHTML(B.types[worker.type].name)} · LV.${worker.level} · ${worker.type===f.specialty?'특화':'일반'} (보너스 +${roleBonus})`:'미배치 · 원정 보너스 없음'}</div>
+        <div class="kingdom-worker-actions"><button type="button" data-choose-facility="${f.id}" ${!level||!game.records.length||game.pendingChoice?'disabled':''}>${worker?'일꾼 교체':'일꾼 배치'}</button>
+          ${worker?`<button type="button" class="secondary" data-unassign-facility="${f.id}" ${game.pendingChoice?'disabled':''}>배치 해제</button>`:''}</div></article>`;
+    }).join('');
+    const ledger=k.upgradeLedger.slice(0,3).map(entry=>`${dateLabel(entry.at)} · ${escapeHTML(FACILITY_BY_ID[entry.facilityId].name)} LV.${entry.toLevel}`).join(' / ');
+    qs('kingdom-ledger').textContent=ledger?`최근 건설·강화: ${ledger}`:'아직 시설 강화 기록이 없습니다.';
+  }
   function efficiency(stats) {
     const e=B.efficiency;
     const raw = 1 + (stats.motivation-e.motivationBaseline)*e.motivationWeight
@@ -706,22 +929,28 @@
     return newly;
   }
   const resourceCount = id => game.expedition.inventory[id]||0;
-  const canExplore = region => game.level>=region.minLevel && game.expedition.tickets>0 && !game.pendingChoice && !modalOpen;
+  const canExplore = region => game.level>=region.minLevel && game.expedition.tickets>0 &&
+    resourceCount(region.main)<maximumResource && !game.pendingChoice && !modalOpen && !storageCorrupt;
   function exploreRegion(regionId) {
     const region=B.expeditions.regions.find(r=>r.id===regionId);
     if(!region || !canExplore(region))return;
-    // 모바일 연속 탭으로 원정권이 한꺼번에 소모되는 것을 막습니다.
     if(Date.now()-lastExploreClick<450)return;
-    lastExploreClick=Date.now();
-    const bonus=Math.random()<region.bonusChance?region.bonus:0;
-    const amount=region.reward+bonus;
-    game.expedition.tickets--;
-    game.expedition.inventory[region.main]=Math.min(999999,resourceCount(region.main)+amount);
-    game.expedition.totalTrips++;
-    game.expedition.trips.unshift({region:region.id,resource:region.main,amount,at:Date.now()});
-    game.expedition.trips=game.expedition.trips.slice(0,12);
-    saveState();render();
-    toast(`${region.name} 원정 완료 · ${B.resources.find(r=>r.id===region.main).name} +${amount}${bonus?' · 특별 발견!':''}`);
+    const randomBonus=Math.random()<region.bonusChance?region.bonus:0;
+    const b=getFacilityBonus(region.id);
+    const available=maximumResource-resourceCount(region.main);
+    const amount=Math.min(available,region.reward+randomBonus+b.total);
+    if(amount<=0)return;
+    const succeeded=applyKingdomTransaction(draft=>{
+      if(draft.expedition.tickets<=0 || draft.expedition.inventory[region.main]>=maximumResource)return false;
+      draft.expedition.tickets--;
+      draft.expedition.inventory[region.main]+=amount;
+      draft.expedition.totalTrips++;
+      draft.expedition.trips.unshift({region:region.id,resource:region.main,amount,at:Date.now(),
+        base:region.reward,randomBonus,facilityBonus:b.facilityBonus,workerBonus:b.workerBonus});
+      draft.expedition.trips=draft.expedition.trips.slice(0,12);
+      return true;
+    });
+    if(succeeded){lastExploreClick=Date.now();toast(`${region.name} 원정 완료 · ${B.resources.find(r=>r.id===region.main).name} +${amount}${b.total?' · 왕국 보너스 +'+b.total:''}${randomBonus?' · 특별 발견!':''}`);}
   }
   function canCraft(item) {
     return !game.expedition.crafted.includes(item.id) && Object.entries(item.cost).every(([id,amount])=>resourceCount(id)>=amount);
@@ -729,10 +958,15 @@
   function craftItem(id) {
     const item=B.craftingItems.find(x=>x.id===id);
     if(!item || modalOpen || game.pendingChoice || !canCraft(item))return;
-    for(const [resource,amount] of Object.entries(item.cost))game.expedition.inventory[resource]-=amount;
-    game.expedition.crafted.push(id);
-    if(!game.decor.unlocked.includes(id))game.decor.unlocked.push(id);
-    saveState();render();toast(`제작 성공 · ${item.name}! 꾸미기에서 배치하세요.`);
+    const ok=applyKingdomTransaction(draft=>{
+      if(draft.expedition.crafted.includes(id) ||
+        !Object.entries(item.cost).every(([resource,amount])=>draft.expedition.inventory[resource]>=amount))return false;
+      for(const [resource,amount] of Object.entries(item.cost))draft.expedition.inventory[resource]-=amount;
+      draft.expedition.crafted.push(id);
+      if(!draft.decor.unlocked.includes(id))draft.decor.unlocked.push(id);
+      return true;
+    });
+    if(ok)toast(`제작 성공 · ${item.name}! 꾸미기에서 배치하세요.`);
   }
   function renderExpedition() {
     const exp=game.expedition;
@@ -744,11 +978,13 @@
     ).join('');
     qs('expedition-regions').innerHTML=B.expeditions.regions.map(region=>{
       const opened=game.level>=region.minLevel;
-      const allowed=opened && exp.tickets>0 && !game.pendingChoice && !modalOpen;
+      const allowed=opened && canExplore(region);
+      const b=getFacilityBonus(region.id);
+      const min=region.reward+b.total,max=min+region.bonus;
       return `<article class="region-card ${opened?'':'region-locked'}"><span class="region-icon">${region.icon}</span>
         <div class="region-content"><strong>${escapeHTML(region.name)} <small>LV.${region.minLevel}+</small></strong>
-          <p>${escapeHTML(region.description)}</p><small>원정권 1장 · ${escapeHTML(B.resources.find(r=>r.id===region.main).name)} ${region.reward}~${region.reward+region.bonus}개</small></div>
-        <button class="mini-button" data-expedition="${region.id}" type="button" ${allowed?'':'disabled'}>${!opened?'잠김':exp.tickets?'탐험':'원정권 부족'}</button></article>`;
+          <p>${escapeHTML(region.description)}</p><small>원정권 1장 · ${escapeHTML(B.resources.find(r=>r.id===region.main).name)} ${min}~${max}개 · 왕국 +${b.total}</small><details class="kingdom-reward-breakdown"><summary>보너스 상세</summary>기본 ${region.reward} · 시설 +${b.facilityBonus} · 일꾼 +${b.workerBonus} · 특별 발견 시 +${region.bonus}</details></div>
+        <button class="mini-button" data-expedition="${region.id}" type="button" ${allowed?'':'disabled'}>${!opened?'잠김':!exp.tickets?'원정권 부족':resourceCount(region.main)>=maximumResource?'재고 한도':'탐험'}</button></article>`;
     }).join('');
     qs('craft-progress').textContent=`${exp.crafted.length} / ${B.craftingItems.length} 제작`;
     qs('craft-grid').innerHTML=B.craftingItems.map(item=>{
@@ -761,8 +997,7 @@
         <div class="craft-content"><strong>${escapeHTML(item.name)}</strong><small>${escapeHTML(item.desc)}</small>
           <small class="craft-cost">${costs}</small></div>
         <button class="mini-button" data-craft="${item.id}" type="button" ${!crafted && canCraft(item) && !game.pendingChoice && !modalOpen?'':'disabled'}>${crafted?'제작 완료':'제작'}</button></article>`;
-    }).join('');
-    qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
+    }).join('');    qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
       const region=B.expeditions.regions.find(r=>r.id===t.region);
       const resource=B.resources.find(r=>r.id===t.resource);
       return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}</span><strong>${resource.icon} +${t.amount}</strong></div>`;
@@ -933,6 +1168,7 @@
     renderExpedition();
     renderNestScene();
     renderDecorations();
+    renderKingdom();
     qs('finished-panel').hidden=!game.finished;
     if(game.finished) {
       qs('finished-name').textContent=game.phase==='completed'?secondName:firstName;
@@ -997,7 +1233,8 @@
     qs('collection-count').textContent=`${discovered.size} / 3`;
     qs('collection-fill').style.width=`${100*discovered.size/3}%`;
     qs('record-count').textContent=`${game.records.length}개의 완료 기록`;
-    qs('collection-grid').innerHTML=Object.entries(B.types).map(([type,info])=>{      const count=game.records.filter(r=>r.type===type).length;
+    qs('collection-grid').innerHTML=Object.entries(B.types).map(([type,info])=>{
+      const count=game.records.filter(r=>r.type===type).length;
       const active=game.phase==='phase2' && game.evolution===type;
       return `<div class="collection-item ${count||active?'':'locked'}"><div class="collection-portrait">${count||active?portraitEmoji[type]:'?'}</div><h3>${count||active?info.name:'??? 개미'}</h3><p>${active?'현재 육성 중':count?`${count}번 발견`:'미발견'}</p></div>`;
     }).join('');
@@ -1122,6 +1359,8 @@
     if(previousFocus && typeof previousFocus.focus==='function')previousFocus.focus();
     renderAnalyticsUI();
     renderAutoCare();
+    renderExpedition();
+    renderKingdom();
     // 선택형 이벤트/진화 팝업 종료 후, 대기 중인 업데이트 안내를 보여 줍니다.
     queueMicrotask(()=>{
       if(queuedPatchOnLaunch && !modalOpen && !game.pendingChoice) {
@@ -1265,7 +1504,8 @@
       const unlockedAchievements=game.unlockedAchievements;
       const decor={unlocked:[...game.decor.unlocked],equipped:{...game.decor.equipped}};
       const expedition={...game.expedition,inventory:{...game.expedition.inventory},crafted:[...game.expedition.crafted],trips:[...game.expedition.trips]};
-      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;game.expedition=expedition;game.tutorialCompleted=true;
+      const kingdom=JSON.parse(JSON.stringify(game.kingdom));
+      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;game.expedition=expedition;game.kingdom=kingdom;game.tutorialCompleted=true;
       saveState();closeModal();showScreen('game');render();toast('새로운 신입 개미가 찾아왔어요!');
     });
     qs('cancel-new-ant').addEventListener('click',closeModal);
@@ -1287,11 +1527,12 @@
       const raw=localStorage.getItem(KEY);
       if(!raw) {toast('저장된 게임 데이터가 없습니다.');return;}
       const bundle={
-        format:'ant-game-save',exportVersion:B.version,exportedAt:new Date().toISOString(),
+        format:'ant-game-save',fileFormatVersion:2,exportVersion:B.version,exportedAt:new Date().toISOString(),
         save:JSON.parse(raw),
         originalBeforeV05:localStorage.getItem(PRE_V05_BACKUP_KEY),
         originalBeforeV06:localStorage.getItem(PRE_V06_BACKUP_KEY),
-        originalBeforeV07:localStorage.getItem(PRE_V07_BACKUP_KEY)
+        originalBeforeV07:localStorage.getItem(PRE_V07_BACKUP_KEY),
+        originalBeforeV08:localStorage.getItem(PRE_V08_BACKUP_KEY)
       };
       const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json;charset=utf-8'});
       const url=URL.createObjectURL(blob);
@@ -1303,6 +1544,157 @@
     } catch(error) {console.warn('게임 데이터 내보내기 실패',error);toast('백업 파일을 만들 수 없습니다.');}
   }
 
+  // 파일 가져오기는 외부 요청 없이 브라우저에서 처리합니다. 현재 세이브를 복원 직전 별도 보관합니다.
+  const isCount = (v,max=10000000)=>Number.isInteger(v)&&v>=0&&v<=max;
+  const isStats = stats=>stats && typeof stats==='object' && ['motivation','stress','laziness'].every(k=>
+    typeof stats[k]==='number'&&Number.isFinite(stats[k])&&stats[k]>=0&&stats[k]<=100);
+  function validateImportedState(raw){
+    const errors=[];
+    const error=message=>{if(errors.length<10)errors.push(message);};
+    if(!raw || typeof raw!=='object' || Array.isArray(raw) || raw.schemaVersion!==1)
+      return ['지원하지 않는 저장 스키마입니다.'];
+    if(!isCount(raw.level,20)||raw.level<1 || !isCount(raw.exp) || !isStats(raw.stats))error('현재 개미의 레벨·경험치·능력치가 잘못됐습니다.');
+    for(const name of ['carrotCount','whipCount','totalExp','eventCount'])
+      if(raw[name]!==undefined&&!isCount(raw[name],100000000))error(`행동 기록 ${name}이 올바르지 않습니다.`);
+    if(typeof raw.finished!=='boolean')error('현재 개미 완료 상태가 잘못됐습니다.');
+    if(raw.phase!==undefined && !['phase1','phase2','completed','legacyComplete'].includes(raw.phase))error('진화 단계가 잘못됐습니다.');
+    if(raw.evolution!==null && raw.evolution!==undefined && !validFirst(raw.evolution))error('알 수 없는 1차 진화 유형입니다.');
+    if(raw.secondEvolution && !validSecond(raw.secondEvolution,raw.evolution))error('2차 진화 정보가 잘못됐습니다.');
+    if(raw.pendingChoice!==undefined && raw.pendingChoice!==null && (
+       !B.events[raw.pendingChoice.eventId]?.choices ||
+       !['carrot','whip'].includes(raw.pendingChoice.action) ||
+       !isCount(raw.pendingChoice.gained,1000000) || typeof raw.pendingChoice.recoveryBonus!=='boolean'))error('미완료 이벤트 데이터가 잘못됐습니다.');
+    if(raw.records!==undefined && !Array.isArray(raw.records))error('완료 개미 기록이 배열이 아닙니다.');
+    const records=Array.isArray(raw.records)?raw.records:[];
+    if(records.length>10000)error('완료 기록이 너무 많습니다.');
+    const ids=new Set();
+    for(const rec of records){
+      if(!rec || typeof rec.id!=='string' || !rec.id || rec.id.length>96 || ids.has(rec.id) ||
+         !validFirst(rec.type) || !isStats(rec.stats) ||
+         (rec.level!==undefined && rec.level!==10 && rec.level!==20) ||
+         (rec.secondEvolution && !validSecond(rec.secondEvolution,rec.type)) ||
+         (rec.carrotCount!==undefined&&!isCount(rec.carrotCount,100000000)) ||
+         (rec.whipCount!==undefined&&!isCount(rec.whipCount,100000000))){
+        error('완료 개미 기록이 중복되었거나 잘못됐습니다.');break;
+      }
+      ids.add(rec.id);
+    }
+    if(raw.expedition!==undefined){
+      const ex=raw.expedition;
+      if(!ex || typeof ex!=='object'||
+         !isCount(ex.tickets,B.expeditions.maxTickets)||
+         !isCount(ex.ticks,B.expeditions.actionsPerTicket-1)||
+         !ex.inventory || RESOURCE_IDS.some(id=>!isCount(ex.inventory[id],999999)) ||
+         (ex.crafted!==undefined&&(!Array.isArray(ex.crafted)||ex.crafted.some(id=>!validCraft(id)))))
+        error('원정권·자원·제작 기록이 잘못됐습니다.');
+    }
+    if(raw.decor!==undefined){
+      if(!raw.decor || !Array.isArray(raw.decor.unlocked) ||
+         raw.decor.unlocked.some(id=>!ALL_DECOR.some(d=>d.id===id)) ||
+         !raw.decor.equipped || ['floor','wall','light'].some(slot=>raw.decor.equipped[slot] &&
+           !ALL_DECOR.some(d=>d.id===raw.decor.equipped[slot] && d.slot===slot)))
+        error('장식 해금·배치 데이터가 잘못됐습니다.');
+    }
+    if(raw.settings?.autoCare){
+      const ac=raw.settings.autoCare;
+      if(!['balanced','growth','recover'].includes(ac.mode) ||
+        !B.autoCare.batches.includes(ac.batch) || !Object.hasOwn(B.autoCare.speeds,ac.speed))
+        error('자동 돌봄 설정에 잘못된 값이 있습니다.');
+    }
+    try{normalizeKingdom(raw.kingdom,records);}catch(e){error(e.message);}
+    return errors;
+  }
+  function versionAhead(candidate){
+    if(typeof candidate!=='string')return false;
+    const a=candidate.split('.').map(Number),b=B.version.split('.').map(Number);
+    if(a.length!==3 || a.some(x=>!Number.isInteger(x)))return false;
+    for(let i=0;i<3;i++){if(a[i]>b[i])return true;if(a[i]<b[i])return false;}
+    return false;
+  }
+  const previewSave = save=>{
+    const kingdom=normalizeKingdom(save.kingdom,Array.isArray(save.records)?save.records:[]);
+    const inv=save.expedition?.inventory||{};
+    return {
+      level:save.level,records:(save.records||[]).length,
+      phase:save.phase||'구버전',tickets:save.expedition?.tickets||0,
+      food:inv.food||0,wood:inv.wood||0,crystal:inv.crystal||0,
+      crafted:save.expedition?.crafted?.length||0,
+      facilities:FACILITY_IDS.map(id=>kingdom.facilities[id]).join('/'),
+      workers:FACILITY_IDS.filter(id=>kingdom.assignments[id]).length
+    };
+  };
+  function restoreInfoCard(info,title){
+    return `<div class="import-preview-card"><strong>${escapeHTML(title)}</strong>LV.${info.level} · ${escapeHTML(info.phase)}<br>
+      완료 개미 ${info.records}마리<br>원정권 ${info.tickets}장<br>식량 ${info.food} · 목재 ${info.wood} · 수정 ${info.crystal}<br>
+      제작품 ${info.crafted}종 · 시설 ${info.facilities} · 일꾼 ${info.workers}마리</div>`;
+  }
+  async function previewImportedSave(file){
+    if(!file)return;
+    if(file.size>5*1024*1024){toast('파일 크기는 5MB 이하여야 합니다.');return;}
+    try{
+      const content=await file.text();
+      const bundle=JSON.parse(content);
+      const isBundle=bundle && bundle.format==='ant-game-save';
+      const save=isBundle?bundle.save:bundle;
+      if(isBundle && versionAhead(bundle.exportVersion))throw new Error('이 게임보다 새로운 버전에서 만든 백업 파일입니다.');
+      const errors=validateImportedState(save);
+      if(errors.length)throw new Error(errors.join(' / '));
+      // 가져오기 검증을 통과해도 메모리 저장 데이터에는 아직 아무 변경도 하지 않습니다.
+      const current=previewSave(game),next=previewSave(save);
+      showModal(`<p class="modal-eyebrow">SAFE RESTORE</p><h2 id="modal-title">저장 데이터 복원 미리보기</h2>
+        <p class="modal-subtitle">${escapeHTML(file.name)} · ${isBundle?escapeHTML(bundle.exportVersion||'버전 정보 없음'):'원본 JSON 저장 파일'}
+          ${isBundle && bundle.exportedAt?' · '+escapeHTML(bundle.exportedAt.slice(0,19)):''}</p>
+        <div class="import-preview">${restoreInfoCard(current,'현재 저장 데이터')}${restoreInfoCard(next,'복원할 저장 데이터')}</div>
+        <p class="import-warning">복원은 기존 데이터와 병합하지 않고 전부 교체합니다. 확인 시 현재 저장 데이터를 별도 백업합니다.</p>
+        <div class="modal-buttons"><button class="modal-primary" id="restore-preview-next" type="button">복원 절차 계속</button><button class="modal-secondary" id="restore-preview-cancel" type="button">취소</button></div>`,'import-preview');
+      qs('restore-preview-cancel').addEventListener('click',closeModal);
+      qs('restore-preview-next').addEventListener('click',()=>confirmImportedSave(save));
+    }catch(error){
+      console.warn('백업 파일 검증 실패:',error);
+      showModal(`<p class="modal-eyebrow">RESTORE BLOCKED</p><h2 id="modal-title">복원할 수 없습니다</h2>
+        <p class="modal-subtitle">${escapeHTML(error.message||'지원하지 않는 파일입니다.')}</p>
+        <p class="import-warning">기존 저장 데이터는 변경하지 않았습니다.</p>
+        <div class="modal-buttons"><button class="modal-primary" type="button" id="import-error-close">닫기</button></div>`);
+      qs('import-error-close').addEventListener('click',closeModal);
+    }
+  }
+  function confirmImportedSave(save){
+    closeModal();
+    showModal(`<p class="modal-eyebrow">FINAL CONFIRMATION</p><h2 id="modal-title">현재 데이터를 교체할까요?</h2>
+      <p class="modal-subtitle">완료 개미 ${game.records.length}마리의 현 저장 데이터를 새 파일의 기록으로 교체합니다.</p>
+      <p class="import-warning">이 작업은 현재 데이터를 복원 파일로 덮어씁니다. 기존 데이터는 복원 직전 별도 백업됩니다.</p>
+      <div class="modal-buttons"><button class="modal-primary danger" id="confirm-import-save" type="button">백업 후 데이터 교체</button><button class="modal-secondary" id="cancel-import-save" type="button">취소</button></div>`,'import-confirm');
+    qs('cancel-import-save').addEventListener('click',closeModal);
+    qs('confirm-import-save').addEventListener('click',()=>commitImportedSave(save));
+  }
+  function commitImportedSave(candidate){
+    const errors=validateImportedState(candidate);
+    if(errors.length){toast('복원 파일이 올바르지 않습니다.');return false;}
+    try{
+      const original=localStorage.getItem(KEY);
+      // 백업 실패 시 실제 저장 데이터는 변경하지 않습니다.
+      if(original!==null){
+        localStorage.setItem(PRE_IMPORT_KEY,original);
+        if(localStorage.getItem(PRE_IMPORT_KEY)!==original)throw new Error('복원 전 백업 확인 실패');
+      }
+      const replacement=JSON.stringify(candidate);
+      try{
+        localStorage.setItem(KEY,replacement);
+        if(localStorage.getItem(KEY)!==replacement)throw new Error('복원 저장 검증 실패');
+      }catch(e){
+        try{if(original!==null)localStorage.setItem(KEY,original);else localStorage.removeItem(KEY);}
+        catch(rollbackError){console.error('저장 원복 실패. 별도 백업을 확인하세요.',rollbackError);}
+        throw e;
+      }
+      stopAuto();
+      storageCorrupt=false;
+      window.location.reload();
+      return true;
+    }catch(error){console.warn('복원 실패:',error);toast('데이터 복원에 실패했습니다. 기존 데이터와 복원 전 백업을 확인하세요.');return false;}
+  }
+  function openImportPicker(){
+    const input=qs('import-save-file');input.value='';input.click();
+  }
   function confirmReset() {
     showModal(`<p class="modal-eyebrow">DATA RESET</p><h2 id="modal-title">정말 초기화할까요?</h2>
       <p class="modal-subtitle">현재 육성과 모든 진화 기록을 완전히 지웁니다. 삭제한 내용은 복구할 수 없습니다.</p>
@@ -1336,6 +1728,16 @@
     qs('tutorial-next').addEventListener('click',advanceTutorial);
     qs('header-settings').addEventListener('click',()=>{if(!game.pendingChoice)showScreen('settings');});
     document.querySelectorAll('[data-screen]').forEach(button=>button.addEventListener('click',()=>{if(!game.pendingChoice) showScreen(button.dataset.screen);}));
+    document.querySelectorAll('[data-nest-tab]').forEach(btn=>btn.addEventListener('click',()=>switchNestTab(btn.dataset.nestTab)));
+    qs('kingdom-facilities').addEventListener('click',e=>{
+      const btn=e.target.closest('[data-upgrade-facility]');if(btn)confirmUpgradeFacility(btn.dataset.upgradeFacility);
+    });
+    qs('kingdom-workers').addEventListener('click',e=>{
+      const pick=e.target.closest('[data-choose-facility]');
+      const unassign=e.target.closest('[data-unassign-facility]');
+      if(pick)chooseWorker(pick.dataset.chooseFacility);
+      if(unassign)unassignWorker(unassign.dataset.unassignFacility);
+    });
     qs('decorations-grid').addEventListener('click',event=>{
       const button=event.target.closest('[data-decor-id]');
       if(button)toggleDecoration(button.dataset.decorId);
@@ -1367,6 +1769,8 @@
     qs('analytics-allow').addEventListener('click',()=>setAnalyticsChoice(true));
     qs('analytics-deny').addEventListener('click',()=>setAnalyticsChoice(false));
     qs('export-save').addEventListener('click',exportSaveData);
+    qs('import-save').addEventListener('click',openImportPicker);
+    qs('import-save-file').addEventListener('change',e=>{const file=e.target.files?.[0];if(file)previewImportedSave(file);});
     qs('reset-button').addEventListener('click',confirmReset);
     qs('modal-close').addEventListener('click',closeModal);
     qs('modal-backdrop').addEventListener('click',e=>{if(e.target===qs('modal-backdrop'))closeModal();});
@@ -1374,6 +1778,7 @@
     window.addEventListener('storage',e=>{if(e.key!==KEY)return;stopAuto('다른 탭에서 데이터가 변경되어 중지했습니다.');game=loadState();reconcileDecorations();render();toast('다른 탭에서 변경된 저장 데이터를 불러왔습니다.');});
   }
   bindEvents();
+  switchNestTab('decor');
   startAnalytics();
   render();
   saveState();
