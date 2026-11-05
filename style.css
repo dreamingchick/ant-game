@@ -492,3 +492,21 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .launch-help details p{margin:9px 0 0;line-height:1.65}
 button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid #437e64;outline-offset:3px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+/* v1.0.1 · 1차 진화 3종 / 2차 진화 6종의 실제 SVG 복장 구분 */
+.ant-figure .ant-job-outfit {display:none; pointer-events:none;}
+.ant-figure[data-second-evolution="none"][data-evolution="easy"] .ant-job-easy,
+.ant-figure[data-second-evolution="none"][data-evolution="genius"] .ant-job-genius,
+.ant-figure[data-second-evolution="none"][data-evolution="diligent"] .ant-job-diligent,
+.ant-figure[data-second-evolution="garden_keeper"] .ant-job-garden,
+.ant-figure[data-second-evolution="meadow_explorer"] .ant-job-explorer,
+.ant-figure[data-second-evolution="star_scholar"] .ant-job-scholar,
+.ant-figure[data-second-evolution="clockwork_inventor"] .ant-job-inventor,
+.ant-figure[data-second-evolution="workshop_artisan"] .ant-job-artisan,
+.ant-figure[data-second-evolution="steel_guardian"] .ant-job-guardian {display:block;}
+/* 2차 진화에서는 1차 진화의 장비가 새 의상과 겹치지 않도록 조정합니다. */
+.ant-figure[data-second-evolution]:not([data-second-evolution="none"]) .ant-helmet,
+.ant-figure[data-second-evolution]:not([data-second-evolution="none"]) .ant-bow {display:none;}
+.ant-figure[data-second-evolution="star_scholar"] .ant-glasses,
+.ant-figure[data-second-evolution="clockwork_inventor"] .ant-glasses {display:block;}
