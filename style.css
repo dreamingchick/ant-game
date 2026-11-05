@@ -485,3 +485,10 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .weekly-goal-track{height:7px;background:#e5e5d8;border-radius:99px;overflow:hidden}.weekly-goal-track span{display:block;height:100%;background:#6aab80;border-radius:99px}
 .weekly-goal-label{font-size:11px;color:#7e684c}.region-content .squad-bonus-detail{color:#50785a;font-weight:800}
 @media(max-width:360px){.expedition-squad-roster{gap:4px}.expedition-squad-member{padding:9px 3px}.expedition-squad-member strong{font-size:10px}.rare-finds-grid{gap:5px}.rare-find-card{gap:4px;padding:9px 5px}.rare-find-icon{flex-basis:28px;width:28px;font-size:21px}.weekly-goal-actions{align-items:stretch;flex-direction:column}.weekly-goal-actions button{width:100%}}
+
+/* v1.0 정식 출시: 도움말과 접근성 */
+.launch-help details{margin-top:10px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--cream)}
+.launch-help summary{cursor:pointer;font-weight:750;line-height:1.5}
+.launch-help details p{margin:9px 0 0;line-height:1.65}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid #437e64;outline-offset:3px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
