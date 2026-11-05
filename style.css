@@ -341,3 +341,36 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .decor-card.equipped .decor-action {background:#5b9471;border-color:#5b9471;color:white;}
 .decor-action:disabled {border-color:#ddd0c2;background:#e6e0d7;color:#a69a8a;}
 @media (max-width:365px) {.decor-card{padding:9px;gap:8px;}.decor-icon{width:39px;height:39px;flex-basis:39px;font-size:25px;}.decor-action{min-width:50px;}.decor-floor{font-size:37px;}.decor-wall{font-size:30px;}}
+
+/* v0.5 : 첫 진화 이후의 패시브 / 두 번째 진화 도감 */
+.active-passive{display:flex;align-items:center;gap:10px;padding:12px 14px;margin:0 0 12px;background:linear-gradient(125deg,#e7f2df,#fffaf0);border:1px solid #b8d7b6;border-radius:16px;color:#426b52;box-shadow:var(--shadow)}
+.active-passive[hidden]{display:none!important}
+.active-passive .passive-emblem{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;border-radius:50%;background:#73aa83;color:white;font-size:20px}
+.active-passive div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.active-passive strong{font-size:12px}
+.active-passive small{font-size:10px;color:#597660;line-height:1.5}
+.guide-bar[data-phase="phase2"] .guide-slice.easy{width:55%;border-radius:99px 0 0 99px}
+.guide-bar[data-phase="phase2"] .guide-slice.genius{display:none}
+.guide-bar[data-phase="phase2"] .guide-slice.diligent{width:45%;border-radius:0 99px 99px 0}
+.guide-legend[aria-label="두 번째 진화 분기"]{justify-content:space-between}
+.second-collection{background:#fffaf0;border:1px solid #ebe0cc;border-radius:18px;padding:14px;margin:0 0 22px;box-shadow:var(--shadow)}
+.second-collection .collection-track{margin-bottom:12px}
+.second-collection-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.second-ant-card{display:flex;gap:9px;align-items:center;background:#fffdf7;border:1px solid #ece3d2;border-radius:12px;padding:10px 8px;min-width:0;min-height:74px}
+.second-ant-card .second-icon{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border-radius:12px;background:#eff1e1;font-size:22px}
+.second-ant-card .second-info{display:flex;flex-direction:column;min-width:0;gap:4px}
+.second-ant-card strong{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.second-ant-card small{font-size:9px;color:#928579}
+.second-ant-card.locked{opacity:.58;filter:saturate(.3)}
+.ant-figure[data-second-evolution="garden_keeper"] .ant-bow,
+.ant-figure[data-second-evolution="star_scholar"] .ant-glasses,
+.ant-figure[data-second-evolution="clockwork_inventor"] .ant-glasses,
+.ant-figure[data-second-evolution="workshop_artisan"] .ant-helmet,
+.ant-figure[data-second-evolution="steel_guardian"] .ant-helmet{display:block}
+.second-evolution-badge{font-weight:900;background:#eff0de;color:#5c7551;border-radius:12px;padding:10px 14px;text-align:center;margin:7px 0}
+@media(max-width:365px){.second-collection-grid{gap:6px}.second-ant-card{padding:9px 6px;gap:5px}.second-ant-card .second-icon{width:32px;height:32px;font-size:19px}.second-ant-card strong{font-size:9px}}
+
+.second-evolution-mark{position:absolute;z-index:5;top:8px;right:0;width:52px;height:52px;display:grid;place-items:center;border:3px solid #fbf3d9;border-radius:18px;background:#f8eabf;font-size:30px;filter:drop-shadow(0 3px 5px #42332144)}
+.second-evolution-mark[hidden]{display:none!important}
+.evolution-portrait{position:relative}
+.second-emblem{position:absolute;right:-14px;bottom:-9px;width:52px;height:52px;display:grid;place-items:center;border:3px solid #fff4d5;border-radius:16px;background:#f2e3b9;font-size:29px;box-shadow:0 4px 12px #4f362b33}
