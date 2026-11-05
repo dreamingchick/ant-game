@@ -103,30 +103,47 @@
       <section id="tutorial-panel" class="tutorial-panel" aria-label="게임 사용법" hidden>
         <div class="tutorial-header"><span class="tutorial-tag">처음 만나는 개미</span><span id="tutorial-progress">1 / 4</span></div>
         <h2 id="tutorial-title">먼저 당근을 주세요!</h2>
-        <p id="tutorial-description">당근은 의욕을 높이고 스트레스를 줄여 줍니다. 대신 나태함은 조금 높아져요.</p>
+        <p id="tutorial-description">당근은 의욕을 높이고 스트레스를 줄이며, 소량의 EXP도 줍니다. 나태함은 조금 올라가요.</p>
         <div class="tutorial-buttons"><button type="button" id="tutorial-skip" class="text-button">건너뛰기</button><button type="button" id="tutorial-next" class="mini-button" hidden>다음</button></div>
       </section>
 
       <section class="action-area" aria-label="육성 행동">
         <div class="action-topline"><span>어떻게 키울까요?</span><span id="action-count">총 0회 행동</span></div>
         <div class="action-buttons">
-          <button type="button" id="carrot-button" class="action-button carrot-button"><span class="action-icon" aria-hidden="true">🥕</span><span class="action-text"><strong>당근</strong><small>의욕과 휴식</small></span><span class="action-plus" aria-hidden="true">＋</span></button>
+          <button type="button" id="carrot-button" class="action-button carrot-button"><span class="action-icon" aria-hidden="true">🥕</span><span class="action-text"><strong>당근</strong><small>의욕·휴식 + 소량 EXP</small></span><span class="action-plus" aria-hidden="true">＋</span></button>
           <button type="button" id="whip-button" class="action-button whip-button"><span class="action-icon" aria-hidden="true">⚡</span><span class="action-text"><strong>채찍</strong><small>성장과 훈련</small></span><span class="action-plus" aria-hidden="true">＋</span></button>
         </div>
         <p class="action-feedback" id="action-feedback" role="status" aria-live="polite">작은 선택이 개미의 내일을 바꿉니다.</p>
       </section>
       <section class="auto-care" aria-label="자동 육성">
         <div class="mini-heading"><strong>자동 돌봄</strong><small>화면을 켜 둔 동안만 작동합니다</small></div>
-        <div class="auto-controls">
-          <label for="auto-mode" class="auto-mode-label">육성 방식</label>
-          <select id="auto-mode" aria-label="자동 육성 방식">
-            <option value="balanced">균형 관리</option>
-            <option value="growth">성장 집중</option>
-            <option value="recover">안정 회복</option>
-          </select>
-          <button type="button" id="auto-toggle" class="outline-button">자동 육성 시작</button>
+        <div class="auto-config-grid">
+          <label class="auto-config-field" for="auto-mode"><span>육성 방식</span>
+            <select id="auto-mode" aria-label="자동 육성 방식">
+              <option value="balanced">균형 관리</option>
+              <option value="growth">성장 집중</option>
+              <option value="recover">안정 회복</option>
+            </select>
+          </label>
+          <label class="auto-config-field" for="auto-batch"><span>진행 횟수</span>
+            <select id="auto-batch" aria-label="자동 육성 실행 횟수">
+              <option value="10">10회</option><option value="25">25회</option>
+              <option value="50">50회</option><option value="100">100회</option>
+            </select>
+          </label>
+          <label class="auto-config-field" for="auto-speed"><span>진행 속도</span>
+            <select id="auto-speed" aria-label="자동 육성 속도">
+              <option value="relaxed">느리게 · 2.2초</option>
+              <option value="normal">보통 · 1.25초</option>
+              <option value="fast">빠르게 · 0.65초</option>
+            </select>
+          </label>
         </div>
-        <p id="auto-status" class="auto-status" role="status">한 번에 최대 25회 행동 · 이벤트 선택이나 진화 시 자동 중단</p>
+        <label class="auto-safe-option"><input type="checkbox" id="auto-safe-stop" checked> 위험 상태에 도달하면 자동 중지</label>
+        <div class="auto-run-row"><span id="auto-next-action" class="auto-next-action">다음 예상 행동: 채찍</span>
+          <button type="button" id="auto-toggle" class="outline-button">자동 육성 시작</button></div>
+        <div class="auto-progress-line"><div id="auto-progress-fill" class="auto-progress-fill"></div></div>
+        <p id="auto-status" class="auto-status" role="status">설정을 선택하고 자동 육성을 시작하세요. 이벤트와 진화는 직접 확인합니다.</p>
       </section>
       <section class="recent-actions" aria-label="최근 육성 기록">
         <details><summary>최근 육성 행동</summary><div id="recent-action-list" class="recent-action-list">아직 기록이 없습니다.</div></details>
@@ -207,12 +224,12 @@
     <main id="screen-settings" class="screen settings-screen" hidden>
       <div class="page-heading"><span class="overline">A QUIET LITTLE CORNER</span><h2>게임 설정</h2><p>당신의 개미집을 편안하게 가꾸세요.</p></div>
       <section class="setting-group"><h3>사운드</h3><label class="setting-line" for="sound-toggle"><span><strong>효과음 사용</strong><small>배경음악 없이 행동·진화 효과음만 재생</small></span><input id="sound-toggle" type="checkbox" checked></label><label class="volume-label" for="sound-volume">효과음 크기 <output id="sound-volume-text">65%</output></label><input class="volume-slider" type="range" min="0" max="100" step="5" value="65" id="sound-volume"></section>
-      <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복을 유지합니다. LV.10 첫 진화와 LV.20 두 번째 진화도 유지됩니다. 원정은 LV.10부터 가능하며, 자동 육성은 선택 이벤트와 진화 때 중단됩니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
+      <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복을 유지합니다. LV.10 첫 진화와 LV.20 두 번째 진화도 유지됩니다. 원정은 LV.10부터 가능하며, 당근도 소량의 EXP를 제공합니다. 자동 육성은 실행 횟수와 속도를 선택하고, 이벤트·진화 때 확인 후 수동 재개할 수 있습니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
       <section class="setting-group"><h3>업데이트 소식</h3><p>업데이트 후 첫 접속에는 최신 소식을 안내합니다. 이전 업데이트 기록도 버전별로 확인할 수 있습니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="view-patch-notes">최신 패치노트</button><button class="outline-button" type="button" id="view-patch-history">전체 업데이트 기록</button></div></section>
       <section class="setting-group" id="analytics-section" hidden><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
       <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span><p>업데이트 이전 저장 상태는 최초 전환 시 브라우저에 별도 백업됩니다. 아래 버튼으로 현재 게임 데이터를 파일로 내보낼 수 있습니다.</p><button class="outline-button" type="button" id="export-save">게임 데이터 백업 파일 받기</button></section>
       <section class="setting-group danger-zone"><h3>데이터 초기화</h3><p>현재 육성 중인 개미와 모든 진화 기록을 삭제합니다. 되돌릴 수 없습니다.</p><button class="outline-button danger" type="button" id="reset-button">전체 데이터 초기화</button></section>
-      <p class="version-label">개미 키우기 · MVP v0.6.0</p>
+      <p class="version-label">개미 키우기 · MVP v0.7.0</p>
     </main>
 
     <nav class="bottom-nav" aria-label="게임 메뉴">
