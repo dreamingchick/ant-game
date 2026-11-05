@@ -4,9 +4,30 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.7.0',
+  version: '0.8.0',
   // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
   releaseNotes: {
+    version: '0.8.0',
+    date: '2026-11-05',
+    title: '개미 왕국의 일꾼들',
+    summary: '완료한 개미를 시설에 배치하고, 세 가지 시설을 LV.5까지 발전시키며 안전하게 게임 데이터를 복원할 수 있습니다.',
+    sections: [
+      {heading:'왕국 운영',items:[
+        '식량 창고, 운반 작업장, 수정 연구실을 건설·강화해 원정 획득량을 높입니다.',
+        '구버전 LV.10 및 LV.20 완료 개미를 각 시설에 배치하고 특화 유형 보너스를 받습니다.',
+        '꾸미기 화면 안에 왕국 시설과 일꾼 배치 탭을 추가했습니다.'
+      ]},
+      {heading:'데이터 보호',items:[
+        'JSON 저장 파일 가져오기와 복원 미리보기, 복원 전 별도 백업을 추가했습니다.',
+        '기존 육성·원정·제작·장식·자동 돌봄·패치노트를 그대로 유지합니다.',
+        '통계 수집은 계속 비활성화합니다.'
+      ]}
+    ]
+  },
+  // 과거 배포 버전을 순서대로 보관합니다. 미배포 v0.2.1은 목록에 포함하지 않습니다.
+  // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
+  releaseNotesHistory: [
+    {
     version: '0.7.0',
     date: '2026-11-05',
     title: '편안한 성장',
@@ -27,10 +48,7 @@ window.ANT_BALANCE = Object.freeze({
         '통계 수집은 계속 비활성화합니다.'
       ]}
     ]
-  },
-  // 과거 배포 버전을 순서대로 보관합니다. 미배포 v0.2.1은 목록에 포함하지 않습니다.
-  // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
-  releaseNotesHistory: [
+    },
     {
       version:'0.6.0', date:'2026-11-05', title:'개미 왕국의 첫 원정',
       summary:'탐험 지역 3곳, 자원 3종, 제작 장식 6종, 자동 돌봄 3모드를 추가했습니다.',
@@ -124,6 +142,17 @@ window.ANT_BALANCE = Object.freeze({
   ],
   // v0.7: 당근은 훈련 효율과 무관하게 고정 EXP를 획득합니다.
   carrotExp: { phase1: 2, phase2: 3 },
+  kingdomFacilities: [
+    {id:'pantry',name:'식량 창고',role:'식량 채집가',icon:'🌾',resource:'food',region:'meadow',specialty:'easy',levelBonus:[0,0,1,2,3,4],costs:{
+      2:{food:12,wood:4},3:{food:24,wood:8},4:{food:40,wood:14,crystal:2},5:{food:60,wood:24,crystal:5}
+    }},
+    {id:'workshop',name:'운반 작업장',role:'자원 운반가',icon:'🪵',resource:'wood',region:'forest',specialty:'diligent',levelBonus:[0,0,1,2,3,4],costs:{
+      1:{food:8,wood:12},2:{food:16,wood:20},3:{food:28,wood:36,crystal:2},4:{food:44,wood:56,crystal:5},5:{food:64,wood:84,crystal:10}
+    }},
+    {id:'laboratory',name:'수정 연구실',role:'수정 연구가',icon:'🔮',resource:'crystal',region:'cave',specialty:'genius',levelBonus:[0,0,0,1,2,2],costs:{
+      1:{food:12,wood:12,crystal:6},2:{food:20,wood:18,crystal:12},3:{food:32,wood:30,crystal:20},4:{food:48,wood:44,crystal:30},5:{food:72,wood:64,crystal:45}
+    }}
+  ],
   autoCare: {
     defaultMode: 'balanced', defaultBatch: 25, defaultSpeed: 'normal', defaultSafeStop: true,
     batches: [10, 25, 50, 100],
