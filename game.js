@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.5
+ * 개미 키우기 MVP v0.6
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -13,6 +13,7 @@
   // v0.1/v0.2의 저장 키와 schemaVersion은 절대 변경하지 않습니다.
   const PATCH_SEEN_KEY = 'little-ant-game-last-patch-seen';
   const PRE_V05_BACKUP_KEY = 'little-ant-game-before-v0.5';
+  const PRE_V06_BACKUP_KEY = 'little-ant-game-before-v0.6';
   // v0.1~v0.4 원본 세이브를 v0.5로 최초 이전하기 전에 딱 한 번 백업합니다.
   function preserveOriginalSave() {
     try {
@@ -24,6 +25,14 @@
     } catch(_error) { /* 백업 실패 시 원본 데이터는 계속 보호됩니다. */ }
   }
   preserveOriginalSave();
+  // v0.6 이전 원본 데이터는 별도 슬롯에 보관합니다. 기존 백업에는 손대지 않습니다.
+  try {
+    const raw=localStorage.getItem(KEY);
+    if(raw && !localStorage.getItem(PRE_V06_BACKUP_KEY)) {
+      const obj=JSON.parse(raw);
+      if(obj?.schemaVersion===1 && !obj.expedition)localStorage.setItem(PRE_V06_BACKUP_KEY,raw);
+    }
+  } catch(_error) { /* 백업 실패로 인해 원본 저장을 변경하지 않습니다. */ }
   const ANALYTICS_CONSENT_KEY = 'little-ant-game-analytics-consent';
   const analyticsMeasurementId = typeof B.analytics?.measurementId === 'string' &&
     /^G-[A-Z0-9]{5,16}$/i.test(B.analytics.measurementId.trim()) ? B.analytics.measurementId.trim() : '';
@@ -90,6 +99,9 @@
   const percent = n => `${(n * 100).toFixed(1).replace(/\.0$/, '')}%`;
   const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
   const portraitEmoji = { easy: '🍀', genius: '💡', diligent: '🛠️' };
+  const ALL_DECOR = [...B.decorations,...B.craftingItems];
+  const RESOURCE_IDS = B.resources.map(item=>item.id);
+  const validCraft = id => B.craftingItems.some(item=>item.id===id);
   const SECOND_TYPES = B.secondEvolution.types;
   const SECOND_THRESH = B.secondEvolution.threshold;
   const secondEvolutionIds = Object.keys(SECOND_TYPES);
@@ -127,6 +139,8 @@
       phase:'phase1', firstEvolution:null, stage2Counters:{carrot:0,whip:0}, secondEvolution:null,
       pendingChoice:null, unlockedAchievements:[],
       decor:{unlocked:[],equipped:{floor:null,wall:null,light:null}},
+      expedition:{tickets:0,ticks:0,inventory:{food:0,wood:0,crystal:0},crafted:[],trips:[],totalTrips:0},
+      recentActions:[],
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
       tutorialCompleted:false, tutorialStep:0,
       settings:{ soundEnabled:true, volume:65 }
@@ -199,11 +213,30 @@
           [...new Set(prev.unlockedAchievements)].filter(id=>B.achievements.some(a=>a.id===id)) : [],
         decor: {
           unlocked:Array.isArray(prev.decor?.unlocked) ?
-            [...new Set(prev.decor.unlocked.filter(id=>typeof id==='string' && B.decorations.some(d=>d.id===id)))]:[],
+            [...new Set(prev.decor.unlocked.filter(id=>typeof id==='string' && ALL_DECOR.some(d=>d.id===id)))]:[],
           equipped:Object.fromEntries(['floor','wall','light'].map(slot=>[
-            slot, B.decorations.some(d=>d.id===prev.decor?.equipped?.[slot] && d.slot===slot) ? prev.decor.equipped[slot] : null
+            slot, ALL_DECOR.some(d=>d.id===prev.decor?.equipped?.[slot] && d.slot===slot) ? prev.decor.equipped[slot] : null
           ]))
         },
+        expedition: {
+          tickets: prev.expedition ? num(prev.expedition.tickets,0,B.expeditions.maxTickets) :
+            Math.min(B.expeditions.maxTickets,Math.floor((num(prev.carrotCount,0)+num(prev.whipCount,0))/B.expeditions.actionsPerTicket)),
+          ticks: prev.expedition ? num(prev.expedition.ticks,0,B.expeditions.actionsPerTicket-1) :
+            (num(prev.carrotCount,0)+num(prev.whipCount,0))%B.expeditions.actionsPerTicket,
+          inventory:Object.fromEntries(RESOURCE_IDS.map(id=>[id,num(prev.expedition?.inventory?.[id],0,999999)])),
+          crafted:Array.isArray(prev.expedition?.crafted) ?
+            [...new Set(prev.expedition.crafted)].filter(validCraft):[],
+          trips:Array.isArray(prev.expedition?.trips) ? prev.expedition.trips.slice(0,12).filter(t=>
+            t && B.expeditions.regions.some(region=>region.id===t.region) && RESOURCE_IDS.includes(t.resource) &&
+            Number.isFinite(t.amount) && t.amount>0).map(t=>({
+              region:t.region,resource:t.resource,amount:num(t.amount,1,1000),at:num(t.at,Date.now())
+            })):[],
+          totalTrips:num(prev.expedition?.totalTrips,0)
+        },
+        recentActions:Array.isArray(prev.recentActions) ? prev.recentActions.slice(0,12).filter(item=>
+          item && ['carrot','whip'].includes(item.action) && Number.isFinite(item.gained)).map(item=>({
+            action:item.action,gained:num(item.gained,0,100000),at:num(item.at,Date.now()),eventId: B.events[item.eventId]?item.eventId:null
+          })):[],
         records,
         finished: Boolean(prev.finished), finishedRecordId: prev.finishedRecordId ?? null,
         evolution:validTypes.includes(prev.evolution)?prev.evolution:null,
@@ -226,7 +259,13 @@
   // reconcileAchievements는 선언식 함수이므로 초기화 시점에서 참조 가능합니다.
   reconcileAchievements();
   reconcileDecorations(); // 구버전 저장 데이터의 과거 육성 기록을 소급 인정
+  // 제작 상태를 별도 저장하되 기존 장식 슬롯과 호환합니다.
+  for(const id of game.expedition.crafted)if(!game.decor.unlocked.includes(id))game.decor.unlocked.push(id);
   let activeScreen = 'game';
+  let autoTimer = null;
+  let autoActions = 0;
+  let autoMode = 'balanced';
+  let lastExploreClick = 0;
   let modalOpen = false;
   let modalKind = null;
   let previousFocus = null;
@@ -313,6 +352,54 @@
     if(game.phase!=='phase2' || game.evolution!=='genius' || event.kind!=='positive')return raw;
     const beneficial=(stat==='motivation' && raw>0) || ((stat==='stress'||stat==='laziness') && raw<0);
     return beneficial?positiveBenefit(raw):raw;
+  }
+
+  function autoChoice() {
+    const {motivation,stress,laziness}=game.stats;
+    if(autoMode==='growth')return stress>=70 || motivation<=35?'carrot':'whip';
+    if(autoMode==='recover')return stress>=38 || motivation<72?'carrot':'whip';
+    if(stress>=55 || motivation<=48)return 'carrot';
+    if(laziness>=60)return 'whip';
+    return stress>=35?'carrot':'whip';
+  }
+  function stopAuto(reason='') {
+    if(autoTimer!==null){clearInterval(autoTimer);autoTimer=null;}
+    if(reason)qs('auto-status').textContent=reason;
+    renderAutoCare();
+  }
+  function runAutoTick() {
+    if(document.hidden || activeScreen!=='game' || game.finished || game.pendingChoice || modalOpen || !game.tutorialCompleted) {
+      stopAuto('자동 육성 중단 · 게임 화면 또는 이벤트 상태를 확인하세요.');return;
+    }
+    if(autoActions>=B.autoCare.maxActions){stopAuto('자동 육성 25회 완료 · 다시 시작할 수 있습니다.');return;}
+    const before=game.carrotCount+game.whipCount;
+    playAction(autoChoice());
+    if(game.carrotCount+game.whipCount>before)autoActions++;
+    if(autoTimer!==null) {
+      qs('auto-status').textContent=`자동 육성 중 · ${autoActions}/${B.autoCare.maxActions}회 · 선택 이벤트에서 정지`;
+      if(autoActions>=B.autoCare.maxActions)stopAuto('자동 육성 25회 완료 · 다시 시작할 수 있습니다.');
+    }
+  }
+  function toggleAutoCare() {
+    if(autoTimer!==null){stopAuto('사용자가 자동 육성을 중지했습니다.');return;}
+    if(game.finished || game.pendingChoice || modalOpen || !game.tutorialCompleted){
+      qs('auto-status').textContent='튜토리얼·진화·이벤트가 끝난 뒤 시작할 수 있습니다.';return;
+    }
+    autoMode=qs('auto-mode').value;
+    autoActions=0;
+    autoTimer=setInterval(runAutoTick,B.autoCare.intervalMs);
+    qs('auto-status').textContent='자동 육성 준비 · 다음 행동부터 시작';
+    renderAutoCare();
+  }
+  function renderAutoCare() {
+    qs('auto-toggle').textContent=autoTimer!==null?'자동 육성 중지':'자동 육성 시작';
+    qs('auto-toggle').disabled=autoTimer===null && (game.finished || Boolean(game.pendingChoice) || !game.tutorialCompleted);
+    qs('auto-mode').disabled=autoTimer!==null;
+  }
+  function renderRecentActions() {
+    qs('recent-action-list').innerHTML=game.recentActions.length ? game.recentActions.slice(0,8).map(item=>
+      `<div class="recent-action-row"><span>${item.action==='carrot'?'🥕 당근':'⚡ 채찍'}</span><span>${item.action==='whip'?`EXP +${item.gained}`:'상태 회복'}${item.eventId?' · '+escapeHTML(B.events[item.eventId]?.name||'이벤트'):''}</span></div>`
+    ).join(''):'아직 기록이 없습니다.';
   }
 
   // 이벤트는 기존 확률을 유지하며 행동 직전 상태에서 단 한 번 추첨합니다.
@@ -409,6 +496,16 @@
     if(didLevelUp && !game.finished) feedback+=firstEvolutionReached?' · LV.10 첫 진화 달성!':` · LV.${game.level} 레벨업!`;
     if(game.finished) feedback='LV.20 두 번째 진화 달성! 결과를 확인해 보세요.';
     game.lastFeedback=feedback;
+    game.recentActions.unshift({action,gained,eventId:eventId||null,at:Date.now()});
+    game.recentActions=game.recentActions.slice(0,12);
+    // 6개의 완료된 육성 행동마다 원정권 하나. 미완료 선택 이벤트는 제외합니다.
+    if(game.expedition.tickets<B.expeditions.maxTickets) {
+      game.expedition.ticks++;
+      if(game.expedition.ticks>=B.expeditions.actionsPerTicket){
+        game.expedition.ticks=0;
+        game.expedition.tickets++;
+      }
+    }
     updateTutorial(action);
     const gainedAchievements=reconcileAchievements();
     const gainedDecorations=reconcileDecorations();
@@ -534,6 +631,7 @@
         unlocked.add(item.id); newly.push(item.name);
       }
     }
+    for(const id of game.expedition.crafted)unlocked.add(id);
     game.decor.unlocked=[...unlocked];
     // 깨진 저장 상태에 고정된 잠금 장식이 남아 있을 경우 화면에 나타내지 않습니다.
     for(const slot of ['floor','wall','light']) {
@@ -541,6 +639,70 @@
     }
     return newly;
   }
+  const resourceCount = id => game.expedition.inventory[id]||0;
+  const canExplore = region => game.level>=region.minLevel && game.expedition.tickets>0 && !game.pendingChoice && !modalOpen;
+  function exploreRegion(regionId) {
+    const region=B.expeditions.regions.find(r=>r.id===regionId);
+    if(!region || !canExplore(region))return;
+    // 모바일 연속 탭으로 원정권이 한꺼번에 소모되는 것을 막습니다.
+    if(Date.now()-lastExploreClick<450)return;
+    lastExploreClick=Date.now();
+    const bonus=Math.random()<region.bonusChance?region.bonus:0;
+    const amount=region.reward+bonus;
+    game.expedition.tickets--;
+    game.expedition.inventory[region.main]=Math.min(999999,resourceCount(region.main)+amount);
+    game.expedition.totalTrips++;
+    game.expedition.trips.unshift({region:region.id,resource:region.main,amount,at:Date.now()});
+    game.expedition.trips=game.expedition.trips.slice(0,12);
+    saveState();render();
+    toast(`${region.name} 원정 완료 · ${B.resources.find(r=>r.id===region.main).name} +${amount}${bonus?' · 특별 발견!':''}`);
+  }
+  function canCraft(item) {
+    return !game.expedition.crafted.includes(item.id) && Object.entries(item.cost).every(([id,amount])=>resourceCount(id)>=amount);
+  }
+  function craftItem(id) {
+    const item=B.craftingItems.find(x=>x.id===id);
+    if(!item || modalOpen || game.pendingChoice || !canCraft(item))return;
+    for(const [resource,amount] of Object.entries(item.cost))game.expedition.inventory[resource]-=amount;
+    game.expedition.crafted.push(id);
+    if(!game.decor.unlocked.includes(id))game.decor.unlocked.push(id);
+    saveState();render();toast(`제작 성공 · ${item.name}! 꾸미기에서 배치하세요.`);
+  }
+  function renderExpedition() {
+    const exp=game.expedition;
+    qs('expedition-tickets').textContent=`${exp.tickets} / ${B.expeditions.maxTickets}`;
+    qs('expedition-next-ticket').textContent=exp.tickets===B.expeditions.maxTickets?
+      '원정권 최대 보유 · 더 이상 쌓이지 않습니다.':`다음 원정권까지 ${B.expeditions.actionsPerTicket-exp.ticks}회 육성 행동`;
+    qs('resource-wallet').innerHTML=B.resources.map(r=>
+      `<div class="resource-pill"><span>${r.icon} ${r.name}</span><strong>${resourceCount(r.id).toLocaleString('ko-KR')}</strong></div>`
+    ).join('');
+    qs('expedition-regions').innerHTML=B.expeditions.regions.map(region=>{
+      const opened=game.level>=region.minLevel;
+      const allowed=opened && exp.tickets>0 && !game.pendingChoice && !modalOpen;
+      return `<article class="region-card ${opened?'':'region-locked'}"><span class="region-icon">${region.icon}</span>
+        <div class="region-content"><strong>${escapeHTML(region.name)} <small>LV.${region.minLevel}+</small></strong>
+          <p>${escapeHTML(region.description)}</p><small>원정권 1장 · ${escapeHTML(B.resources.find(r=>r.id===region.main).name)} ${region.reward}~${region.reward+region.bonus}개</small></div>
+        <button class="mini-button" data-expedition="${region.id}" type="button" ${allowed?'':'disabled'}>${!opened?'잠김':exp.tickets?'탐험':'원정권 부족'}</button></article>`;
+    }).join('');
+    qs('craft-progress').textContent=`${exp.crafted.length} / ${B.craftingItems.length} 제작`;
+    qs('craft-grid').innerHTML=B.craftingItems.map(item=>{
+      const crafted=exp.crafted.includes(item.id);
+      const costs=Object.entries(item.cost).map(([id,need])=>{
+        const resource=B.resources.find(x=>x.id===id);
+        return `${resource.icon} ${resource.name} ${resourceCount(id)}/${need}`;
+      }).join(' · ');
+      return `<article class="craft-card"><span class="craft-icon">${item.icon}</span>
+        <div class="craft-content"><strong>${escapeHTML(item.name)}</strong><small>${escapeHTML(item.desc)}</small>
+          <small class="craft-cost">${costs}</small></div>
+        <button class="mini-button" data-craft="${item.id}" type="button" ${!crafted && canCraft(item) && !game.pendingChoice && !modalOpen?'':'disabled'}>${crafted?'제작 완료':'제작'}</button></article>`;
+    }).join('');
+    qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
+      const region=B.expeditions.regions.find(r=>r.id===t.region);
+      const resource=B.resources.find(r=>r.id===t.resource);
+      return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}</span><strong>${resource.icon} +${t.amount}</strong></div>`;
+    }).join(''):'아직 원정 기록이 없습니다.';
+  }
+
   function nestTheme() {
     const total=game.carrotCount+game.whipCount;
     if(!total)return {id:'neutral',label:'포근한 흙집'};
@@ -554,7 +716,7 @@
     qs('habitat').dataset.theme=theme.id;
     qs('scene-location').textContent=`⌂  ${theme.label}`;
     for(const slot of ['floor','wall','light']) {
-      const item=B.decorations.find(d=>d.id===game.decor.equipped[slot] && d.slot===slot);
+      const item=ALL_DECOR.find(d=>d.id===game.decor.equipped[slot] && d.slot===slot);
       const el=qs(`nest-${slot}-display`);
       el.textContent=item?.icon||'';
       el.title=item?.name||'';
@@ -562,16 +724,16 @@
   }
   function renderDecorations() {
     const owned=new Set(game.decor.unlocked);
-    qs('decor-count').textContent=`${owned.size} / ${B.decorations.length}`;
-    qs('decor-progress').style.width=`${Math.round(100*owned.size/B.decorations.length)}%`;
+    qs('decor-count').textContent=`${owned.size} / ${ALL_DECOR.length}`;
+    qs('decor-progress').style.width=`${Math.round(100*owned.size/ALL_DECOR.length)}%`;
     qs('nest-theme-caption').textContent=`현재 개미집 분위기: ${nestTheme().label}`;
-    qs('decorations-grid').innerHTML=B.decorations.map(item=>{
+    qs('decorations-grid').innerHTML=ALL_DECOR.map(item=>{
       const unlocked=owned.has(item.id);
       const equipped=game.decor.equipped[item.slot]===item.id;
       return `<article class="decor-card ${unlocked?'':'locked'} ${equipped?'equipped':''}">
         <span class="decor-icon" aria-hidden="true">${unlocked?escapeHTML(item.icon):'🔒'}</span>
         <div class="decor-info"><strong>${escapeHTML(item.name)}</strong>
-          <small>${unlocked?escapeHTML(item.desc):`해금 조건 · ${escapeHTML(item.hint)}`}</small>
+          <small>${unlocked?escapeHTML(item.desc):validCraft(item.id)?'원정에서 재료를 모아 제작하세요':`해금 조건 · ${escapeHTML(item.hint)}`}</small>
           <span class="decor-slot">${{floor:'바닥',wall:'벽',light:'조명'}[item.slot]}</span></div>
         <button class="decor-action" type="button" data-decor-id="${escapeHTML(item.id)}" ${unlocked?'':'disabled'} aria-label="${escapeHTML(item.name)} ${equipped?'해제':unlocked?'배치':'잠김'}">${equipped?'해제':unlocked?'배치':'미해금'}</button>
       </article>`;
@@ -579,7 +741,7 @@
   }
   function toggleDecoration(id) {
     if(modalOpen || game.pendingChoice || !game.decor.unlocked.includes(id))return;
-    const item=B.decorations.find(d=>d.id===id);
+    const item=ALL_DECOR.find(d=>d.id===id);
     if(!item)return;
     const equipped=game.decor.equipped[item.slot]===id;
     game.decor.equipped[item.slot]=equipped?null:id;
@@ -700,6 +862,9 @@
     qs('carrot-button').disabled=game.finished||Boolean(game.pendingChoice);
     qs('whip-button').disabled=game.finished||Boolean(game.pendingChoice);
     renderEvolutionGuide();
+    renderAutoCare();
+    renderRecentActions();
+    renderExpedition();
     renderNestScene();
     renderDecorations();
     qs('finished-panel').hidden=!game.finished;
@@ -832,8 +997,7 @@
       if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
       const patterns={
         carrot:[[550,0,.10],[740,.09,.13]], whip:[[255,0,.07],[350,.1,.08]],
-        positive:[[660,0,.11],[880,.11,.16]],negative:[[370,0,.12],[260,.12,.18]],
-        level:[[523,0,.10],[659,.11,.1],[784,.22,.17]],
+        positive:[[660,0,.11],[880,.11,.16]],negative:[[370,0,.12],[260,.12,.18]],        level:[[523,0,.10],[659,.11,.1],[784,.22,.17]],
         evolution:[[392,0,.11],[523,.13,.11],[659,.26,.15],[784,.43,.14],[1047,.58,.38]]
       };
       const volume=game.settings.volume/100*.12;
@@ -854,7 +1018,8 @@
 
   function showScreen(name,scroll=true) {
     activeScreen=name;
-    for(const screen of ['game','records','nest','settings'])qs(`screen-${screen}`).hidden=screen!==name;
+    if(name!=='game' && autoTimer!==null)stopAuto('화면 이동으로 자동 육성을 중단했습니다.');
+    for(const screen of ['game','expedition','records','nest','settings'])qs(`screen-${screen}`).hidden=screen!==name;
     document.querySelectorAll('[data-screen]').forEach(button=>{
       const active=button.dataset.screen===name;
       button.classList.toggle('active',active);
@@ -863,6 +1028,7 @@
     if(scroll)window.scrollTo({top:0,behavior:'instant'});
   }
   function showModal(content, kind = null) {
+    if(autoTimer!==null)stopAuto('팝업이 열려 자동 육성을 중지했습니다.');
     modalKind = kind;
     qs('modal-close').hidden=kind==='choice';
     previousFocus=document.activeElement;
@@ -997,7 +1163,8 @@
     const clone=qs('ant-figure').cloneNode(true);
     clone.removeAttribute('id');clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
     clone.dataset.evolution=record.type;clone.dataset.secondEvolution=next?record.secondEvolution:'none';clone.dataset.mood='happy';
-    qs('modal-portrait').appendChild(clone);    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(next.icon)}</span>`);
+    qs('modal-portrait').appendChild(clone);
+    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(next.icon)}</span>`);
     qs('modal-new-ant').addEventListener('click',()=>{closeModal();confirmNewAnt();});
     qs('modal-keep').addEventListener('click',closeModal);
   }
@@ -1030,7 +1197,8 @@
       const settings=game.settings;
       const unlockedAchievements=game.unlockedAchievements;
       const decor={unlocked:[...game.decor.unlocked],equipped:{...game.decor.equipped}};
-      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;game.tutorialCompleted=true;
+      const expedition={...game.expedition,inventory:{...game.expedition.inventory},crafted:[...game.expedition.crafted],trips:[...game.expedition.trips]};
+      game=freshState();game.records=records;game.settings=settings;game.unlockedAchievements=unlockedAchievements;game.decor=decor;game.expedition=expedition;game.tutorialCompleted=true;
       saveState();closeModal();showScreen('game');render();toast('새로운 신입 개미가 찾아왔어요!');
     });
     qs('cancel-new-ant').addEventListener('click',closeModal);
@@ -1054,7 +1222,8 @@
       const bundle={
         format:'ant-game-save',exportVersion:B.version,exportedAt:new Date().toISOString(),
         save:JSON.parse(raw),
-        originalBeforeV05:localStorage.getItem(PRE_V05_BACKUP_KEY)
+        originalBeforeV05:localStorage.getItem(PRE_V05_BACKUP_KEY),
+        originalBeforeV06:localStorage.getItem(PRE_V06_BACKUP_KEY)
       };
       const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json;charset=utf-8'});
       const url=URL.createObjectURL(blob);
@@ -1078,8 +1247,18 @@
   }
 
   function bindEvents() {
-    qs('carrot-button').addEventListener('click',()=>playAction('carrot'));
-    qs('whip-button').addEventListener('click',()=>playAction('whip'));
+    qs('carrot-button').addEventListener('click',()=>{stopAuto();playAction('carrot');});
+    qs('whip-button').addEventListener('click',()=>{stopAuto();playAction('whip');});
+    qs('auto-toggle').addEventListener('click',toggleAutoCare);
+    qs('auto-mode').addEventListener('change',e=>{autoMode=e.target.value;});
+    qs('expedition-regions').addEventListener('click',e=>{
+      const btn=e.target.closest('[data-expedition]');if(btn)exploreRegion(btn.dataset.expedition);
+    });
+    qs('craft-grid').addEventListener('click',e=>{
+      const btn=e.target.closest('[data-craft]');if(btn)craftItem(btn.dataset.craft);
+    });
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto('화면이 숨겨져 자동 육성이 중지됐습니다.');});
+    window.addEventListener('pagehide',()=>stopAuto());
     qs('view-finish').addEventListener('click',()=>showEvolutionResult(findFinishRecord()));
     qs('new-ant-button').addEventListener('click',confirmNewAnt);
     qs('tutorial-skip').addEventListener('click',skipTutorial);
@@ -1121,7 +1300,7 @@
     qs('modal-close').addEventListener('click',closeModal);
     qs('modal-backdrop').addEventListener('click',e=>{if(e.target===qs('modal-backdrop'))closeModal();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen)closeModal();});
-    window.addEventListener('storage',e=>{if(e.key!==KEY)return;game=loadState();render();toast('다른 탭에서 변경된 저장 데이터를 불러왔습니다.');});
+    window.addEventListener('storage',e=>{if(e.key!==KEY)return;stopAuto('다른 탭에서 데이터가 변경되어 중지했습니다.');game=loadState();reconcileDecorations();render();toast('다른 탭에서 변경된 저장 데이터를 불러왔습니다.');});
   }
   bindEvents();
   startAnalytics();
