@@ -1,5 +1,5 @@
 /*
- * 개미 키우기 MVP v0.9
+ * 개미 키우기 정식 출시 v1.0
  * 데이터: balance.js / 화면: index.html / 스타일: style.css
  * 플레이어 데이터는 LocalStorage에 저장됩니다. 서버와 로그인은 없습니다.
  */
@@ -17,6 +17,16 @@
   const PRE_V07_BACKUP_KEY = 'little-ant-game-before-v0.7';
   const PRE_V08_BACKUP_KEY = 'little-ant-game-before-v0.8';
   const PRE_V09_BACKUP_KEY = 'little-ant-game-before-v0.9';
+  const PRE_V10_BACKUP_KEY = 'little-ant-game-before-v1.0';
+  const PRE_RESET_KEY = 'little-ant-game-before-reset-v1.0';
+  // 정식 출시 전 저장 원문을 최초 1회 보존합니다. 기존 백업 키는 변경하지 않습니다.
+  try {
+    const raw=localStorage.getItem(KEY);
+    if(raw && !localStorage.getItem(PRE_V10_BACKUP_KEY)) {
+      const candidate=JSON.parse(raw);
+      if(candidate?.schemaVersion===1) localStorage.setItem(PRE_V10_BACKUP_KEY,raw);
+    }
+  }catch(_error){ /* 데이터가 손상되어도 원문을 덮어쓰지 않습니다. */ }
   // 과거 원정권·자원·완료 기록은 삭제하지 않고 v0.9 규칙만 적용합니다.
   try {
     const raw=localStorage.getItem(KEY);
@@ -412,10 +422,20 @@
   }
 
   function saveState() {
-    if(storageCorrupt) {storageWorks=false;renderStorageStatus();return;}
-    try { localStorage.setItem(KEY,JSON.stringify(game)); storageWorks = true; }
-    catch(error) {storageWorks=false; console.warn('자동 저장 실패:',error);}
-    renderStorageStatus();
+    if(storageCorrupt) {storageWorks=false;renderStorageStatus();return false;}
+    try {
+      const raw=JSON.stringify(game);
+      localStorage.setItem(KEY,raw);
+      if(localStorage.getItem(KEY)!==raw)throw new Error('저장 내용 확인 실패');
+      storageWorks=true;
+      renderStorageStatus();
+      return true;
+    } catch(error) {
+      storageWorks=false;
+      console.warn('자동 저장 실패:',error);
+      renderStorageStatus();
+      return false;
+    }
   }
 
   // v0.8 자원 소비/원정/배치 트랜잭션: 저장이 실패하면 메모리와 UI도 바뀌지 않습니다.
@@ -660,6 +680,9 @@
     renderAutoCare();
   }
   function runAutoTick() {
+    if(!storageWorks || storageCorrupt) {
+      stopAuto('저장 오류로 자동 육성을 중단했습니다. 설정에서 저장 상태를 확인하세요.');return;
+    }
     if(document.hidden || activeScreen!=='game' || game.finished || game.pendingChoice || modalOpen || !game.tutorialCompleted) {
       stopAuto('자동 육성 중단 · 게임 화면 또는 이벤트 상태를 확인하세요.');return;
     }
@@ -734,6 +757,8 @@
   // 선택 이벤트의 경우 행동/기본 이벤트 효과만 먼저 저장하고 경험치·진화를 보류합니다.
   function playAction(action) {
     if(game.finished || game.pendingChoice || modalOpen) return;
+    if(!storageWorks || storageCorrupt){toast('저장 문제를 해결하기 전에는 육성을 진행할 수 없습니다.');return;}
+    const rollbackState=JSON.parse(JSON.stringify(game));
     const before={...game.stats};
     const eventId=pickEvent(action,before);
     const changes=B.actions[action];
@@ -773,16 +798,23 @@
       if(event.choices?.length) {
         game.pendingChoice={eventId,action,gained,recoveryBonus};
         game.lastFeedback=`돌발 이벤트 · ${event.name} · 대응 방법을 골라 주세요.`;
-        saveState();render();animateAnt('event',false);
+        if(!saveState()){
+          game=rollbackState;
+          stopAuto('저장 오류로 자동 육성을 중단했습니다.');
+          render();toast('저장 실패: 육성 행동을 되돌렸습니다.');return;
+        }
+        render();animateAnt('event',false);
         playSound(event.kind==='positive'?'positive':'negative');
         showChoiceEvent();
         return;
       }
     }
-    completeAction({action,gained,recoveryBonus,eventId});
+    completeAction({action,gained,recoveryBonus,eventId,rollbackState});
   }
 
-  function completeAction({action,gained,recoveryBonus,eventId,choiceLabel}) {
+  function completeAction({action,gained,recoveryBonus,eventId,choiceLabel,rollbackState}) {
+    const beforeAction=rollbackState||JSON.parse(JSON.stringify(game));
+    const noticeCount=achievementNoticeQueue.length;
     // 선택 이벤트의 행동 횟수와 기본 효과는 여기서 다시 적용하지 않습니다.
     if(!trackedGameStartThisVisit) {
       trackedGameStartThisVisit=true;
@@ -855,7 +887,15 @@
       ant_type:game.evolution, completed_level:game.level,
       action_count:game.carrotCount+game.whipCount
     });
-    saveState();render();animateAnt(eventId?'event':action,didLevelUp);
+    if(!saveState()) {
+      game=beforeAction;
+      achievementNoticeQueue.length=noticeCount;
+      stopAuto('저장 오류로 자동 육성을 중단했습니다.');
+      render();toast('저장 실패: 육성 결과를 되돌렸습니다.');
+      if(game.pendingChoice && !modalOpen)showChoiceEvent();
+      return false;
+    }
+    render();animateAnt(eventId?'event':action,didLevelUp);
     scheduleAchievementNotices();
     if(game.finished) {
       playSound('evolution');
@@ -871,6 +911,7 @@
     } else {
       playSound(action);
     }
+    return true;
   }
 
   function showChoiceEvent() {
@@ -887,6 +928,7 @@
   }
 
   function resolveChoice(choiceId) {
+    const rollbackState=JSON.parse(JSON.stringify(game));
     const pending=game.pendingChoice;
     if(!pending) return; // 연속 클릭, 복원 중복 처리 차단
     const choice=B.events[pending.eventId]?.choices?.find(option=>option.id===choiceId);
@@ -898,7 +940,7 @@
     game.lastSpeech=choice.response;
     closeModal();
     trackAnalytics('event_choice',{event_id:pending.eventId,choice_id:choiceId});
-    completeAction({...pending,choiceLabel:choice.label});
+    completeAction({...pending,choiceLabel:choice.label,rollbackState});
   }
 
   // 저장된 과거 완료 기록 + 현재 진행 중인 개미만 합산합니다.
@@ -1503,7 +1545,8 @@
     qs('modal-backdrop').hidden=false;
     modalOpen=true;
     document.body.style.overflow='hidden';
-    qs('modal-close').focus();
+    const focusTarget=qs('modal-close').hidden ? qs('modal-body').querySelector('button:not([disabled])') : qs('modal-close');
+    focusTarget?.focus();
     renderAnalyticsUI();
   }
   function closeModal() {
@@ -1700,7 +1743,9 @@
         originalBeforeV06:localStorage.getItem(PRE_V06_BACKUP_KEY),
         originalBeforeV07:localStorage.getItem(PRE_V07_BACKUP_KEY),
         originalBeforeV08:localStorage.getItem(PRE_V08_BACKUP_KEY),
-        originalBeforeV09:localStorage.getItem(PRE_V09_BACKUP_KEY)
+        originalBeforeV09:localStorage.getItem(PRE_V09_BACKUP_KEY),
+        originalBeforeV10:localStorage.getItem(PRE_V10_BACKUP_KEY),
+        latestBeforeReset:localStorage.getItem(PRE_RESET_KEY)
       };
       const blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json;charset=utf-8'});
       const url=URL.createObjectURL(blob);
@@ -1878,13 +1923,68 @@
   function openImportPicker(){
     const input=qs('import-save-file');input.value='';input.click();
   }
+  function inspectSaveHealth(){
+    let errors=[];
+    let byteLength=0;
+    let snapshot=null;
+    let writeOk=false;
+    const probeKey='little-ant-game-v1.0-storage-probe';
+    try{
+      const raw=localStorage.getItem(KEY);
+      if(!raw)throw new Error('저장 데이터가 없습니다.');
+      byteLength=new Blob([raw]).size;
+      snapshot=JSON.parse(raw);
+      errors=validateImportedState(snapshot);
+      const before=localStorage.getItem(probeKey);
+      const mark=`check-${Date.now()}-${Math.random()}`;
+      try {
+        localStorage.setItem(probeKey,mark);
+        writeOk=localStorage.getItem(probeKey)===mark;
+      } finally {
+        if(before===null)localStorage.removeItem(probeKey);
+        else localStorage.setItem(probeKey,before);
+      }
+    }catch(error){errors.push(error.message||'저장 데이터에 접근할 수 없습니다.');}
+    const healthy=errors.length===0 && writeOk;
+    storageWorks=healthy;renderStorageStatus();
+    const records=Array.isArray(snapshot?.records)?snapshot.records.length:0;
+    const size=(byteLength/1024).toFixed(1);
+    showModal(`<p class="modal-eyebrow">SAVE HEALTH CHECK</p><h2 id="modal-title">저장 상태 점검</h2>
+      <p class="modal-subtitle">${healthy?'저장 데이터 검증 및 브라우저 쓰기 시험 통과':'점검에서 문제가 발견되었습니다.'}</p>
+      <div class="modal-info">저장 데이터: ${size} KB<br>저장 스키마: ${escapeHTML(snapshot?.schemaVersion??'알 수 없음')}<br>현재 개미: LV.${escapeHTML(snapshot?.level??'?')}<br>완료 기록: ${records}마리<br>브라우저 쓰기 테스트: ${writeOk?'성공':'실패'}<br>저장 데이터 검사: ${errors.length?'오류 '+errors.length+'건':'통과'}</div>
+      ${errors.length?`<p class="import-warning">${escapeHTML(errors.slice(0,3).join(' / '))}</p>`:''}
+      <p class="modal-subtitle">점검 내용은 외부에 전송하지 않습니다. 기기 분실에 대비하려면 JSON 백업 파일을 별도로 보관하세요.</p>
+      <div class="modal-buttons"><button class="modal-primary" type="button" id="save-health-close">확인</button></div>`);
+    qs('save-health-close').addEventListener('click',closeModal);
+  }
+
   function confirmReset() {
     showModal(`<p class="modal-eyebrow">DATA RESET</p><h2 id="modal-title">정말 초기화할까요?</h2>
-      <p class="modal-subtitle">현재 육성과 모든 진화 기록을 완전히 지웁니다. 삭제한 내용은 복구할 수 없습니다.</p>
+      <p class="modal-subtitle">현재 육성과 모든 진화 기록을 초기화합니다. 초기화 직전 데이터는 별도 브라우저 슬롯에 보관하지만, 브라우저 데이터 삭제 시 함께 사라질 수 있습니다.</p>
       <div class="modal-buttons"><button type="button" class="modal-primary danger" id="confirm-reset">모든 기록 삭제</button><button type="button" class="modal-secondary" id="cancel-reset">취소</button></div>`);
     qs('confirm-reset').addEventListener('click',()=>{
-      try{localStorage.removeItem(KEY);storageCorrupt=false;}catch(error){console.warn(error);}
-      game=freshState();achievementNoticeQueue=[];saveState();closeModal();showScreen('game');render();toast('게임이 초기화되었습니다.');
+      try {
+        const original=localStorage.getItem(KEY);
+        if(original!==null){
+          localStorage.setItem(PRE_RESET_KEY,original);
+          if(localStorage.getItem(PRE_RESET_KEY)!==original)throw new Error('초기화 전 백업 실패');
+        }
+        const next=freshState();
+        const raw=JSON.stringify(next);
+        localStorage.setItem(KEY,raw);
+        if(localStorage.getItem(KEY)!==raw){
+          if(original!==null)localStorage.setItem(KEY,original);
+          throw new Error('초기화 결과 확인 실패');
+        }
+        storageCorrupt=false;storageWorks=true;
+        stopAuto();game=next;achievementNoticeQueue=[];
+        closeModal();showScreen('game');render();
+        toast('초기화 완료 · 이전 데이터는 브라우저 복구 슬롯에 보관했습니다.');
+      } catch(error) {
+        storageWorks=false;renderStorageStatus();
+        console.warn('안전 초기화 실패',error);
+        toast('초기화 중 오류가 발생해 기존 데이터를 유지했습니다.');
+      }
     });
     qs('cancel-reset').addEventListener('click',closeModal);
   }
@@ -1957,12 +2057,21 @@
     qs('analytics-deny').addEventListener('click',()=>setAnalyticsChoice(false));
     qs('export-save').addEventListener('click',exportSaveData);
     qs('import-save').addEventListener('click',openImportPicker);
+    qs('inspect-save').addEventListener('click',inspectSaveHealth);
     qs('import-save-file').addEventListener('change',e=>{const file=e.target.files?.[0];if(file)previewImportedSave(file);});
     qs('reset-button').addEventListener('click',confirmReset);
     qs('modal-close').addEventListener('click',closeModal);
     qs('modal-backdrop').addEventListener('click',e=>{if(e.target===qs('modal-backdrop'))closeModal();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen)closeModal();});
-    window.addEventListener('storage',e=>{if(e.key!==KEY)return;stopAuto('다른 탭에서 데이터가 변경되어 중지했습니다.');game=loadState();reconcileDecorations();render();toast('다른 탭에서 변경된 저장 데이터를 불러왔습니다.');});
+    window.addEventListener('storage',e=>{
+      if(e.key!==KEY)return;
+      stopAuto('다른 탭에서 데이터가 변경되어 중지했습니다.');
+      if(modalOpen){modalOpen=false;modalKind=null;qs('modal-backdrop').hidden=true;document.body.style.overflow='';}
+      game=loadState();reconcileAchievements();reconcileDecorations();render();
+      if(game.pendingChoice)showChoiceEvent();
+      else if(game.firstEvolution && !game.firstEvolution.acknowledged && game.phase==='phase2')showFirstEvolutionResult();
+      toast('다른 탭에서 변경된 저장 데이터를 불러왔습니다.');
+    });
   }
   bindEvents();
   switchNestTab('decor');
