@@ -4,7 +4,30 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.2.0',
+  version: '0.3.0',
+  // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
+  releaseNotes: {
+    version: '0.3.0',
+    date: '2026-11-05',
+    title: '개미의 선택',
+    summary: '두 가지 선택형 돌발 이벤트와 진화 예상 가이드, 도전과제 8종이 개미집에 찾아왔습니다.',
+    sections: [
+      { heading: '새로운 기능', items: [
+        '몰래 낮잠과 기분 전환 이벤트에서 직접 대응 방법을 선택할 수 있습니다.',
+        '행동 비율을 기반으로 현재 예상 진화를 확인할 수 있습니다.',
+        '도전과제 8종이 추가되었고, 과거 육성 기록도 달성에 반영됩니다.',
+        '업데이트 후 첫 접속 시 패치노트가 표시되며 설정에서 다시 볼 수 있습니다.'
+      ] },
+      { heading: '기존 밸런스 유지', items: [
+        '스트레스 60 이상에서 당근 회복 -20, 나태함 60 이상에서 채찍 교정 -10 효과가 유지됩니다.',
+        '경험치 공식, 이벤트 발생 확률, 세 가지 진화 비율은 변경하지 않았습니다.'
+      ] },
+      { heading: '기록과 저장', items: [
+        'v0.1·v0.2에서 육성한 개미와 이전 진화 기록을 그대로 이어서 사용할 수 있습니다.',
+        '선택 중 새로고침하더라도 미완료 이벤트를 복원합니다.'
+      ] }
+    ]
+  },
   maxLevel: 10, // MVP 상한. 정식 버전 목표는 LV.50.
   initial: { level: 1, exp: 0, motivation: 60, stress: 20, laziness: 10 },
   actions: {
@@ -41,11 +64,33 @@ window.ANT_BALANCE = Object.freeze({
   events: {
     focus:    { name: '집중력 폭발', kind: 'positive', action: 'whip', expMultiplier: 1.5 },
     carrotJoy:{ name: '당근 대만족', kind: 'positive', action: 'carrot', motivation: +5 },
-    refresh:  { name: '기분 전환', kind: 'positive', action: 'both', stress: -5 },
+    refresh:  { name: '기분 전환', kind: 'positive', action: 'both', stress: -5,
+      prompt: '개미가 새로운 기분 전환 방법을 발견했습니다. 어떻게 해 볼까요?',
+      choices: [
+        { id:'snack', label:'작은 간식을 준다', details:'의욕 +5 · 나태함 +3', effects:{motivation:5,laziness:3}, response:'맛있는 간식 덕분에 기운이 생겼어!' },
+        { id:'walk', label:'산책을 나간다', details:'나태함 -5 · 의욕 -3', effects:{laziness:-5,motivation:-3}, response:'가볍게 걸으니 몸이 개운해졌어!' }
+      ]
+    },
     refusal:  { name: '훈련 거부', kind: 'negative', action: 'whip', cancelExp: true },
-    nap:      { name: '몰래 낮잠', kind: 'negative', action: 'both', laziness: +10 },
+    nap:      { name: '몰래 낮잠', kind: 'negative', action: 'both', laziness: +10,
+      prompt: '개미가 훈련 도중 꾸벅꾸벅 졸고 있습니다. 어떻게 대응할까요?',
+      choices: [
+        { id:'rest', label:'잠시 쉬게 한다', details:'스트레스 -8 · 나태함 +5', effects:{stress:-8,laziness:5}, response:'잠시 쉬니 긴장이 풀렸지만 조금 느긋해졌어.' },
+        { id:'focus', label:'다시 집중하도록 돕는다', details:'나태함 -5 · 스트레스 +8', effects:{laziness:-5,stress:8}, response:'다시 집중했지만 조금 긴장됐어.' }
+      ]
+    },
     complain: { name: '불평 폭발', kind: 'negative', action: 'both', motivation: -10 }
   },
+  achievements: [
+    { id:'ACH01', title:'첫 발걸음', description:'당근 또는 채찍을 1회 사용', icon:'🌱' },
+    { id:'ACH02', title:'첫 번째 진화', description:'LV.10 진화를 1회 완료', icon:'✨' },
+    { id:'ACH03', title:'느긋한 개척자', description:'태평 개미 발견', icon:'🍀' },
+    { id:'ACH04', title:'반짝이는 발상', description:'천재 개미 발견', icon:'💡' },
+    { id:'ACH05', title:'묵묵한 노력', description:'근면 개미 발견', icon:'🛠️' },
+    { id:'ACH06', title:'세 갈래의 길', description:'세 가지 진화를 모두 발견', icon:'🏆' },
+    { id:'ACH07', title:'개미 돌봄 전문가', description:'누적 육성 행동 300회', icon:'📜' },
+    { id:'ACH08', title:'사건의 목격자', description:'누적 돌발 이벤트 30회', icon:'🔎' }
+  ],
   // Q21 엄격한 균형 판정: <=45% 태평, (45%,55%) 천재, >=55% 근면.
   evolution: { easyMaxWhipRatio: 0.45, geniusMaxWhipRatio: 0.55 },
   types: {
