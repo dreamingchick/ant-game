@@ -421,3 +421,43 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .auto-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#7eb68b,#478b66);border-radius:99px;transition:width .2s}
 .auto-config-field select:disabled,.auto-safe-option input:disabled{opacity:.65}
 @media(max-width:370px){.auto-config-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.auto-config-field:first-child{grid-column:1/-1}.auto-run-row{align-items:stretch;flex-direction:column}.auto-run-row button{width:100%}}
+
+/* v0.8: 왕국 운영 탭, 시설과 일꾼, 데이터 복원 */
+.nest-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:6px;background:#eee6d4;border:1px solid #d9c8ab;border-radius:16px;margin:16px 0}
+.nest-tab{border:0;background:transparent;border-radius:11px;padding:12px 5px;font-size:12px;font-weight:800;color:#766049;cursor:pointer;min-width:0}
+.nest-tab.active{background:#fffdf6;color:#386847;box-shadow:0 2px 7px #463b2122}
+.nest-tab:focus-visible,.kingdom-panel button:focus-visible{outline:3px solid #568a68;outline-offset:2px}
+.kingdom-panel{display:grid;gap:12px}
+.kingdom-panel[hidden],#nest-decor-panel[hidden]{display:none!important}
+.kingdom-intro{background:#fff9e8;border:1px solid #e3d6bb;border-radius:15px;padding:15px}
+.kingdom-intro h3{margin:0 0 6px;color:#4a3924}.kingdom-intro p,.kingdom-worker-card p{font-size:12px;line-height:1.6;color:#77644f;margin:0}
+.kingdom-summary{padding:10px 13px;border-radius:13px;background:#e5eddf;color:#40664a;font-size:12px;font-weight:750}
+.kingdom-facility-grid,.kingdom-worker-grid{display:grid;gap:11px}
+.kingdom-facility-card,.kingdom-worker-card{background:#fffdf7;border:1px solid #e5d7c0;border-radius:16px;padding:15px;box-shadow:0 3px 8px #55402b10;min-width:0}
+.kingdom-card-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.kingdom-facility-icon{display:grid;place-items:center;background:#f2eadb;border-radius:13px;width:42px;height:42px;font-size:26px;flex:0 0 auto}
+.kingdom-card-heading strong{display:block;font-size:16px;color:#493823}.kingdom-card-heading small{font-size:11px;color:#8b785c}
+.kingdom-facility-description{color:#6f5d46;font-size:12px;line-height:1.6;margin:0 0 10px}
+.kingdom-facility-progress{height:8px;background:#e6e8da;border-radius:99px;overflow:hidden;margin:8px 0 11px}
+.kingdom-facility-progress span{display:block;height:100%;background:#629c73;border-radius:99px}
+.kingdom-resource-cost{font-size:12px;font-weight:700;color:#536d52;margin:8px 0;line-height:1.6}
+.kingdom-facility-action-row{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+.kingdom-facility-action-row button,.kingdom-worker-card button{font-size:12px;padding:10px 14px;border-radius:11px;background:#496f4d;color:white;border:0;font-weight:800;cursor:pointer}
+.kingdom-facility-action-row button:disabled,.kingdom-worker-card button:disabled{background:#e0ded4;color:#81796b;cursor:not-allowed}
+.kingdom-ledger{font-size:11px;color:#7b6b54;line-height:1.7;padding:9px 12px}
+.kingdom-worker-card{display:grid;gap:8px}
+.kingdom-worker-status{padding:8px 10px;background:#f0efe5;border-radius:10px;font-size:12px;color:#584b34}
+.kingdom-worker-actions{display:flex;flex-wrap:wrap;gap:7px}
+.kingdom-worker-card button.secondary{background:#f0e4d0;color:#77553c}
+.kingdom-picker-list{display:grid;gap:7px;max-height:46vh;overflow-y:auto;margin:10px 0}
+.kingdom-picker-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:1px solid #e5d5bc;background:#fffdf8;color:#554331;border-radius:12px;padding:10px 13px;cursor:pointer}
+.kingdom-picker-item small{display:block;font-size:11px;color:#8c795b;margin-top:3px}
+.kingdom-picker-filters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.kingdom-picker-filters button{border:1px solid #d5c6ac;background:#fffdf6;color:#675238;border-radius:12px;padding:7px 10px;font-size:12px}
+.kingdom-picker-filters button.active{background:#e2eddf;border-color:#61916b}
+.import-preview{display:grid;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr));margin:13px 0}
+.import-preview-card{background:#f6efdf;border:1px solid #e5d8be;border-radius:13px;padding:10px;font-size:12px;line-height:1.8;overflow-wrap:anywhere}
+.import-preview-card strong{display:block;font-size:13px;color:#4f3b2a;margin-bottom:4px}
+.import-warning{font-size:12px;line-height:1.6;color:#92512c}
+.import-help{font-size:11px;color:#826f57;line-height:1.5}
+@media(max-width:380px){.nest-tabs{gap:3px}.nest-tab{font-size:11px;padding:10px 3px}.kingdom-facility-card,.kingdom-worker-card{padding:11px}.kingdom-facility-action-row button{width:100%}.kingdom-facility-action-row{align-items:stretch}}
