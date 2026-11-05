@@ -407,3 +407,17 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))}
 .bottom-nav .nav-button{min-width:0;padding-left:3px;padding-right:3px}
 @media(max-width:390px){.auto-controls{grid-template-columns:1fr auto}.auto-mode-label{display:none}.auto-controls select{font-size:12px}.auto-controls button{font-size:11px}.region-card,.craft-card{gap:6px;padding:10px 7px}.region-icon,.craft-icon{width:27px;font-size:25px}.region-card .mini-button,.craft-card .mini-button{min-width:52px;padding:9px 5px}.region-content p,.craft-content small{font-size:11px}}
+
+/* v0.7 자동 육성 세부 설정 및 진행 미리보기 */
+.auto-config-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 10px}
+.auto-config-field{min-width:0;display:grid;gap:5px;font-size:12px;font-weight:800;color:#6c573d}
+.auto-config-field select{width:100%;min-width:0;border:1px solid #ddcdb4;border-radius:10px;padding:10px 6px;font:inherit;font-size:12px;background:#fff;color:#4d4132}
+.auto-safe-option{display:flex;align-items:center;gap:8px;font-size:12px;color:#685238;margin:8px 0 12px;line-height:1.5;cursor:pointer}
+.auto-safe-option input{width:16px;height:16px;accent-color:#568867;flex:0 0 auto}
+.auto-run-row{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.auto-next-action{font-weight:750;color:#4f7652;font-size:12px;line-height:1.4;min-width:0}
+.auto-run-row button{font-size:12px;padding:10px 12px;white-space:nowrap;flex:0 0 auto}
+.auto-progress-line{background:#e3e6d6;height:8px;border-radius:99px;overflow:hidden}
+.auto-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#7eb68b,#478b66);border-radius:99px;transition:width .2s}
+.auto-config-field select:disabled,.auto-safe-option input:disabled{opacity:.65}
+@media(max-width:370px){.auto-config-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.auto-config-field:first-child{grid-column:1/-1}.auto-run-row{align-items:stretch;flex-direction:column}.auto-run-row button{width:100%}}
