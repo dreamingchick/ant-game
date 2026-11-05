@@ -461,3 +461,27 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .import-warning{font-size:12px;line-height:1.6;color:#92512c}
 .import-help{font-size:11px;color:#826f57;line-height:1.5}
 @media(max-width:380px){.nest-tabs{gap:3px}.nest-tab{font-size:11px;padding:10px 3px}.kingdom-facility-card,.kingdom-worker-card{padding:11px}.kingdom-facility-action-row button{width:100%}.kingdom-facility-action-row{align-items:stretch}}
+
+/* v0.9: 원정대·희귀 도감·주간 목표 */
+.expedition-level-notice{background:#ebf2df;border:1px solid #cadbb8;color:#3d714c;border-radius:14px;padding:14px 16px;font-size:13px;font-weight:850;line-height:1.6;margin:14px 0 6px}
+.expedition-level-notice.locked{background:#fff1d8;border-color:#e0cba9;color:#795731}
+.expedition-squad-summary{background:#ecf2e5;border:1px solid #d5e1cd;border-radius:11px;padding:9px 12px;color:#496b50;font-size:12px;font-weight:800;line-height:1.5;margin:9px 0}
+.expedition-squad-roster{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}
+.expedition-squad-member{min-width:0;display:grid;justify-items:center;text-align:center;align-content:center;gap:6px;border-radius:13px;border:1px solid #e4d6bf;background:#fffdf8;padding:11px 5px;min-height:83px}
+.expedition-squad-member .squad-portrait{font-size:24px}.expedition-squad-member strong{font-size:11px;color:#5e4933;max-width:100%;overflow-wrap:anywhere}
+.expedition-squad-member small{font-size:10px;color:#86735d}
+.expedition-squad-member.empty{border-style:dashed;background:#f6f1e7;color:#a0917c}
+.expedition-squad-list{display:grid;gap:7px;max-height:46vh;overflow:auto;margin:12px 0}
+.expedition-squad-item{border:1px solid #dfd2bb;background:#fffdf6;border-radius:13px;padding:11px 12px;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#594531}
+.expedition-squad-item:disabled{opacity:.48}.expedition-squad-item strong{display:block;font-size:13px}.expedition-squad-item small{display:block;font-size:11px;margin-top:3px}
+.expedition-squad-item.selected{background:#e7f1e3;border-color:#739c74}.expedition-squad-item .squad-status{font-size:12px;font-weight:800;white-space:nowrap}
+.rare-finds-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.rare-find-card{min-width:0;display:flex;align-items:center;gap:8px;background:#fffdf6;border:1px solid #e4d8c3;border-radius:12px;padding:10px 8px}
+.rare-find-card.locked{background:#f6f0e6;opacity:.75}.rare-find-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:37px;font-size:24px}
+.rare-find-card strong{display:block;font-size:11px;color:#4d3b2c;overflow-wrap:anywhere}.rare-find-card small{display:block;font-size:10px;color:#8a775f;line-height:1.5;margin-top:3px}
+.weekly-goals-grid{display:grid;gap:9px;margin-top:12px}.weekly-goal-card{background:#fffdf6;border:1px solid #e3d6c0;border-radius:13px;padding:12px;display:grid;gap:8px}
+.weekly-goal-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.weekly-goal-card strong{color:#594330;font-size:13px}.weekly-goal-card small{font-size:11px;color:#8d775d}.weekly-goal-reward{font-size:11px;color:#4e7854;font-weight:800}
+.weekly-goal-actions{display:flex;justify-content:space-between;align-items:center;gap:10px}.weekly-goal-actions button{padding:9px 12px;font-size:11px;flex-shrink:0}
+.weekly-goal-track{height:7px;background:#e5e5d8;border-radius:99px;overflow:hidden}.weekly-goal-track span{display:block;height:100%;background:#6aab80;border-radius:99px}
+.weekly-goal-label{font-size:11px;color:#7e684c}.region-content .squad-bonus-detail{color:#50785a;font-weight:800}
+@media(max-width:360px){.expedition-squad-roster{gap:4px}.expedition-squad-member{padding:9px 3px}.expedition-squad-member strong{font-size:10px}.rare-finds-grid{gap:5px}.rare-find-card{gap:4px;padding:9px 5px}.rare-find-icon{flex-basis:28px;width:28px;font-size:21px}.weekly-goal-actions{align-items:stretch;flex-direction:column}.weekly-goal-actions button{width:100%}}
