@@ -45,7 +45,10 @@
         <div class="deco-mushroom mushroom-right" aria-hidden="true"><i></i></div>
         <div class="leaf-litter" aria-hidden="true">❧</div>
         <div class="nest-lamp" aria-hidden="true"><i></i></div>
-        <div class="scene-topline"><span class="scene-location">⌂ &nbsp; 포근한 개미집</span><span class="scene-weather" id="scene-status">● 평온한 오후</span></div>
+        <div id="nest-wall-display" class="nest-decor-display decor-wall" aria-hidden="true"></div>
+        <div id="nest-floor-display" class="nest-decor-display decor-floor" aria-hidden="true"></div>
+        <div id="nest-light-display" class="nest-decor-display decor-light" aria-hidden="true"></div>
+        <div class="scene-topline"><span class="scene-location" id="scene-location">⌂ &nbsp; 포근한 개미집</span><span class="scene-weather" id="scene-status">● 평온한 오후</span></div>
         <div id="speech-bubble" class="speech-bubble" role="status" aria-live="polite">오늘은 무얼 해 볼까?</div>
         <div class="ant-stage">
           <svg id="ant-figure" class="ant-figure" data-evolution="newbie" data-mood="normal" viewBox="0 0 360 320" role="img" aria-label="신입 개미가 개미집에서 쉬고 있습니다">
@@ -145,20 +148,33 @@
       <p class="records-note">동일한 개미를 여러 번 키워도 각각의 기록을 보관합니다. 이 기록은 사용 중인 브라우저에 저장됩니다.</p>
     </main>
 
+
+    <main id="screen-nest" class="screen nest-screen" hidden>
+      <div class="page-heading"><span class="overline">MY LITTLE ANT NEST</span><h2>나만의 개미집</h2><p>성장의 추억으로 개미집을 꾸며 보세요. 장식은 육성 능력치에 영향을 주지 않습니다.</p></div>
+      <section class="nest-collection-summary" aria-label="장식 수집 현황">
+        <div class="nest-collection-head"><strong>장식 수집</strong><span id="decor-count">0 / 9</span></div>
+        <div class="nest-collection-track"><span id="decor-progress"></span></div>
+        <p id="nest-theme-caption" class="nest-theme-caption">현재 개미집 분위기: 포근한 흙집</p>
+      </section>
+      <div class="nest-customize-guide"><strong>어떻게 꾸미나요?</strong><span>육성 행동을 하면 장식이 해금됩니다. 바닥·벽·조명 슬롯에 각각 하나를 배치하거나 해제할 수 있습니다.</span></div>
+      <div id="decorations-grid" class="decorations-grid" aria-live="polite"></div>
+    </main>
+
     <main id="screen-settings" class="screen settings-screen" hidden>
       <div class="page-heading"><span class="overline">A QUIET LITTLE CORNER</span><h2>게임 설정</h2><p>당신의 개미집을 편안하게 가꾸세요.</p></div>
       <section class="setting-group"><h3>사운드</h3><label class="setting-line" for="sound-toggle"><span><strong>효과음 사용</strong><small>배경음악 없이 행동·진화 효과음만 재생</small></span><input id="sound-toggle" type="checkbox" checked></label><label class="volume-label" for="sound-volume">효과음 크기 <output id="sound-volume-text">65%</output></label><input class="volume-slider" type="range" min="0" max="100" step="5" value="65" id="sound-volume"></section>
       <section class="setting-group"><h3>도움말</h3><p>당근과 채찍의 효과를 다시 체험할 수 있습니다.</p><p>v0.2 상태 대응 회복: 행동 전 스트레스 60 이상에서는 당근의 스트레스 감소가 −20, 나태함 60 이상에서는 채찍의 나태함 감소가 −10으로 강화됩니다.</p><button class="outline-button" type="button" id="replay-tutorial">튜토리얼 다시 보기</button></section>
       <section class="setting-group"><h3>업데이트 소식</h3><p>업데이트 후 첫 접속에는 최신 소식을 안내합니다. 이전 업데이트 기록도 버전별로 확인할 수 있습니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="view-patch-notes">최신 패치노트</button><button class="outline-button" type="button" id="view-patch-history">전체 업데이트 기록</button></div></section>
-      <section class="setting-group" id="analytics-section"><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
+      <section class="setting-group" id="analytics-section" hidden><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
       <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span></section>
       <section class="setting-group danger-zone"><h3>데이터 초기화</h3><p>현재 육성 중인 개미와 모든 진화 기록을 삭제합니다. 되돌릴 수 없습니다.</p><button class="outline-button danger" type="button" id="reset-button">전체 데이터 초기화</button></section>
-      <p class="version-label">개미 키우기 · MVP v0.3.0</p>
+      <p class="version-label">개미 키우기 · MVP v0.4.0</p>
     </main>
 
     <nav class="bottom-nav" aria-label="게임 메뉴">
       <button type="button" class="nav-button active" data-screen="game" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span>육성</span></button>
       <button type="button" class="nav-button" data-screen="records"><span class="nav-icon" aria-hidden="true">▤</span><span>기록</span></button>
+      <button type="button" class="nav-button" data-screen="nest"><span class="nav-icon" aria-hidden="true">✿</span><span>꾸미기</span></button>
       <button type="button" class="nav-button" data-screen="settings"><span class="nav-icon" aria-hidden="true">⚙</span><span>설정</span></button>
     </nav>
   </div>
