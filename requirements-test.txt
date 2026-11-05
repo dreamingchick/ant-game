@@ -1,0 +1,2 @@
+# Browser-based smoke/regression suite; game has no runtime package dependencies.
+playwright==1.57.0
