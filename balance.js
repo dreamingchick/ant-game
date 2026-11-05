@@ -4,32 +4,42 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '0.5.0',
+  version: '0.6.0',
   // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
   releaseNotes: {
-    version: '0.5.0',
+    version: '0.6.0',
     date: '2026-11-05',
-    title: '두 번째 진화',
-    summary: 'LV.20까지 성장하고, 첫 진화의 패시브를 활용해 여섯 가지 새로운 개미를 발견해 보세요.',
+    title: '개미 왕국의 첫 원정',
+    summary: '세 지역을 탐험해 자원을 모으고 새 장식 6종을 제작해 보세요. 자동 돌봄과 최근 행동 기록도 추가됐습니다.',
     sections: [
-      { heading:'성장 확장', items:[
-        'LV.10에서 첫 진화 후에도 육성을 이어가며 LV.20에 두 번째 진화를 달성할 수 있습니다.',
-        'LV.10 첫 진화 유형에 따라 고유 패시브 3종이 실제로 작동합니다.'
+      { heading:'탐험과 제작', items:[
+        '풀잎 초원(LV.10), 오래된 숲(LV.14), 빛나는 동굴(LV.18)을 탐험할 수 있습니다.',
+        '식량·목재·수정을 모아 개미집 장식 6종을 한 번씩 제작할 수 있습니다.',
+        '육성 행동 6회마다 원정권 1장을 얻고, 원정권은 최대 5장까지 보유합니다.'
       ]},
-      { heading:'두 번째 진화', items:[
-        '태평·천재·근면 개미 계열마다 두 갈래씩, 신규 2차 진화 6종이 추가됩니다.',
-        'LV.10 이후 행동만으로 두 번째 진화를 예측하고, 2차 진화 도감에서 결과를 수집할 수 있습니다.'
+      { heading:'자동 육성 · 편의성', items:[
+        '균형·성장·회복 세 모드의 자동 육성(최대 25회/실행)이 추가됩니다.',
+        '선택 이벤트, 진화 팝업, 다른 화면 이동, 화면 숨김 시 자동 육성은 즉시 중단됩니다.',
+        '최근 육성 행동 8건을 게임 화면에서 확인할 수 있습니다.'
       ]},
-      { heading:'데이터·편의성', items:[
-        '기존 LV.10 완료 개미 기록을 그대로 보존하며, 새 육성부터 LV.20 확장을 적용합니다.',
-        '도전과제와 장식품, 패치노트 전체 이력은 유지됩니다.',
-        '외부 플레이 통계는 계속 수집하지 않습니다.'
+      { heading:'기존 기록 보호', items:[
+        'v0.1부터의 진화 기록·도전과제·꾸미기 장식·패치노트 이력을 모두 유지합니다.',
+        '게임 저장 키를 그대로 사용하며, 새로운 원정 정보만 선택 필드로 저장합니다.',
+        '이용 통계는 비활성화 상태를 유지합니다.'
       ]}
     ]
   },
   // 과거 배포 버전을 순서대로 보관합니다. 미배포 v0.2.1은 목록에 포함하지 않습니다.
   // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
   releaseNotesHistory: [
+    {
+      version: '0.5.0', date: '2026-11-05', title: '두 번째 진화',
+      summary: 'LV.20 성장, 고유 패시브 3종, 2차 진화 6종이 추가되었습니다.',
+      sections: [{heading:'성장 확장',items:[
+        'LV.10 이후 고유 패시브가 활성화되며 LV.20까지 육성할 수 있습니다.',
+        '6종의 두 번째 진화가 도감에 추가되고 구버전 진화 기록은 유지됩니다.'
+      ]}]
+    },
     {
       version:'0.4.0', date:'2026-11-05', title:'나만의 개미집',
       summary:'개미집 꾸미기, 장식품 9종과 육성 성향에 따른 배경이 추가되었습니다.',
@@ -83,6 +93,29 @@ window.ANT_BALANCE = Object.freeze({
   // GA4 측정 ID(G-...) 발급 후 이 값을 설정해야 통계 전송 기능이 준비됩니다.
   // 미입력 상태에서는 외부 통계 스크립트와 네트워크 요청을 발생시키지 않습니다.
   analytics: { measurementId: '' },
+  expeditions: {
+    actionsPerTicket: 6,
+    maxTickets: 5,
+    regions: [
+      { id:'meadow', name:'풀잎 초원', icon:'🌿', minLevel:10, main:'food', reward:6, bonusChance:0.20, bonus:3, description:'햇살 아래 씨앗과 식량을 발견합니다.' },
+      { id:'forest', name:'오래된 숲', icon:'🌳', minLevel:14, main:'wood', reward:4, bonusChance:0.20, bonus:2, description:'오래된 나무 사이에서 목재를 수집합니다.' },
+      { id:'cave', name:'빛나는 동굴', icon:'💎', minLevel:18, main:'crystal', reward:2, bonusChance:0.20, bonus:1, description:'깊은 굴 속에서 빛나는 수정을 찾습니다.' }
+    ]
+  },
+  resources: [
+    { id:'food', name:'식량', icon:'🌾' },
+    { id:'wood', name:'목재', icon:'🪵' },
+    { id:'crystal', name:'수정', icon:'🔮' }
+  ],
+  craftingItems: [
+    { id:'seed-pile', slot:'floor', name:'씨앗 보따리', icon:'🌰', desc:'탐험에서 모은 식량으로 만든 보따리', cost:{food:10} },
+    { id:'wooden-bench', slot:'floor', name:'숲속 나무 의자', icon:'🪑', desc:'튼튼한 나무 의자', cost:{wood:8,food:5} },
+    { id:'moss-banner', slot:'wall', name:'초록 깃발', icon:'🍀', desc:'개미집의 자랑스러운 깃발', cost:{food:14,wood:4} },
+    { id:'carved-board', slot:'wall', name:'나무 문패', icon:'🪧', desc:'원정의 기록이 새겨진 문패', cost:{wood:14} },
+    { id:'crystal-lamp', slot:'light', name:'수정 등불', icon:'💠', desc:'신비한 광석으로 만든 조명', cost:{crystal:6,wood:4} },
+    { id:'glow-lantern', slot:'light', name:'빛나는 등롱', icon:'🏮', desc:'깊은 동굴의 빛을 담은 등롱', cost:{crystal:12,food:8} }
+  ],
+  autoCare: { maxActions:25, intervalMs:1250 },
   maxLevel: 20, // v0.5: LV.10은 체크포인트, LV.20이 완료. 정식 목표 LV.50.
   initial: { level: 1, exp: 0, motivation: 60, stress: 20, laziness: 10 },
   actions: {
