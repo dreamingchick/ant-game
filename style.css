@@ -185,6 +185,15 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .save-status{display:inline-flex; align-items:center; gap:6px; padding:8px 10px; background:#edf6ec; font-size:11px; font-weight:800; color:#548461; border-radius:9px;}
 .save-dot {width:7px; height:7px; background:#63a875; border-radius:50%;}
 .danger-zone {border-color:#ead8d1;}
+/* 업데이트 패치노트 */
+.patch-summary {margin:0 0 15px; font-size:12px; line-height:1.65; color:#786b59;}
+.patch-version-pill {display:inline-block; background:#eaf3e8; color:#467653; border:1px solid #cfdfcf; padding:5px 10px; border-radius:99px; font-size:11px; font-weight:900; margin:0 0 10px;}
+.patch-notes-list {text-align:left; display:grid; gap:10px; margin-bottom:14px;}
+.patch-section {background:#f7f0e2; border:1px solid #ebdecb; border-radius:14px; padding:12px;}
+.patch-section h3 {font-size:13px; margin:0 0 8px; color:#4c6f54;}
+.patch-section ul {margin:0; padding-left:18px; font-size:12px; line-height:1.65; color:#67584a;}
+.patch-section li + li {margin-top:6px;}
+.patch-date {display:block; color:#96836e; font-size:11px; margin:0 0 14px;}
 /* Modal */
 .modal-backdrop {position:fixed; inset:0; background:rgba(41,29,22,.65); display:flex; align-items:center; justify-content:center; padding:20px; z-index:30; backdrop-filter:blur(5px);}
 .modal-dialog {width:min(100%,420px); max-height:min(88dvh,720px); overflow:auto; overscroll-behavior:contain; position:relative; background:#fffcf3; border:4px solid #fff5dd; border-radius:25px; padding:22px 20px 21px; box-shadow:0 20px 70px rgba(22,15,9,.28); text-align:center;}
@@ -230,3 +239,50 @@ h1 {margin:0; font-weight:950; letter-spacing:-1.5px; line-height:1.15; font-siz
 .modal-dialog {padding-top:17px;padding-bottom:17px;}
 .evolution-portrait {width:150px;height:150px;margin:6px auto 12px;}
 .result-stat {padding:8px 10px;}
+
+/* v0.3 · 진화 예상 가이드 */
+.evolution-guide {position:relative; padding:14px 15px 12px; background:linear-gradient(155deg,#f0f5e8,#fffcf0); border-radius:18px; border:1px solid #dbe8d5; box-shadow:var(--shadow); margin:0 0 11px;}
+.guide-top {display:flex;justify-content:space-between;align-items:center;gap:8px;color:#7a9275;font-size:9px;font-weight:900;letter-spacing:.5px;}
+.guide-main {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:9px 0;}
+.guide-main > div {display:flex;flex-direction:column;gap:2px;}
+.guide-main small {font-size:10px;color:#887a68;}
+.guide-main strong {font-size:18px;letter-spacing:-.5px;color:#426f57;}
+.guide-ratio {padding:6px 9px;border-radius:11px;background:white;color:#587a61;font-size:11px;font-weight:900;white-space:nowrap;}
+.guide-bar {position:relative;display:flex;gap:2px;height:15px;border-radius:99px;background:#e3e1d7;margin:12px 3px 10px;}
+.guide-slice {display:block;height:100%;}
+.guide-slice.easy{width:45%;background:#dfb57c;border-radius:99px 0 0 99px;}
+.guide-slice.genius{width:10%;background:#74abc2;}
+.guide-slice.diligent{width:45%;background:#7ba689;border-radius:0 99px 99px 0;}
+.guide-marker{position:absolute;top:-5px;width:9px;height:25px;transform:translateX(-50%);border-radius:8px;background:#2e4237;border:2px solid #fff6e7;box-shadow:0 1px 6px #3335;transition:left .25s;}
+.guide-legend{display:flex;justify-content:space-between;gap:5px;font-size:9px;font-weight:850;color:#736e5e;}
+.guide-note{margin:8px 0 0;font-size:10px;color:#917f6e;line-height:1.5;}
+/* 4단계 튜토리얼 동안의 버튼 접근성을 유지 */
+.game-screen:has(#tutorial-panel:not([hidden])) .evolution-guide {display:none;}
+/* v0.3 · 도전과제 */
+.achievements-section{margin:0 0 23px;border-radius:18px;padding:15px;background:#fffaf0;border:1px solid #e7dfce;box-shadow:var(--shadow);}
+.achievement-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.achievement-header h3{font-size:15px;margin:0;}
+.achievement-header span{font-size:12px;font-weight:900;color:#548a69;}
+.achievement-progress{height:8px;background:#e9e9dc;border-radius:50px;overflow:hidden;margin:0 0 14px;}
+.achievement-progress span{display:block;height:100%;width:0;background:#75a98a;transition:width .3s;}
+.achievements-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.achievement-item{display:flex;align-items:center;gap:10px;border:1px solid #ebddc9;border-radius:12px;padding:10px;background:#fffef8;min-width:0;}
+.achievement-item.locked{background:#f5f0e7;color:#9a8d7b;}
+.achievement-icon{width:39px;height:39px;display:grid;place-items:center;flex-shrink:0;border-radius:11px;background:#edf3e5;font-size:22px;}
+.achievement-item.locked .achievement-icon{background:#e7e1d6;filter:grayscale(1);font-size:18px;}
+.achievement-content{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0;}
+.achievement-content strong{font-size:12px;}
+.achievement-content small{font-size:10px;color:#978b77;line-height:1.45;}
+.achievement-status{flex-shrink:0;font-size:10px;font-weight:850;color:#528066;}
+.achievement-item.locked .achievement-status{color:#aa9a88;}
+/* v0.3 · 선택형 이벤트 모달 */
+.choice-options{display:flex;flex-direction:column;gap:11px;margin:17px 0 12px;}
+.choice-option{width:100%;min-height:69px;display:flex;align-items:center;gap:12px;padding:13px;text-align:left;background:#f7f3e7;border:2px solid #e7dac4;border-radius:15px;}
+.choice-option:hover,.choice-option:focus-visible{background:#ebf4e9;border-color:#80a98a;}
+.choice-number{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:#5b8b6e;color:white;font-size:14px;font-weight:900;flex-shrink:0;}
+.choice-content{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0;}
+.choice-content strong{font-size:13px;color:#4e4436;}
+.choice-content small{font-size:11px;line-height:1.4;color:#897661;}
+.choice-arrow{font-size:23px;color:#688770;}
+.choice-caption{font-size:10px;color:#97816d;line-height:1.6;margin:0;}
+@media (max-width:365px){.evolution-guide{padding:10px 11px;}.guide-main strong{font-size:16px;}.guide-legend{font-size:8px;}.achievements-section{padding:12px;}.choice-option{padding:10px;}}
