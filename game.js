@@ -407,6 +407,7 @@
   let previousFocus = null;
   let toastTimer = 0;
   let reactionTimer = 0;
+  let temporaryMood = null;
   let audioCtx = null;
   let queuedPatchOnLaunch = false;
   let achievementNoticeQueue = [];
@@ -1216,26 +1217,69 @@
     }).join(''):'아직 원정 기록이 없습니다.';
   }
 
+
+function renderDecorMarkup(item) {
+  if(!item)return '';
+  const shell = (inner='') => `<div class="decor-object ${escapeHTML(item.id)}">${inner}</div>`;
+  switch(item.id) {
+    case 'carrot-basket':
+      return shell('<span class="basket-base"></span><span class="carrot-top carrot-a"></span><span class="carrot-top carrot-b"></span><span class="carrot-top carrot-c"></span>');
+    case 'leaf-bed':
+      return shell('<span class="leaf-mat"></span><span class="leaf-pillows"></span>');
+    case 'toolbox':
+      return shell('<span class="toolbox-body"></span><span class="toolbox-handle"></span><span class="toolbox-lock"></span>');
+    case 'seed-pile':
+      return shell('<span class="seed-sack"></span><span class="seed-dot seed-1"></span><span class="seed-dot seed-2"></span><span class="seed-dot seed-3"></span>');
+    case 'wooden-bench':
+      return shell('<span class="bench-seat"></span><span class="bench-leg leg-a"></span><span class="bench-leg leg-b"></span><span class="bench-back"></span>');
+    case 'growth-chart':
+      return shell('<span class="chart-board"></span><span class="chart-line line-a"></span><span class="chart-line line-b"></span><span class="chart-line line-c"></span>');
+    case 'flower-garland':
+      return shell('<span class="garland-rope"></span><span class="garland-flower flower-a"></span><span class="garland-flower flower-b"></span><span class="garland-flower flower-c"></span>');
+    case 'trophy-shelf':
+      return shell('<span class="shelf-board"></span><span class="mini-trophy"></span><span class="mini-jar"></span>');
+    case 'moss-banner':
+      return shell('<span class="banner-top"></span><span class="banner-cloth"></span><span class="banner-mark"></span>');
+    case 'carved-board':
+      return shell('<span class="sign-board"></span><span class="sign-pin"></span><span class="sign-cut"></span>');
+    case 'mushroom-light':
+      return shell('<span class="mush-cap"></span><span class="mush-glow"></span><span class="mush-stem"></span>');
+    case 'firefly-jar':
+      return shell('<span class="jar-body"></span><span class="jar-lid"></span><span class="firefly fly-a"></span><span class="firefly fly-b"></span><span class="firefly fly-c"></span>');
+    case 'star-lantern':
+      return shell('<span class="crystal-core"></span><span class="crystal-frame"></span><span class="crystal-shine"></span>');
+    case 'crystal-lamp':
+      return shell('<span class="crystal-core"></span><span class="crystal-frame small"></span><span class="lamp-chain"></span>');
+    case 'glow-lantern':
+      return shell('<span class="lantern-chain"></span><span class="lantern-body"></span><span class="lantern-glow"></span>');
+    default:
+      return shell(`<span class="decor-fallback">${escapeHTML(item.icon || '•')}</span>`);
+  }
+}
+
   function nestTheme() {
     const total=game.carrotCount+game.whipCount;
-    if(!total)return {id:'neutral',label:'포근한 흙집'};
+    if(!total)return {id:'neutral',label:'포근한 개미굴'};
     const ratio=getRatio();
-    if(ratio<=B.evolution.easyMaxWhipRatio)return {id:'cozy',label:'초록빛 휴식처'};
-    if(ratio<B.evolution.geniusMaxWhipRatio)return {id:'balanced',label:'반짝이는 연구실'};
-    return {id:'workshop',label:'성실한 공방'};
+    if(ratio<=B.evolution.easyMaxWhipRatio)return {id:'cozy',label:'이끼 쉼굴'};
+    if(ratio<B.evolution.geniusMaxWhipRatio)return {id:'balanced',label:'반짝 연구굴'};
+    return {id:'workshop',label:'튼튼 공방굴'};
   }
-  function renderNestScene() {
-    const theme=nestTheme();
-    qs('habitat').dataset.theme=theme.id;
-    qs('scene-location').textContent=`⌂  ${theme.label}`;
-    for(const slot of ['floor','wall','light']) {
-      const item=ALL_DECOR.find(d=>d.id===game.decor.equipped[slot] && d.slot===slot);
-      const el=qs(`nest-${slot}-display`);
-      el.textContent=item?.icon||'';
-      el.title=item?.name||'';
-    }
+
+function renderNestScene() {
+  const theme=nestTheme();
+  qs('habitat').dataset.theme=theme.id;
+  qs('scene-location').textContent=`⌂  ${theme.label}`;
+  for(const slot of ['floor','wall','light']) {
+    const item=ALL_DECOR.find(d=>d.id===game.decor.equipped[slot] && d.slot===slot);
+    const el=qs(`nest-${slot}-display`);
+    el.innerHTML=item?renderDecorMarkup(item):'';
+    el.dataset.item=item?.id||'';
+    el.title=item?.name||'';
   }
-  function renderDecorations() {
+}
+function renderDecorations() {
+
     const owned=new Set(game.decor.unlocked);
     qs('decor-count').textContent=`${owned.size} / ${ALL_DECOR.length}`;
     qs('decor-progress').style.width=`${Math.round(100*owned.size/ALL_DECOR.length)}%`;
@@ -1314,18 +1358,24 @@
   }
   function skipTutorial() {game.tutorialCompleted=true;saveState();render();toast('튜토리얼을 건너뛰었습니다.');}
 
-  function reactionMood() {
-    if(game.finished) return 'happy';
-    if(game.stats.stress>=85 || game.stats.motivation<=15) return 'sad';
-    if(game.stats.laziness>=85) return 'sleepy';
-    if(game.lastReaction==='carrot')return 'happy';
-    if(game.lastReaction==='whip')return 'training';
-    return 'normal';
-  }
-  function moodLabel(){
+
+function stateDrivenMood() {
+  if(game.finished) return 'happy';
+  const tier=statusTier(game.stats);
+  if(game.stats.laziness>=70) return 'sleepy';
+  if(game.stats.stress>=82 || game.stats.motivation<=18) return 'sad';
+  if(tier==='warn') return 'worried';
+  if(tier==='good') return 'happy';
+  return 'normal';
+}
+function reactionMood() {
+  return temporaryMood || stateDrivenMood();
+}
+function moodLabel(){
+
     if(game.finished)return game.phase==='legacyComplete'?'✧ 첫 진화 완료':'✧ 두 번째 진화 완료';
     const tier=statusTier(game.stats);
-    return {good:'☘ 기분 최고',normal:'☘ 평온한 상태',warn:'◈ 관리 필요',danger:'● 지친 상태'}[tier];
+    return {good:'☘ 기분 최고',normal:'☘ 평온한 상태',warn:'◈ 살짝 불안한 상태',danger:'● 지친 상태'}[tier];
   }
   function render() {
     const firstName=B.types[game.evolution]?.name||'신입 개미';
@@ -1481,18 +1531,28 @@
     const value=typeof timestamp==='number'?timestamp:Date.now();
     return new Intl.DateTimeFormat('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
   }
-  function animateAnt(action,didLevelUp) {
-    const figure=qs('ant-figure');
-    const scene=qs('habitat');
-    clearTimeout(reactionTimer);
+
+function animateAnt(action,didLevelUp) {
+  const figure=qs('ant-figure');
+  const scene=qs('habitat');
+  temporaryMood = action==='carrot' ? 'happy' : action==='whip' ? 'training' : 'surprised';
+  figure.dataset.mood = reactionMood();
+  clearTimeout(reactionTimer);
+  figure.classList.remove('reaction-carrot','reaction-whip','reaction-event');
+  scene.classList.remove('level-celebrate','action-carrot','action-whip','action-event');
+  void figure.offsetWidth;
+  figure.classList.add(`reaction-${action}`);
+  scene.classList.add(`action-${action}`);
+  if(didLevelUp)scene.classList.add('level-celebrate');
+  reactionTimer=setTimeout(()=>{
     figure.classList.remove('reaction-carrot','reaction-whip','reaction-event');
-    scene.classList.remove('level-celebrate');
-    void figure.offsetWidth;
-    figure.classList.add(`reaction-${action}`);
-    if(didLevelUp)scene.classList.add('level-celebrate');
-    reactionTimer=setTimeout(()=>{figure.classList.remove('reaction-carrot','reaction-whip','reaction-event');scene.classList.remove('level-celebrate');},650);
-  }
-  function toast(message) {
+    scene.classList.remove('level-celebrate','action-carrot','action-whip','action-event');
+    temporaryMood = null;
+    figure.dataset.mood = stateDrivenMood();
+  },760);
+}
+function toast(message) {
+
     const element=qs('toast');
     clearTimeout(toastTimer);
     element.textContent=message;
