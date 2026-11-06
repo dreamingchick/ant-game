@@ -12,6 +12,7 @@ releaseNotes: {
   version:'1.1.0',date:'2026-11-06',title:'열두 갈래, 새로운 여정',
   summary:'LV.30과 세 번째 진화 12종, 두 번째 진화의 육성 패시브 6종을 추가했습니다.',
   sections:[
+    {heading:'1·2차 공동 밸런스',items:['태평은 당근 스트레스 추가 회복 −1, 천재는 긍정 효과 +50%, 근면은 채찍 EXP +5%로 조정했습니다.','일부 2차 효과는 해당 행동 2회마다 발동하며 진행도는 저장됩니다. 별빛 학자는 천재와 합쳐 긍정 효과 +80%를 적용합니다.']},
     {heading:'세 번째 성장',items:['LV.20은 체크포인트가 됩니다. LV.20 이후 채찍 비율 55% 미만은 A, 55% 이상은 B로 진화합니다.','기존 LV.20 완료 개미는 결과를 보존하며 계속 키우기를 선택할 수 있습니다.']},
     {heading:'육성과 원정',items:['2차 패시브는 1차와 함께 적용됩니다. 3차 원정 패시브는 대표 개미 한 마리만 적용됩니다.','실제 지원하지 않는 시간·위험·손실 효과는 미활성 사유를 표시합니다. 식량·일반 자원·제작 재료의 5% 보너스는 소수 몫을 누적합니다.']},
     {heading:'수집과 개미집',items:['12종 전용 의상·칭호·도감과 LV.30 진화 연출을 추가했습니다.','거대 건축가를 수집하면 추가 장식 한 개를 배치할 수 있습니다. LV.50·총 5회 진화는 향후 확장 목표입니다.']}
@@ -293,9 +294,9 @@ releaseNotesHistory: [
   },
   phaseTwoBaseExp: 14,
   passive: {
-    easy: { extraCarrotStressRecovery: -5 },
-    genius: { positiveEventBenefitMultiplier: 1.2 },
-    diligent: { whipExpMultiplier: 1.15 }
+    easy: { extraCarrotStressRecovery: -1 },
+    genius: { positiveEventBenefitMultiplier: 1.5 },
+    diligent: { whipExpMultiplier: 1.05 }
   },
   secondEvolution: {
     threshold: 0.55,
@@ -313,37 +314,49 @@ releaseNotesHistory: [
       "name": "향긋한 휴식",
       "description": "당근 사용 시 의욕 +2 추가",
       "effect": "carrotMotivation",
-      "value": 2
+      "value": 2,
+      "trigger": "carrot",
+      "every": 1
     },
     "meadow_explorer": {
       "name": "야생 적응",
-      "description": "당근 나태함 증가량 −2",
+      "description": "당근 2회마다 나태함 증가량 −1",
       "effect": "carrotLaziness",
-      "value": -2
+      "value": -1,
+      "trigger": "carrot",
+      "every": 2
     },
     "star_scholar": {
       "name": "심화 통찰",
-      "description": "긍정 이벤트 유익 효과 증폭률 +10%p (총 30%)",
+      "description": "긍정 이벤트 유익 효과 증폭률 +30%p (총 80%)",
       "effect": "eventBenefit",
-      "value": 0.1
+      "value": 0.3,
+      "trigger": "positiveEvent",
+      "every": 1
     },
     "clockwork_inventor": {
       "name": "정교한 반복",
-      "description": "채찍 사용 시 나태함 −2 추가",
+      "description": "채찍 2회마다 나태함 −1 추가",
       "effect": "whipLaziness",
-      "value": -2
+      "value": -1,
+      "trigger": "whip",
+      "every": 2
     },
     "workshop_artisan": {
       "name": "장인의 집중",
-      "description": "채찍 기초 EXP +5% (효율→근면 순서)",
+      "description": "채찍 2회마다 기초 EXP +5% (기초→효율→근면 순서)",
       "effect": "baseExp",
-      "value": 0.05
+      "value": 0.05,
+      "trigger": "whip",
+      "every": 2
     },
     "steel_guardian": {
       "name": "강인한 정신",
-      "description": "채찍 스트레스 증가량 −2",
+      "description": "채찍 2회마다 스트레스 증가량 −1",
       "effect": "whipStress",
-      "value": -2
+      "value": -1,
+      "trigger": "whip",
+      "every": 2
     }
   },
   thirdEvolution: { threshold:0.55, types:{

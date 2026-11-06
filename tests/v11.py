@@ -12,19 +12,41 @@ with sync_playwright() as pw:
     for parent in set(x['parent'] for x in specs.values()):
         for ratio,branch in [(0,'A'),(.549999,'A'),(.55,'B'),(1,'B')]:
             found=p.evaluate('([p,r])=>__v11.thirdTypeFor(p,r)',[parent,ratio]);check(f'{parent} {ratio} boundary',specs[found]['branch']==branch)
-    cases=[('garden_keeper','carrot',{'motivation':77,'stress':5,'laziness':15}),
-           ('meadow_explorer','carrot',{'motivation':75,'stress':5,'laziness':13}),
-           ('clockwork_inventor','whip',{'motivation':55,'stress':35,'laziness':3}),
-           ('steel_guardian','whip',{'motivation':55,'stress':33,'laziness':5})]
-    for typ,action,expected in cases:
-        s=stage3(initial,typ);seed(p,s);p.evaluate('a=>__v11.action(a)',action)
-        check('exact stacked delta '+typ,state(p)['stats']==expected)
-    s=stage3(initial,'workshop_artisan');s['stats']={'motivation':50,'stress':0,'laziness':0};seed(p,s)
-    p.evaluate('__v11.action("whip")');check('base EXP -> efficiency -> diligent rounding =17',state(p)['totalExp']==17)
+    cases=[('garden_keeper','carrot',0,{'motivation':77,'stress':9,'laziness':15}),
+           ('meadow_explorer','carrot',0,{'motivation':75,'stress':9,'laziness':15}),
+           ('meadow_explorer','carrot',1,{'motivation':75,'stress':9,'laziness':14}),
+           ('clockwork_inventor','whip',0,{'motivation':55,'stress':35,'laziness':5}),
+           ('clockwork_inventor','whip',1,{'motivation':55,'stress':35,'laziness':4}),
+           ('steel_guardian','whip',0,{'motivation':55,'stress':35,'laziness':5}),
+           ('steel_guardian','whip',1,{'motivation':55,'stress':34,'laziness':5})]
+    for typ,action,count,expected in cases:
+        s=stage3(initial,typ);s['stage3Counters'][action]=count;seed(p,s);p.evaluate('a=>__v11.action(a)',action)
+        check('exact stacked delta '+typ+str(count),state(p)['stats']==expected)
+    for count,expected in [(0,15),(1,16)]:
+        s=stage3(initial,'workshop_artisan');s['stats']={'motivation':50,'stress':0,'laziness':0};s['stage3Counters']['whip']=count;seed(p,s)
+        p.evaluate('__v11.action("whip")');check('periodic base -> efficiency -> diligent EXP '+str(count),state(p)['totalExp']==expected)
     s=stage3(initial,'star_scholar');seed(p,s)
-    check('scholar beneficial +5 -> +7',p.evaluate('__v11.eventStatDelta({kind:"positive"},"motivation",5)')==7)
+    check('scholar beneficial +5 -> +9',p.evaluate('__v11.eventStatDelta({kind:"positive"},"motivation",5)')==9)
     check('scholar positive event adverse stress not amplified',p.evaluate('__v11.eventStatDelta({kind:"positive"},"stress",5)')==5)
     check('negative event recovery not amplified',p.evaluate('__v11.eventStatDelta({kind:"negative"},"stress",-5)')==-5)
+    # Periodic action progress survives reload and unrelated actions do not consume a trigger.
+    s=stage3(initial,'steel_guardian');seed(p,s);p.evaluate('__v11.action("whip")');p.evaluate('__v11.reload()')
+    check('period progress persists after reload',state(p)['stage3Counters']['whip']==1 and '채찍 1회' in p.locator('#passive-effect').inner_text())
+    p.evaluate('__v11.action("carrot")')
+    check('carrot does not consume whip period',state(p)['stage3Counters']['whip']==1 and '채찍 1회' in p.locator('#passive-effect').inner_text())
+    p.evaluate('__v11.action("whip")');check('period ready resets after second whip','채찍 2회' in p.locator('#passive-effect').inner_text())
+    s=stage3(initial,'workshop_artisan');s['stats']={'motivation':50,'stress':0,'laziness':0};s['stage3Counters']['whip']=1;seed(p,s)
+    before=state(p);p.evaluate('window.__failWrites=true;__v11.action("whip")')
+    check('failed save rolls back ready period and EXP',state(p)==before)
+    p.evaluate('window.__failWrites=false;__v11.reload();__v11.action("whip")')
+    check('retry applies periodic bonus once',state(p)['totalExp']==16 and state(p)['stage3Counters']['whip']==2)
+    s=stage3(initial,'steel_guardian');s['stage3Counters']['whip']=1;seed(p,s)
+    p.evaluate('window.__randomValues=[.05,.9,.5];Math.random=()=>window.__randomValues.shift()??.99;__v11.action("whip")')
+    pending=state(p);check('choice stores completed periodic modifier once',pending['pendingChoice']['eventId']=='nap' and pending['stats']['stress']==34 and pending['stage3Counters']['whip']==2)
+    restored,restore_errors=page_make(browser,pending);restored.locator('[data-choice="rest"]').click()
+    check('choice reload never repeats period modifier',state(restored)['stats']['stress']==26 and state(restored)['stage3Counters']['whip']==2 and not restore_errors)
+    restored.close()
+    p.evaluate('Math.random=()=>.99')
     invalid=stage3(initial,'garden_keeper');invalid.update(thirdEvolution='life_gardener',finished=True)
     check('reject premature third evolution import',len(p.evaluate('s=>__v11.validateImportedState(s)',invalid))>0)
     # New level20 checkpoint: no final record and no LV20 action in stage3 counter.

@@ -699,8 +699,25 @@
     if(stats.stress>=85 || stats.laziness>=85 || stats.motivation<=15)return '험난한 여정 끝에 진화를 달성했습니다.';
     return '꾸준한 선택이 새로운 모습으로 이어졌습니다.';
   }
+  function secondPassiveForAction(action) {
+    const passive=B.secondPassives[game.secondEvolution];
+    if(!passive)return null;
+    const every=passive.every||1;
+    const ready=every===1 || ((game.stage3Counters[action]||0)+1)%every===0;
+    return ready?passive:{...passive,value:0};
+  }
+  function secondPassiveProgress() {
+    const passive=B.secondPassives[game.secondEvolution];
+    if(game.phase!=='phase3' || !passive || passive.every<=1)return '';
+    const remaining=passive.every-(game.stage3Counters[passive.trigger]||0)%passive.every;
+    return ` · 다음 발동까지 ${passive.trigger==='carrot'?'당근':'채찍'} ${remaining}회`;
+  }
   function passiveDescription(type) {
-    return {easy:'당근 사용 시 스트레스 −5 추가',genius:'긍정 이벤트의 유익한 효과 +20%',diligent:'채찍 EXP +15%'}[type]||'';
+    return {
+      easy:`당근 사용 시 스트레스 −${Math.abs(B.passive.easy.extraCarrotStressRecovery)} 추가`,
+      genius:`긍정 이벤트의 유익한 효과 +${percent(B.passive.genius.positiveEventBenefitMultiplier-1)}`,
+      diligent:`채찍 EXP +${percent(B.passive.diligent.whipExpMultiplier-1)}`
+    }[type]||'';
   }
   function positiveBenefit(value) {
     return value<0 ? Math.round(value*eventBenefitMultiplier()) : value>0 ? Math.round(value*eventBenefitMultiplier()) : value;
@@ -817,7 +834,7 @@
     const recovery=B.conditionalRecovery?.[action];
     const recoveryBonus=Boolean(recovery && before[recovery.stat]>=recovery.threshold);
     const stage2=hasFirstPassive();
-    const second=B.secondPassives[game.secondEvolution];
+    const second=secondPassiveForAction(action);
     const baseExp=action==='carrot' ? (stage2?B.carrotExp.phase2:B.carrotExp.phase1) :
       (stage2 ? (second?.effect==='baseExp'?Math.round(B.phaseTwoBaseExp*(1+second.value)):B.phaseTwoBaseExp) : changes.baseExp);
     // 당근: 소량 고정 경험치. 기존 채찍의 훈련 효율·패시브와 별도로 계산합니다.
@@ -1495,7 +1512,7 @@ function moodLabel(){
     passive.hidden=!game.evolution;
     if(game.evolution) {
       qs('passive-name').textContent=`${firstName} · ${B.types[game.evolution].passive}`;
-      qs('passive-effect').textContent=passiveDescription(game.evolution)+(game.secondEvolution?' · '+B.secondPassives[game.secondEvolution].name+': '+B.secondPassives[game.secondEvolution].description:'')+(game.thirdEvolution?' · '+thirdStatus(game.thirdEvolution):'');
+      qs('passive-effect').textContent=passiveDescription(game.evolution)+(game.secondEvolution?' · '+B.secondPassives[game.secondEvolution].name+': '+B.secondPassives[game.secondEvolution].description+secondPassiveProgress():'')+(game.thirdEvolution?' · '+thirdStatus(game.thirdEvolution):'');
     }
     for(const stat of ['motivation','stress','laziness']) {
       qs(`${stat}-value`).textContent=game.stats[stat];
@@ -1850,7 +1867,7 @@ function toast(message) {
       <h2 id="modal-title">${escapeHTML(name)}</h2><p class="modal-subtitle">${third?'LV.30 세 번째 진화를 달성했습니다!':next?'LV.20 두 번째 진화를 달성했습니다!':'구버전 LV.10 진화 기록입니다.'}</p>
       <div class="evolution-portrait" id="modal-portrait"></div>
       <div class="evolution-quote">“${escapeHTML(next?.quote||type.quote)}”</div>
-      <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(passiveDescription(record.type))}${next?`<br><strong>${escapeHTML(next.label)}</strong>`:''}</div>
+      <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(passiveDescription(record.type))}${next?`<br><strong>${escapeHTML(next.label)}</strong><br>${escapeHTML(B.secondPassives[record.secondEvolution].name)} · ${escapeHTML(B.secondPassives[record.secondEvolution].description)}`:''}</div>
       ${next?`<div class="second-evolution-badge">${escapeHTML(growthRating(record.stats))}</div>`:''}
       ${third?`<div class="passive-chip"><strong>칭호 · ${escapeHTML(third.title)}</strong><br>${escapeHTML(thirdStatus(record.thirdEvolution))}<br>계보: ${escapeHTML(type.name)} → ${escapeHTML(next.name)} → ${escapeHTML(third.name)}</div>`:''}${recordSummary(record)}
       <div class="modal-buttons"><button class="modal-primary" id="modal-new-ant" type="button">새로운 개미 키우기</button><button class="modal-secondary" id="modal-keep" type="button">지금 결과 더 살펴보기</button></div>`);

@@ -25,35 +25,39 @@ BRIDGE=r'''
     simulate:(runs=100,options={})=>{
       const originalConfig=JSON.parse(JSON.stringify({passive:B.passive,second:B.secondPassives,efficiency:B.efficiency}));
       if(options.first===false){B.passive.easy.extraCarrotStressRecovery=0;B.passive.genius.positiveEventBenefitMultiplier=1;B.passive.diligent.whipExpMultiplier=1;}
+      if(options.firstValues){const v=options.firstValues;B.passive.easy.extraCarrotStressRecovery=v.easy;B.passive.genius.positiveEventBenefitMultiplier=v.genius;B.passive.diligent.whipExpMultiplier=v.diligent;}
       if(options.second===false)for(const id of secondEvolutionIds)B.secondPassives[id].value=0;
       if(options.secondValues)for(const [id,value] of Object.entries(options.secondValues))B.secondPassives[id].value=value;
+      if(options.secondEvery)for(const [id,value] of Object.entries(options.secondEvery))B.secondPassives[id].every=value;
       if(options.efficiency)Object.assign(B.efficiency,options.efficiency);
-      const originals={render,saveState,animateAnt,playSound,toast,scheduleAchievementNotices,showEvolutionResult,showChoiceEvent,closeModal};
+      const originals={render,saveState,animateAnt,playSound,toast,scheduleAchievementNotices,showEvolutionResult,showChoiceEvent,showFirstEvolutionResult,closeModal,reconcileAchievements,reconcileDecorations,updateTutorial};
       const originalGame=game,originalRandom=Math.random;
       render=()=>{};saveState=()=>true;animateAnt=()=>{};playSound=()=>{};toast=()=>{};
-      scheduleAchievementNotices=()=>{};showEvolutionResult=()=>{};showChoiceEvent=()=>{};closeModal=()=>{modalOpen=false;};
+      scheduleAchievementNotices=()=>{};showEvolutionResult=()=>{};showChoiceEvent=()=>{};showFirstEvolutionResult=()=>{if(game.firstEvolution)game.firstEvolution.acknowledged=true;};closeModal=()=>{modalOpen=false;};
+      if(options.fast){reconcileAchievements=()=>[];reconcileDecorations=()=>[];updateTutorial=()=>{};}
       const output=[];
       const rng=seed=>()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
       try{
-        for(const type of secondEvolutionIds)for(const ratio of [.4,.5,.6]){
+        for(const type of options.types||secondEvolutionIds)for(const ratio of [.4,.5,.6]){
           const samples=[];
           for(let run=1;run<=runs;run++){
-            game=freshState();game.level=20;game.phase='phase3';game.secondEvolution=type;game.evolution=SECOND_TYPES[type].parent;
-            game.firstEvolution={type:game.evolution,acknowledged:true,statsAtFirst:{...game.stats}};
+            game=freshState();game.level=options.startLevel||20;game.phase=game.level===1?'phase1':game.level===10?'phase2':'phase3';game.secondEvolution=game.level>=20?type:null;game.evolution=game.level===1?null:SECOND_TYPES[type].parent;
+            game.firstEvolution=game.level===1?null:{type:game.evolution,acknowledged:true,statsAtFirst:{...game.stats}};
             if(options.stats)game.stats={...options.stats};
             game.tutorialCompleted=true;modalOpen=false;storageWorks=true;storageCorrupt=false;
             const actionRandom=rng(run+(options.seedOffset||0)),eventsRandom=rng(run+314159+(options.seedOffset||0));
             // Exact 40/50/60% per shuffled block of ten. Action and event streams are independent.
             Math.random=eventsRandom;
             let actions=0,stats={motivation:0,stress:0,laziness:0},procs=0,directBenefitActions=0,block=[];
-            while(!game.finished && actions<3000){
+            while(!game.finished && game.level<(options.endLevel||30) && actions<5000){
               if(!block.length){block=Array.from({length:10},(_,i)=>i<ratio*10?'whip':'carrot');
                 for(let i=9;i>0;i--){const j=Math.floor(actionRandom()*(i+1));[block[i],block[j]]=[block[j],block[i]];}}
               const action=block.pop(),beforeEvents=game.eventCount,beforeStats={...game.stats};
-              const sp=B.secondPassives[type];
+              const sp=game.secondEvolution?B.secondPassives[game.secondEvolution]:{effect:'none',value:0,every:1};
               const deltaStat={carrotMotivation:'motivation',carrotLaziness:'laziness',whipLaziness:'laziness',whipStress:'stress'}[sp.effect];
               const eligibleAction=sp.effect.startsWith(action);
-              const directDelta=deltaStat && eligibleAction ? Math.abs(clamp(beforeStats[deltaStat]+B.actions[action][deltaStat]+sp.value)-clamp(beforeStats[deltaStat]+B.actions[action][deltaStat])):0;
+              const periodReady=!sp.every || sp.every===1 || ((game.stage3Counters[action]||0)+1)%sp.every===0;
+              const directDelta=deltaStat && eligibleAction && periodReady ? Math.abs(clamp(beforeStats[deltaStat]+B.actions[action][deltaStat]+sp.value)-clamp(beforeStats[deltaStat]+B.actions[action][deltaStat])):0;
               playAction(action);
               if(game.pendingChoice){
                 const ev=B.events[game.pendingChoice.eventId];
@@ -73,11 +77,11 @@ BRIDGE=r'''
                 (type==='star_scholar'&&positive))procs++;
               for(const stat of Object.keys(stats))stats[stat]+=game.stats[stat];
             }
-            samples.push({actions,finished:game.finished,stats:Object.fromEntries(Object.entries(stats).map(([k,v])=>[k,v/actions])),events:game.eventCount,procs,directBenefitActions,totalExp:game.totalExp});
+            samples.push({actions,finished:game.level>=(options.endLevel||30),finalType:game.thirdEvolution,firstType:game.evolution,secondType:game.secondEvolution,stats:Object.fromEntries(Object.entries(stats).map(([k,v])=>[k,v/actions])),events:game.eventCount,procs,directBenefitActions,totalExp:game.totalExp});
           }
           output.push({type,ratio,samples});
         }
-      }finally{Object.assign(B.passive.easy,originalConfig.passive.easy);Object.assign(B.passive.genius,originalConfig.passive.genius);Object.assign(B.passive.diligent,originalConfig.passive.diligent);for(const id of secondEvolutionIds)Object.assign(B.secondPassives[id],originalConfig.second[id]);Object.assign(B.efficiency,originalConfig.efficiency);({render,saveState,animateAnt,playSound,toast,scheduleAchievementNotices,showEvolutionResult,showChoiceEvent,closeModal}=originals);game=originalGame;Math.random=originalRandom;achievementNoticeQueue.length=0;modalOpen=false;}
+      }finally{Object.assign(B.passive.easy,originalConfig.passive.easy);Object.assign(B.passive.genius,originalConfig.passive.genius);Object.assign(B.passive.diligent,originalConfig.passive.diligent);for(const id of secondEvolutionIds){for(const key of Object.keys(B.secondPassives[id]))if(!Object.hasOwn(originalConfig.second[id],key))delete B.secondPassives[id][key];Object.assign(B.secondPassives[id],originalConfig.second[id]);}Object.assign(B.efficiency,originalConfig.efficiency);({render,saveState,animateAnt,playSound,toast,scheduleAchievementNotices,showEvolutionResult,showChoiceEvent,showFirstEvolutionResult,closeModal,reconcileAchievements,reconcileDecorations,updateTutorial}=originals);game=originalGame;Math.random=originalRandom;achievementNoticeQueue.length=0;modalOpen=false;}
       return output;
     }
   };
