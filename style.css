@@ -629,3 +629,44 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .habitat[data-theme="balanced"] .nest-platform,.habitat[data-theme="balanced"] .nest-shelf{background:linear-gradient(180deg,#aaa6bc,#747a98)}
 .habitat[data-theme="workshop"] .nest-platform,.habitat[data-theme="workshop"] .nest-shelf{background:linear-gradient(180deg,#c29162,#83583f)}
 @media (max-width:365px){.speech-bubble{max-width:150px}.chamber-left,.chamber-right{width:102px;height:76px}.decor-wall{width:68px;height:50px}.decor-floor{width:72px;height:55px}.decor-light{width:60px;height:74px}}
+
+
+/* v1.0.3 — action-driven physical animation and expressive face */
+.ant-figure .eyes-eating,.ant-figure .eyes-ouch,.ant-figure .motion-eat-prop,.ant-figure .motion-whip-prop{display:none}
+.ant-figure[data-mood="eating"] .eyes,.ant-figure[data-mood="ouch"] .eyes,
+.ant-figure[data-mood="eating"] .mouth-mouth,.ant-figure[data-mood="ouch"] .mouth-mouth {display:none}
+.ant-figure[data-mood="eating"] .eyes-eating,.ant-figure[data-mood="eating"] .mouth-eating,
+.ant-figure[data-mood="ouch"] .eyes-ouch,.ant-figure[data-mood="ouch"] .mouth-ouch{display:block}
+.ant-figure[data-mood="eating"] .brows-neutral,.ant-figure[data-mood="ouch"] .brows-neutral{display:none}
+.ant-figure[data-mood="eating"] .brows-happy,.ant-figure[data-mood="ouch"] .brows-worried{display:block}
+.ant-figure[data-mood="eating"] .emotion-heart,.ant-figure[data-mood="ouch"] .emotion-sweat{display:block}
+.ant-figure.reaction-carrot .motion-eat-prop,.ant-figure.reaction-whip .motion-whip-prop{display:block}
+.ant-figure.reaction-carrot .motion-carrot-hand{animation:ant-hand-feed .74s cubic-bezier(.24,.71,.35,1) both}
+.ant-figure.reaction-carrot .motion-carrot-vegetable{animation:ant-carrot-bite .74s ease both}
+.ant-figure.reaction-carrot .mouth-eating{transform-origin:230px 165px;animation:ant-chew .74s ease-in-out both}
+.ant-figure.reaction-carrot .motion-eat-crumbs{animation:ant-food-crumbs .74s ease both}
+.ant-figure.reaction-whip .motion-whip-swing{transform-origin:337px 37px;animation:ant-whip-curl .74s ease-in-out both}
+.ant-figure.reaction-whip .motion-whip-impact{animation:ant-impact-spark .74s ease-out both}
+.ant-figure.reaction-whip .body-bob{transform-origin:184px 205px;animation:ant-pain-flinch .74s ease-in-out both}
+.ant-figure.reaction-carrot {animation:ant-happy-bob .74s ease-in-out both}
+.ant-figure.reaction-whip{animation:ant-whip-react .74s ease-in-out both}
+@keyframes ant-hand-feed{
+  0%,8%{transform:translate(0,0)}
+  33%,56%{transform:translate(42px,-54px)}
+  70%{transform:translate(35px,-43px)}
+  100%{transform:translate(0,0)}
+}
+@keyframes ant-carrot-bite{0%,33%{transform:scale(1);opacity:1}47%,61%{transform:scale(.74);opacity:.85}85%,100%{transform:scale(.98);opacity:1}}
+@keyframes ant-chew{0%,17%,42%,70%,100%{transform:scaleY(.7)}29%,56%,84%{transform:scaleY(1.15)}}
+@keyframes ant-food-crumbs{0%,26%{opacity:0;transform:translateY(4px) scale(.7)}42%{opacity:1}75%,100%{opacity:0;transform:translate(4px,22px) scale(.55)}}
+@keyframes ant-whip-curl{0%{transform:translate(25px,-24px) rotate(25deg);opacity:0}15%{opacity:1}41%{transform:translate(-8px,4px) rotate(-12deg)}60%{transform:translate(-2px,-3px) rotate(-3deg)}100%{transform:translate(38px,-30px) rotate(29deg);opacity:0}}
+@keyframes ant-impact-spark{0%,35%{opacity:0;transform:scale(.35)}46%,63%{opacity:1;transform:scale(1)}85%,100%{opacity:0;transform:scale(1.3)}}
+@keyframes ant-pain-flinch{0%,35%,100%{transform:translateX(0) rotate(0)}43%{transform:translate(-7px,4px) rotate(-8deg)}57%{transform:translate(5px,-2px) rotate(3deg)}73%{transform:translate(-2px,0) rotate(-2deg)}}
+@keyframes ant-happy-bob{0%,100%{transform:translateY(0)}35%{transform:translateY(-8px)}60%{transform:translateY(-4px)}}
+@keyframes ant-whip-react{0%,32%,100%{transform:translateX(0)}45%{transform:translateX(-8px)}60%{transform:translateX(3px)}76%{transform:translateX(-2px)}}
+
+/* v1.0.3 PWA install entry: standalone experience, safe-area padding already supported. */
+.pwa-install-button { background:#508a67; color:#fff; border-color:#3e7355; font-weight:900; }
+.pwa-install-status { margin:10px 0 6px; color:#41684b; font-weight:760; line-height:1.65; font-size:12px; }
+.pwa-install-note { margin:4px 0 0; color:#857769; font-size:11px; line-height:1.7; }
+@media (display-mode:standalone) {.app-shell {padding-bottom:calc(78px + env(safe-area-inset-bottom));}}
