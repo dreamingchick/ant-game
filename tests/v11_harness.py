@@ -105,4 +105,3 @@ def stage3(initial,typ):
     s['evolution']={'garden_keeper':'easy','meadow_explorer':'easy','star_scholar':'genius','clockwork_inventor':'genius','workshop_artisan':'diligent','steel_guardian':'diligent'}[typ]
     s['firstEvolution']={'type':s['evolution'],'acknowledged':True,'statsAtFirst':dict(s['stats'])}
     return s
-
