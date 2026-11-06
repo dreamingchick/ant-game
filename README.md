@@ -10,6 +10,8 @@ LV.30·세 번째 진화 12종과 두 번째 진화 패시브 6종을 구현했�
 - 5% 보상은 유형·자원별 정수 백분의 일 단위로 저장해 소량 보상도 누적 지급합니다.
 - `schemaVersion:1` 및 저장 키 유지. 기존 PWA 아이콘, 오프라인 지원, 통계 비활성 유지.
 
+후속 [성장 격차 원인 분리 및 배포 기준](docs/V1_1_BALANCE_DIAGNOSIS.md): 12,600회 대조 실험·17개 후보 탐색을 완료했고, 1차 규칙과 10% 목표의 조정 범위 결정을 기다립니다. Pages 배포는 기능 검사와 별도의 성장 밸런스 검사 모두 성공해야 진행합니다.
+
 상세 계산·연동 범위·검증 한계: [v1.1 구현 및 QA 보고서](docs/V1_1_IMPLEMENTATION_QA.md).
 
 ## 검증
@@ -20,6 +22,9 @@ python -m playwright install --with-deps chromium
 python tests/structure.py
 python tests/regression.py
 python tests/v11.py
+python tests/balance_analysis.py
+python tests/test_balance_gate.py
+python tests/balance_gate.py  # 현재 승인 수치는 목표 미달로 종료 코드 1이 정상
 python tests/motion.py
 python tests/pwa.py
 ```
