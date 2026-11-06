@@ -810,7 +810,7 @@
           stopAuto('저장 오류로 자동 육성을 중단했습니다.');
           render();toast('저장 실패: 육성 행동을 되돌렸습니다.');return;
         }
-        render();animateAnt('event',false);
+        render();animateAnt(action,false,true);
         playSound(event.kind==='positive'?'positive':'negative');
         showChoiceEvent();
         return;
@@ -902,7 +902,7 @@
       if(game.pendingChoice && !modalOpen)showChoiceEvent();
       return false;
     }
-    render();animateAnt(eventId?'event':action,didLevelUp);
+    render();animateAnt(action,didLevelUp,Boolean(eventId));
     scheduleAchievementNotices();
     if(game.finished) {
       playSound('evolution');
@@ -1532,10 +1532,10 @@ function moodLabel(){
     return new Intl.DateTimeFormat('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value));
   }
 
-function animateAnt(action,didLevelUp) {
+function animateAnt(action,didLevelUp,eventOccurred=false) {
   const figure=qs('ant-figure');
   const scene=qs('habitat');
-  temporaryMood = action==='carrot' ? 'happy' : action==='whip' ? 'training' : 'surprised';
+  temporaryMood = action==='carrot' ? 'eating' : action==='whip' ? 'ouch' : 'surprised';
   figure.dataset.mood = reactionMood();
   clearTimeout(reactionTimer);
   figure.classList.remove('reaction-carrot','reaction-whip','reaction-event');
@@ -1543,13 +1543,14 @@ function animateAnt(action,didLevelUp) {
   void figure.offsetWidth;
   figure.classList.add(`reaction-${action}`);
   scene.classList.add(`action-${action}`);
+  if(eventOccurred)scene.classList.add('action-event');
   if(didLevelUp)scene.classList.add('level-celebrate');
   reactionTimer=setTimeout(()=>{
     figure.classList.remove('reaction-carrot','reaction-whip','reaction-event');
     scene.classList.remove('level-celebrate','action-carrot','action-whip','action-event');
     temporaryMood = null;
     figure.dataset.mood = stateDrivenMood();
-  },760);
+  },780);
 }
 function toast(message) {
 
