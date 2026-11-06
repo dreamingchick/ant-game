@@ -39,16 +39,40 @@
       </section>
 
       <section class="habitat" id="habitat" aria-label="개미집 속 개미 캐릭터">
+        <div class="soil-strata strata-one" aria-hidden="true"></div>
+        <div class="soil-strata strata-two" aria-hidden="true"></div>
+        <div class="soil-strata strata-three" aria-hidden="true"></div>
         <div class="grass-line" aria-hidden="true"></div>
         <div class="root root-one" aria-hidden="true"></div><div class="root root-two" aria-hidden="true"></div><div class="root root-three" aria-hidden="true"></div>
+        <div class="nest-chamber chamber-main" aria-hidden="true"></div>
+        <div class="nest-chamber chamber-left" aria-hidden="true"></div>
+        <div class="nest-chamber chamber-right" aria-hidden="true"></div>
+        <div class="nest-tunnel tunnel-left" aria-hidden="true"></div>
+        <div class="nest-tunnel tunnel-right" aria-hidden="true"></div>
+        <div class="nest-tunnel tunnel-top" aria-hidden="true"></div>
+        <div class="nest-platform platform-left" aria-hidden="true"></div>
+        <div class="nest-platform platform-right" aria-hidden="true"></div>
+        <div class="nest-shelf nest-shelf-left" aria-hidden="true"></div>
+        <div class="nest-shelf nest-shelf-right" aria-hidden="true"></div>
         <div class="deco-mushroom mushroom-left" aria-hidden="true"><i></i></div>
         <div class="deco-mushroom mushroom-right" aria-hidden="true"><i></i></div>
         <div class="leaf-litter" aria-hidden="true">❧</div>
         <div class="nest-lamp" aria-hidden="true"><i></i></div>
+        <div class="action-layer" aria-hidden="true">
+          <span class="action-fx fx-carrot fx-carrot-1">🥕</span>
+          <span class="action-fx fx-carrot fx-carrot-2">🥕</span>
+          <span class="action-fx fx-carrot fx-carrot-3">✨</span>
+          <span class="action-fx fx-whip fx-whip-1">⚡</span>
+          <span class="action-fx fx-whip fx-whip-2">💨</span>
+          <span class="action-fx fx-whip fx-whip-3">✦</span>
+          <span class="action-fx fx-event fx-event-1">!</span>
+          <span class="action-fx fx-event fx-event-2">?</span>
+          <span class="action-fx fx-event fx-event-3">✨</span>
+        </div>
         <div id="nest-wall-display" class="nest-decor-display decor-wall" aria-hidden="true"></div>
         <div id="nest-floor-display" class="nest-decor-display decor-floor" aria-hidden="true"></div>
         <div id="nest-light-display" class="nest-decor-display decor-light" aria-hidden="true"></div>
-        <div class="scene-topline"><span class="scene-location" id="scene-location">⌂ &nbsp; 포근한 개미집</span><span class="scene-weather" id="scene-status">● 평온한 오후</span></div>
+        <div class="scene-topline"><span class="scene-location" id="scene-location">⌂ &nbsp; 포근한 개미굴</span><span class="scene-weather" id="scene-status">● 평온한 오후</span></div>
         <div id="speech-bubble" class="speech-bubble" role="status" aria-live="polite">오늘은 무얼 해 볼까?</div>
         <div class="ant-stage">
           <svg id="ant-figure" class="ant-figure" data-evolution="newbie" data-mood="normal" viewBox="0 0 360 320" role="img" aria-label="신입 개미가 개미집에서 쉬고 있습니다">
@@ -83,6 +107,13 @@
               <path class="mouth-mouth mouth-happy" d="M207 159 Q230 191 250 158 Z" stroke="#593729" stroke-width="4" fill="#542e2c" stroke-linejoin="round"/>
               <path class="mouth-mouth mouth-sad" d="M211 171 Q229 158 248 171" stroke="#593729" stroke-width="5" fill="none" stroke-linecap="round"/>
               <ellipse class="mouth-mouth mouth-surprised" cx="230" cy="167" rx="8" ry="12" fill="#593729"/>
+              <g class="brows brows-neutral" fill="none" stroke="#593729" stroke-width="5" stroke-linecap="round"><path d="M188 105 Q201 98 214 103"/><path d="M241 103 Q253 97 266 104"/></g>
+              <g class="brows brows-happy" fill="none" stroke="#593729" stroke-width="5" stroke-linecap="round"><path d="M189 108 Q202 95 216 100"/><path d="M240 100 Q253 95 266 108"/></g>
+              <g class="brows brows-worried" fill="none" stroke="#593729" stroke-width="5" stroke-linecap="round"><path d="M189 101 Q202 109 216 106"/><path d="M240 105 Q253 109 266 101"/></g>
+              <g class="brows brows-training" fill="none" stroke="#593729" stroke-width="6" stroke-linecap="round"><path d="M188 106 Q200 94 214 97"/><path d="M242 98 Q255 93 267 104"/></g>
+              <g class="emotion-mark emotion-heart"><path d="M284 74 C284 64 296 62 299 72 C302 62 315 64 315 75 C315 84 306 89 299 97 C291 89 284 84 284 74Z" fill="#ef7f9f" stroke="#a24f66" stroke-width="3"/></g>
+              <g class="emotion-mark emotion-sweat"><path d="M283 86 C294 95 294 106 287 114 C280 122 267 118 267 107 C267 97 275 91 283 86Z" fill="#90d2eb" stroke="#4d8ca5" stroke-width="3"/></g>
+              <g class="emotion-mark emotion-zzz" fill="#6d7c92"><text x="283" y="72" font-size="24" font-weight="900">Z</text><text x="301" y="56" font-size="18" font-weight="900">z</text></g>
               <g class="ant-glasses" fill="none" stroke="#384750" stroke-width="5"><circle cx="204" cy="127" r="24"/><circle cx="252" cy="127" r="24"/><path d="M228 122 Q230 118 232 122M179 124 L166 120M277 124 L285 121"/></g>
               <g class="ant-helmet"><path d="M169 107 Q170 53 222 52 Q275 53 288 106Z" fill="url(#hat-gradient)" stroke="#84572d" stroke-width="5"/><path d="M157 106 Q223 91 299 108 Q295 119 283 119 H172 Q159 116 157 106Z" fill="#f8bc4d" stroke="#84572d" stroke-width="4"/><path d="M220 60 v43" stroke="#e89e3b" stroke-width="6"/></g>
               <g class="ant-bow"><path d="M189 204 Q177 194 174 213 Q178 229 193 218 Q199 237 210 228 Q218 216 201 208" fill="#8fc2c0" stroke="#397b78" stroke-width="3"/><circle cx="195" cy="213" r="6" fill="#f5d77c"/></g>
