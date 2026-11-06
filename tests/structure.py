@@ -21,3 +21,18 @@ for selector in ('auto-toggle', 'carrot-button', 'whip-button', 'expedition-leve
 assert 'function resolveChoice(' in script
 assert 'function finishFinalEvolution(' in script
 print('PASS static preflight checks')
+
+import json
+from PIL import Image
+manifest = json.loads((root / 'manifest.json').read_text(encoding='utf-8'))
+assert manifest['display'] == 'standalone'
+assert manifest['start_url'] == './' and manifest['scope'] == './'
+assert manifest.get('prefer_related_applications') is False
+assert {'192x192','512x512'} <= {entry['sizes'] for entry in manifest['icons']}
+assert 'rel="manifest" href="./manifest.json"' in html
+assert 'id="install-app"' in html
+assert 'pwa.js' in html and (root/'pwa.js').exists() and (root/'sw.js').exists()
+for filename,wh in [('ant-192.png',192),('ant-512.png',512),('ant-maskable-512.png',512)]:
+    with Image.open(root/'icons'/filename) as img:
+        assert img.size == (wh,wh), f'Invalid icon {filename}'
+print('PASS PWA manifest, install UI, icon and service-worker preflight')
