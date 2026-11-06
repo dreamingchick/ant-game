@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "개미 키우기",
+  "short_name": "개미 키우기",
+  "description": "당근과 채찍으로 나만의 개미를 키우고 개미 왕국을 꾸미는 모바일 게임",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f9f4e9",
+  "theme_color": "#508a67",
+  "prefer_related_applications": false,
+  "icons": [
+    {"src": "./icons/ant-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any"},
+    {"src": "./icons/ant-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any"},
+    {"src": "./icons/ant-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable"}
+  ]
+}
