@@ -670,3 +670,33 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pwa-install-status { margin:10px 0 6px; color:#41684b; font-weight:760; line-height:1.65; font-size:12px; }
 .pwa-install-note { margin:4px 0 0; color:#857769; font-size:11px; line-height:1.7; }
 @media (display-mode:standalone) {.app-shell {padding-bottom:calc(78px + env(safe-area-inset-bottom));}}
+
+/* v1.1: exclusive third-stage silhouettes and accessible controls. */
+.ant-third-outfit { display:none; }
+.ant-figure[data-third-evolution]:not([data-third-evolution="none"]) .ant-job-outfit {display:none!important;}
+.ant-figure[data-third-evolution="life_gardener"] .third-life_gardener {display:block;}
+.ant-figure[data-third-evolution="thorn_warden"] .third-thorn_warden {display:block;}
+.ant-figure[data-third-evolution="wind_guide"] .third-wind_guide {display:block;}
+.ant-figure[data-third-evolution="earth_pioneer"] .third-earth_pioneer {display:block;}
+.ant-figure[data-third-evolution="galaxy_archivist"] .third-galaxy_archivist {display:block;}
+.ant-figure[data-third-evolution="astral_oracle"] .third-astral_oracle {display:block;}
+.ant-figure[data-third-evolution="precision_mechanic"] .third-precision_mechanic {display:block;}
+.ant-figure[data-third-evolution="spacetime_inventor"] .third-spacetime_inventor {display:block;}
+.ant-figure[data-third-evolution="gold_sculptor"] .third-gold_sculptor {display:block;}
+.ant-figure[data-third-evolution="grand_architect"] .third-grand_architect {display:block;}
+.ant-figure[data-third-evolution="unyielding_warden"] .third-unyielding_warden {display:block;}
+.ant-figure[data-third-evolution="royal_captain"] .third-royal_captain {display:block;}
+
+.ant-figure[data-third-evolution]:not([data-third-evolution="none"]) {animation:third-arrival 1.2s ease-out;}
+@keyframes third-arrival {0%{filter:brightness(1.8);transform:scale(.85)} 60%{filter:brightness(1.25);transform:scale(1.06)} 100%{filter:brightness(1);transform:scale(1)}}
+#passive-leader,#extra-decoration {width:100%;padding:12px;border:1px solid #c9c4b5;border-radius:10px;background:#fff;color:#423d34;font:inherit;margin:8px 0;}
+#passive-leader-status,.trip-details {font-size:12px;line-height:1.65;overflow-wrap:anywhere;}
+.expedition-trip {flex-wrap:wrap}.trip-details {flex-basis:100%;color:#5c6456;}
+#third-collection-grid {display:grid;gap:10px;margin:16px 0;}
+#third-collection-grid .second-info {min-width:0}#third-collection-grid small {display:block;white-space:normal;line-height:1.6;}
+.decor-extra {left:68%;top:67%;width:17%;height:22%;}
+@media(prefers-reduced-motion:reduce){.ant-figure[data-third-evolution]{animation:none!important;}}
+
+.ant-figure[data-third-evolution]:not([data-third-evolution="none"]) :is(.ant-helmet,.ant-glasses,.ant-bow){display:none!important;}
+
+#third-collection-grid {grid-template-columns:1fr;}

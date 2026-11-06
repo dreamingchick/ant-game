@@ -140,7 +140,7 @@
   const percent = n => `${(n * 100).toFixed(1).replace(/\.0$/, '')}%`;
   const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
   const portraitEmoji = { easy: '🍀', genius: '💡', diligent: '🛠️' };
-  const ALL_DECOR = [...B.decorations,...B.craftingItems];
+  const ALL_DECOR = [...B.decorations,...B.craftingItems,...B.thirdRewards];
   const RESOURCE_IDS = B.resources.map(item=>item.id);
   const FACILITY_IDS = B.kingdomFacilities.map(item=>item.id);
   const FACILITY_BY_REGION = Object.fromEntries(B.expeditions.regions.map(region=>[
@@ -210,6 +210,33 @@
   }
   const validCraft = id => B.craftingItems.some(item=>item.id===id);
   const SECOND_TYPES = B.secondEvolution.types;
+  const THIRD_TYPES = B.thirdEvolution.types;
+  const validThird = (type,parent) => Boolean(THIRD_TYPES[type] && THIRD_TYPES[type].parent===parent);
+  const hasFirstPassive = () => ['phase2','phase3'].includes(game.phase);
+  const eventBenefitMultiplier = () => B.passive.genius.positiveEventBenefitMultiplier +
+    (game.secondEvolution==='star_scholar' ? B.secondPassives.star_scholar.value : 0);
+  const thirdTypeFor = (parent,ratio) => Object.keys(THIRD_TYPES).find(id=>
+    THIRD_TYPES[id].parent===parent && THIRD_TYPES[id].branch===(ratio<B.thirdEvolution.threshold?'A':'B'))||null;
+  const stage3Ratio = () => game.stage3Counters.whip/Math.max(1,game.stage3Counters.carrot+game.stage3Counters.whip);
+  const finalInfo = record => THIRD_TYPES[record.thirdEvolution] || SECOND_TYPES[record.secondEvolution] || B.types[record.type];
+  function thirdStatus(id) {
+    const info=THIRD_TYPES[id]; if(!info)return '';
+    const reason={risk:'위험 이벤트 시스템 없음',time:'현재 탐험은 즉시 완료',riskInfo:'위험도 시스템 없음',
+      rare:'희귀 발견물은 수량 없는 일회성 수집품',loss:'자원 손실 시스템 없음'}[info.effect];
+    return `${info.passive} · ${info.description}${info.effect==='craft'?' (현재 제작 재료: 식량·목재·수정)':''} · ${reason?'미활성: '+reason:'활성'}`;
+  }
+  function passiveLeader(state=game) {
+    return state.records.find(r=>r.id===state.expedition.passiveRecordId && validThird(r.thirdEvolution,r.secondEvolution))||null;
+  }
+  function hasExtraSlot(state=game) {return state.records.some(r=>r.thirdEvolution==='grand_architect');}
+  function resumeLevel20() {
+    if(!game.finished || game.level!==20 || !validSecond(game.secondEvolution,game.evolution))return;
+    const before=JSON.parse(JSON.stringify(game));
+    game.finished=false;game.phase='phase3';game.exp=0;game.stage3Counters={carrot:0,whip:0};
+    game.lastFeedback='LV.20 기록을 보존하고 세 번째 성장을 시작합니다.';
+    if(!saveState()){game=before;render();return;}
+    render();toast('LV.30을 향한 여정을 시작합니다.');
+  }
   const SECOND_THRESH = B.secondEvolution.threshold;
   const secondEvolutionIds = Object.keys(SECOND_TYPES);
   const validFirst = type => Boolean(B.types[type]);
@@ -218,7 +245,7 @@
     { title:'먼저 당근을 주세요!', description:'당근은 의욕을 높이고 스트레스를 줄여 줍니다. 대신 나태함은 조금 올라가요.', button:null },
     { title:'이제 채찍으로 훈련!', description:'채찍은 경험치를 주지만 스트레스도 높여요. 실제 개미를 때리는 것이 아닌 훈련을 뜻합니다.', button:null },
     { title:'세 가지 상태를 확인하세요!', description:'의욕이 높고 스트레스·나태함이 낮을수록 훈련에 유리해요. 돌발 이벤트 확률도 상태에 따라 달라져요.', button:'이해했어요' },
-    { title:'LV.10과 LV.20, 두 번의 진화!', description:'LV.10에서 첫 진화와 고유 패시브를 얻고, LV.20에서 두 번째 진화를 완성해요. 계속 키워 보세요!', button:'육성 시작' }
+    { title:'LV.10·20·30, 세 번의 진화!', description:'LV.10에서 첫 진화와 고유 패시브를 얻고, LV.20에서 두 번째, LV.30에서 세 번째 진화를 완성해요. 계속 키워 보세요!', button:'육성 시작' }
   ];
   const dialogue = {
     idle: ['오늘도 한 뼘 자라 볼까?', '조금씩, 차근차근!', '오늘은 무얼 해 볼까?', '이 개미집, 꽤 포근한걸.'],
@@ -243,10 +270,10 @@
       stats: { motivation:B.initial.motivation, stress:B.initial.stress, laziness:B.initial.laziness },
       carrotCount:0, whipCount:0, totalExp:0, eventCount:0, eventsByType:{},
       recentEvents:[], records:[], finished:false, finishedRecordId:null, evolution:null,
-      phase:'phase1', firstEvolution:null, stage2Counters:{carrot:0,whip:0}, secondEvolution:null,
+      phase:'phase1', firstEvolution:null, stage2Counters:{carrot:0,whip:0}, secondEvolution:null, thirdEvolution:null, stage3Counters:{carrot:0,whip:0}, secondReachedAt:null,
       pendingChoice:null, unlockedAchievements:[],
-      decor:{unlocked:[],equipped:{floor:null,wall:null,light:null}},
-      expedition:{tickets:0,ticks:0,ticketRuleVersion:2,inventory:{food:0,wood:0,crystal:0},crafted:[],trips:[],totalTrips:0,squad:[],discoveries:[]},
+      decor:{unlocked:[],equipped:{floor:null,wall:null,light:null,extra:null}},
+      expedition:{tickets:0,ticks:0,ticketRuleVersion:2,inventory:{food:0,wood:0,crystal:0},crafted:[],trips:[],totalTrips:0,squad:[],discoveries:[],passiveRecordId:null,bonusRemainders:{}},
       weekly:freshWeekly(),
       recentActions:[],
       kingdom:defaultKingdom(),
@@ -274,8 +301,15 @@
         (prev.pendingChoice && !prev.finished ? 1 : 0));
       const records = Array.isArray(prev.records) ? prev.records.filter(r => r && validTypes.includes(r.type) && typeof r.id === 'string').map(r=>({
         id:r.id.slice(0,96),type:r.type,
+        legacyLevel20:r.legacyLevel20 && r.legacyLevel20.level===20 && validFirst(r.legacyLevel20.type) && validSecond(r.legacyLevel20.secondEvolution,r.legacyLevel20.type) ? {
+          ...r.legacyLevel20,carrotCount:num(r.legacyLevel20.carrotCount,0),whipCount:num(r.legacyLevel20.whipCount,0),
+          balanceVersion:typeof r.legacyLevel20.balanceVersion==='string'?r.legacyLevel20.balanceVersion.slice(0,24):'1.0.3'
+        } : undefined,
         timestamp:num(r.timestamp,Date.now()),
-        level:r.level===20 && validSecond(r.secondEvolution,r.type) ? 20 : 10,
+        level:r.level===30 && validThird(r.thirdEvolution,r.secondEvolution) && validSecond(r.secondEvolution,r.type) ? 30 : r.level===20 && validSecond(r.secondEvolution,r.type) ? 20 : 10,
+        thirdEvolution:r.level===30 && validSecond(r.secondEvolution,r.type) && validThird(r.thirdEvolution,r.secondEvolution) ? r.thirdEvolution : null,
+        stage3Counters:{carrot:num(r.stage3Counters?.carrot,0),whip:num(r.stage3Counters?.whip,0)},
+        secondReachedAt:num(r.secondReachedAt,0),
         secondEvolution:validSecond(r.secondEvolution,r.type) ? r.secondEvolution : null,
         firstEvolution:r.firstEvolution && r.firstEvolution.type===r.type ? {
           type:r.type,
@@ -296,7 +330,7 @@
         level: Math.max(1,num(prev.level,1,B.maxLevel)), exp:num(prev.exp,0,10000000),
         // 구버전 LV.10 완료는 확장하지 않고 영구 완료 기록으로 보존합니다.
         phase:prev.finished ? (validSecond(prev.secondEvolution,prev.evolution)?'completed':'legacyComplete') :
-          (validFirst(prev.firstEvolution?.type) && prev.level>=10 ? 'phase2':'phase1'),
+          (validSecond(prev.secondEvolution,prev.evolution) && prev.level>=20 ? 'phase3':validFirst(prev.firstEvolution?.type) && prev.level>=10 ? 'phase2':'phase1'),
         firstEvolution:validFirst(prev.firstEvolution?.type) && prev.firstEvolution?.type===prev.evolution ? {
           type:prev.firstEvolution.type,
           reachedAt:num(prev.firstEvolution.reachedAt,0),
@@ -307,6 +341,9 @@
         } : null,
         stage2Counters:{carrot:num(prev.stage2Counters?.carrot,0),whip:num(prev.stage2Counters?.whip,0)},
         secondEvolution:validSecond(prev.secondEvolution,prev.evolution)?prev.secondEvolution:null,
+        thirdEvolution:prev.level===30 && prev.finished && validThird(prev.thirdEvolution,prev.secondEvolution) && validSecond(prev.secondEvolution,prev.evolution)?prev.thirdEvolution:null,
+        stage3Counters:{carrot:num(prev.stage3Counters?.carrot,0),whip:num(prev.stage3Counters?.whip,0)},
+        secondReachedAt:num(prev.secondReachedAt,0),
         stats:{ motivation:clamp(stats.motivation ?? 60), stress:clamp(stats.stress ?? 20), laziness:clamp(stats.laziness ?? 10) },
         carrotCount:num(prev.carrotCount,0), whipCount:num(prev.whipCount,0), totalExp:num(prev.totalExp,0),eventCount:num(prev.eventCount,0),
         eventsByType: prev.eventsByType && typeof prev.eventsByType === 'object' ? prev.eventsByType : {},
@@ -327,9 +364,9 @@
         decor: {
           unlocked:Array.isArray(prev.decor?.unlocked) ?
             [...new Set(prev.decor.unlocked.filter(id=>typeof id==='string' && ALL_DECOR.some(d=>d.id===id)))]:[],
-          equipped:Object.fromEntries(['floor','wall','light'].map(slot=>[
+          equipped:{extra:ALL_DECOR.some(d=>d.id===prev.decor?.equipped?.extra) ? prev.decor.equipped.extra:null,...Object.fromEntries(['floor','wall','light'].map(slot=>[
             slot, ALL_DECOR.some(d=>d.id===prev.decor?.equipped?.[slot] && d.slot===slot) ? prev.decor.equipped[slot] : null
-          ]))
+          ]))}
         },
         expedition: {
           // 구버전 원정권은 보존하고, LV.10 미만의 누적 진행도와 과거 미완료 행동은 소급 지급하지 않습니다.
@@ -345,9 +382,17 @@
             Number.isFinite(t.amount) && t.amount>0).map(t=>({
               region:t.region,resource:t.resource,amount:num(t.amount,1,1000),at:num(t.at,Date.now()),
               rareId:RARE_IDS.has(t.rareId)?t.rareId:null,
-              squadBonus:num(t.squadBonus,0,10)
+              squadBonus:num(t.squadBonus,0,10),
+              base:Number.isFinite(t.base)?num(t.base,0):null,randomBonus:Number.isFinite(t.randomBonus)?num(t.randomBonus,0):null,
+              facilityBonus:Number.isFinite(t.facilityBonus)?num(t.facilityBonus,0):null,workerBonus:Number.isFinite(t.workerBonus)?num(t.workerBonus,0):null,
+              passiveBonus:num(t.passiveBonus,0),passiveType:Object.hasOwn(THIRD_TYPES,t.passiveType)?t.passiveType:null
             })):[],
           totalTrips:num(prev.expedition?.totalTrips,0),
+          passiveRecordId:records.some(r=>r.id===prev.expedition?.passiveRecordId && validThird(r.thirdEvolution,r.secondEvolution))?prev.expedition.passiveRecordId:null,
+          bonusRemainders:Object.fromEntries(Object.keys(THIRD_TYPES).flatMap(type=>RESOURCE_IDS.map(resource=>{
+            const key=type+':'+resource,v=prev.expedition?.bonusRemainders?.[key];
+            return [key,Number.isInteger(v)&&v>=0&&v<100?v:0];
+          }))),
           squad:Array.isArray(prev.expedition?.squad) ? [...new Set(prev.expedition.squad)]
             .filter(id=>typeof id==='string' && records.some(record=>record.id===id)).slice(0,B.expeditionSquad.maxMembers):[],
           discoveries:Array.isArray(prev.expedition?.discoveries) ?
@@ -654,15 +699,32 @@
     if(stats.stress>=85 || stats.laziness>=85 || stats.motivation<=15)return '험난한 여정 끝에 진화를 달성했습니다.';
     return '꾸준한 선택이 새로운 모습으로 이어졌습니다.';
   }
+  function secondPassiveForAction(action) {
+    const passive=B.secondPassives[game.secondEvolution];
+    if(!passive)return null;
+    const every=passive.every||1;
+    const ready=every===1 || ((game.stage3Counters[action]||0)+1)%every===0;
+    return ready?passive:{...passive,value:0};
+  }
+  function secondPassiveProgress() {
+    const passive=B.secondPassives[game.secondEvolution];
+    if(game.phase!=='phase3' || !passive || passive.every<=1)return '';
+    const remaining=passive.every-(game.stage3Counters[passive.trigger]||0)%passive.every;
+    return ` · 다음 발동까지 ${passive.trigger==='carrot'?'당근':'채찍'} ${remaining}회`;
+  }
   function passiveDescription(type) {
-    return {easy:'당근 사용 시 스트레스 −5 추가',genius:'긍정 이벤트의 유익한 효과 +20%',diligent:'채찍 EXP +15%'}[type]||'';
+    return {
+      easy:`당근 사용 시 스트레스 −${Math.abs(B.passive.easy.extraCarrotStressRecovery)} 추가`,
+      genius:`긍정 이벤트의 유익한 효과 +${percent(B.passive.genius.positiveEventBenefitMultiplier-1)}`,
+      diligent:`채찍 EXP +${percent(B.passive.diligent.whipExpMultiplier-1)}`
+    }[type]||'';
   }
   function positiveBenefit(value) {
-    return value<0 ? Math.round(value*B.passive.genius.positiveEventBenefitMultiplier) : value>0 ? Math.round(value*B.passive.genius.positiveEventBenefitMultiplier) : value;
+    return value<0 ? Math.round(value*eventBenefitMultiplier()) : value>0 ? Math.round(value*eventBenefitMultiplier()) : value;
   }
   // 오직 긍정 이벤트에서 유익한 변화만 강화합니다.
   function eventStatDelta(event,stat,raw) {
-    if(game.phase!=='phase2' || game.evolution!=='genius' || event.kind!=='positive')return raw;
+    if(!hasFirstPassive() || game.evolution!=='genius' || event.kind!=='positive')return raw;
     const beneficial=(stat==='motivation' && raw>0) || ((stat==='stress'||stat==='laziness') && raw<0);
     return beneficial?positiveBenefit(raw):raw;
   }
@@ -771,26 +833,33 @@
     const changes=B.actions[action];
     const recovery=B.conditionalRecovery?.[action];
     const recoveryBonus=Boolean(recovery && before[recovery.stat]>=recovery.threshold);
-    const stage2=game.phase==='phase2';
+    const stage2=hasFirstPassive();
+    const second=secondPassiveForAction(action);
     const baseExp=action==='carrot' ? (stage2?B.carrotExp.phase2:B.carrotExp.phase1) :
-      (stage2 ? B.phaseTwoBaseExp : changes.baseExp);
+      (stage2 ? (second?.effect==='baseExp'?Math.round(B.phaseTwoBaseExp*(1+second.value)):B.phaseTwoBaseExp) : changes.baseExp);
     // 당근: 소량 고정 경험치. 기존 채찍의 훈련 효율·패시브와 별도로 계산합니다.
     let gained=action==='carrot' ? baseExp : Math.max(1,Math.round(baseExp*efficiency(before)));
     if(stage2 && game.evolution==='diligent' && action==='whip') {
       gained=Math.max(1,Math.round(gained*B.passive.diligent.whipExpMultiplier));
     }
-    for(const key of ['motivation','stress','laziness']) game.stats[key]=clamp(game.stats[key]+changes[key]);
+    const secondDeltas={motivation:0,stress:0,laziness:0};
+    if(action==='carrot' && second?.effect==='carrotMotivation')secondDeltas.motivation=second.value;
+    if(action==='carrot' && second?.effect==='carrotLaziness')secondDeltas.laziness=second.value;
+    if(action==='whip' && second?.effect==='whipLaziness')secondDeltas.laziness=second.value;
+    if(action==='whip' && second?.effect==='whipStress')secondDeltas.stress=second.value;
+    for(const key of ['motivation','stress','laziness'])game.stats[key]=clamp(game.stats[key]+changes[key]+secondDeltas[key]);
     if(recoveryBonus) game.stats[recovery.stat]=clamp(game.stats[recovery.stat]+recovery.extra);
     if(stage2 && game.evolution==='easy' && action==='carrot')
       game.stats.stress=clamp(game.stats.stress+B.passive.easy.extraCarrotStressRecovery);
     if(action==='carrot') game.carrotCount++; else game.whipCount++;
-    if(stage2) game.stage2Counters[action]++;
+    if(game.phase==='phase2') game.stage2Counters[action]++;
+    if(game.phase==='phase3') game.stage3Counters[action]++;
 
     if(eventId) {
       const event=B.events[eventId];
       if(event.expMultiplier && action==='whip') {
         const multiplier=(stage2 && game.evolution==='genius' && event.kind==='positive') ?
-          1+(event.expMultiplier-1)*B.passive.genius.positiveEventBenefitMultiplier : event.expMultiplier;
+          1+(event.expMultiplier-1)*eventBenefitMultiplier() : event.expMultiplier;
         gained=Math.max(1,Math.round(gained*multiplier));
       }
       if(event.cancelExp) gained=0;
@@ -831,12 +900,14 @@
     game.exp+=gained;
     const priorLevel=game.level;
     let firstEvolutionReached=false;
+    let secondEvolutionReached=false;
     while(game.level<B.maxLevel && game.exp>=B.expRequired(game.level)) {
       game.exp-=B.expRequired(game.level);
       game.level++;
       if(game.level===10 && game.phase==='phase1') {
         finishFirstEvolution(); firstEvolutionReached=true;
       }
+      if(game.level===20 && game.phase==='phase2') {finishSecondEvolution();secondEvolutionReached=true;}
     }
     const didLevelUp=game.level>priorLevel;
     if(game.level>=B.maxLevel) {
@@ -863,7 +934,7 @@
     if(eventId) feedback+=` · 돌발 이벤트 · ${B.events[eventId].name}`;
     if(choiceLabel) feedback+=` · ${choiceLabel}`;
     if(didLevelUp && !game.finished) feedback+=firstEvolutionReached?' · LV.10 첫 진화 달성!':` · LV.${game.level} 레벨업!`;
-    if(game.finished) feedback='LV.20 두 번째 진화 달성! 결과를 확인해 보세요.';
+    if(game.finished) feedback='LV.30 세 번째 진화 달성! 결과를 확인해 보세요.';
     game.lastFeedback=feedback;
     game.recentActions.unshift({action,gained,eventId:eventId||null,at:Date.now()});
     game.recentActions=game.recentActions.slice(0,12);
@@ -910,6 +981,8 @@
     } else if(firstEvolutionReached) {
       playSound('evolution');
       showFirstEvolutionResult();
+    } else if(secondEvolutionReached) {
+      playSound('evolution');toast(`LV.20 ${SECOND_TYPES[game.secondEvolution].name} · LV.30까지 계속 키울 수 있어요!`);
     } else if(didLevelUp) {
       playSound('level');toast(`레벨 업! LV.${game.level}`);
     } else if(eventId) {
@@ -953,15 +1026,15 @@
   // 저장된 과거 완료 기록 + 현재 진행 중인 개미만 합산합니다.
   // 진화 완료 직후 game의 행동 횟수는 이미 records에 포함되므로 이중 집계하지 않습니다.
   function achievementProgress() {
-    const records=game.records;
+    const records=game.records.filter(r=>game.finished || r.id!==game.finishedRecordId);
     const activeActions=game.finished?0:game.carrotCount+game.whipCount;
     const activeEvents=game.finished?0:game.eventCount;
     const totalActions=records.reduce((sum,r)=>sum+r.carrotCount+r.whipCount,activeActions);
     const totalEvents=records.reduce((sum,r)=>sum+r.eventCount,activeEvents);
     const types=new Set(records.map(r=>r.type));
-    if(game.phase==='phase2' && validFirst(game.evolution))types.add(game.evolution);
+    if(hasFirstPassive() && validFirst(game.evolution))types.add(game.evolution);
     return {
-      ACH01:totalActions>=1, ACH02:records.length>0 || game.phase==='phase2',
+      ACH01:totalActions>=1, ACH02:records.length>0 || hasFirstPassive(),
       ACH03:types.has('easy'), ACH04:types.has('genius'), ACH05:types.has('diligent'),
       ACH06:types.size===3, ACH07:totalActions>=300, ACH08:totalEvents>=30
     };
@@ -982,7 +1055,7 @@
 
   // 현재 진행 개미 + 완료 기록을 중복 없이 합산해 장식 해금 조건을 검사합니다.
   function decorProgress() {
-    const career=game.records.reduce((acc,r)=>{
+    const career=game.records.filter(r=>game.finished || r.id!==game.finishedRecordId).reduce((acc,r)=>{
       acc.carrots+=r.carrotCount;
       acc.whips+=r.whipCount;
       acc.events+=r.eventCount;
@@ -994,7 +1067,7 @@
       career.carrots+=game.carrotCount;
       career.whips+=game.whipCount;
       career.events+=game.eventCount;
-      if(game.phase==='phase2' && validFirst(game.evolution)) {
+      if(hasFirstPassive() && validFirst(game.evolution)) {
         career.evolutions++;
         if(game.evolution==='genius')career.genius++;
       }
@@ -1011,8 +1084,11 @@
         unlocked.add(item.id); newly.push(item.name);
       }
     }
+    for(const item of B.thirdRewards)if(game.records.some(r=>r.thirdEvolution===item.third) && !unlocked.has(item.id)){unlocked.add(item.id);newly.push(item.name);}
     for(const id of game.expedition.crafted)unlocked.add(id);
     game.decor.unlocked=[...unlocked];
+    if(!hasExtraSlot())game.decor.equipped.extra=null;
+    if(!unlocked.has(game.decor.equipped.extra) || ['floor','wall','light'].some(slot=>game.decor.equipped[slot]===game.decor.equipped.extra))game.decor.equipped.extra=null;
     // 깨진 저장 상태에 고정된 잠금 장식이 남아 있을 경우 화면에 나타내지 않습니다.
     for(const slot of ['floor','wall','light']) {
       if(!unlocked.has(game.decor.equipped[slot])) game.decor.equipped[slot]=null;
@@ -1047,7 +1123,7 @@
     const list=qs('expedition-squad-picker');if(!list)return;
     const selected=new Set(game.expedition.squad);
     list.innerHTML=game.records.map(record=>{
-      const name=validSecond(record.secondEvolution,record.type)?SECOND_TYPES[record.secondEvolution].name:B.types[record.type].name;
+      const name=finalInfo(record).name;
       const active=selected.has(record.id);
       const disabled=!active && selected.size>=B.expeditionSquad.maxMembers;
       return `<button type="button" class="expedition-squad-item ${active?'selected':''}" data-squad-record="${escapeHTML(record.id)}" ${disabled?'disabled':''}>
@@ -1075,7 +1151,7 @@
     qs('expedition-squad-roster').innerHTML=Array.from({length:B.expeditionSquad.maxMembers},(_,i)=>{
       const member=members[i];
       if(!member)return '<div class="expedition-squad-member empty"><span class="squad-portrait">＋</span><strong>빈 자리</strong></div>';
-      const name=validSecond(member.secondEvolution,member.type)?SECOND_TYPES[member.secondEvolution].name:B.types[member.type].name;
+      const name=finalInfo(member).name;
       return `<div class="expedition-squad-member"><span class="squad-portrait">${portraitEmoji[member.type]}</span><strong>${escapeHTML(name)}</strong><small>LV.${member.level}</small></div>`;
     }).join('');
   }
@@ -1138,20 +1214,30 @@
     const succeeded=applyKingdomTransaction(draft=>{
       if(draft.level<region.minLevel || draft.expedition.tickets<=0 || draft.expedition.inventory[region.main]>=maximumResource)return false;
       draft.expedition.tickets--;
-      draft.expedition.inventory[region.main]+=amount;
+      const leader=passiveLeader(draft),type=leader?.thirdEvolution,effect=THIRD_TYPES[type]?.effect;
+      const eligible=effect==='general' || (effect==='food' && region.main==='food') ||
+        (effect==='craft' && B.craftingItems.some(item=>Object.hasOwn(item.cost,region.main)));
+      let passiveBonus=0;
+      if(eligible){
+        const key=type+':'+region.main,units=(draft.expedition.bonusRemainders[key]||0)+amount*5;
+        passiveBonus=Math.min(available-amount,Math.floor(units/100));
+        draft.expedition.bonusRemainders[key]=units%100;
+      }
+      const awarded=amount+passiveBonus;
+      draft.expedition.inventory[region.main]+=awarded;
       draft.expedition.totalTrips++;
       if(foundRare && !draft.expedition.discoveries.includes(foundRare))draft.expedition.discoveries.push(foundRare);
-      draft.expedition.trips.unshift({region:region.id,resource:region.main,amount,at:Date.now(),
+      draft.expedition.trips.unshift({region:region.id,resource:region.main,amount:awarded,passiveBonus,passiveType:type||null,at:Date.now(),
         base:region.reward,randomBonus,facilityBonus:b.facilityBonus,workerBonus:b.workerBonus,
         squadBonus:squad.memberBonus+squad.specialtyBonus,rareId:foundRare});
       draft.expedition.trips=draft.expedition.trips.slice(0,12);
       syncWeeklyForTransaction(draft);
       draft.weekly.trips++;
-      draft.weekly.resources+=amount;
+      draft.weekly.resources+=awarded;
       if(squad.size>=2)draft.weekly.squadTrips++;
       return true;
     });
-    if(succeeded){lastExploreClick=Date.now();toast(`${region.name} 원정 · ${B.resources.find(r=>r.id===region.main).name} +${amount}${foundRare?' · 희귀 발견물 획득!':''}`);}
+    if(succeeded){lastExploreClick=Date.now();toast(`${region.name} 원정 · ${B.resources.find(r=>r.id===region.main).name} +${game.expedition.trips[0].amount}${foundRare?' · 희귀 발견물 획득!':''}`);}
   }
   function canCraft(item) {
     return !game.expedition.crafted.includes(item.id) && Object.entries(item.cost).every(([id,amount])=>resourceCount(id)>=amount);
@@ -1171,6 +1257,11 @@
   }
   function renderExpedition() {
     const exp=game.expedition;
+    const leaderSelect=qs('passive-leader');
+    leaderSelect.innerHTML='<option value="">패시브 대표 없음</option>'+game.records.filter(r=>validThird(r.thirdEvolution,r.secondEvolution)).map(r=>
+      `<option value="${escapeHTML(r.id)}">${escapeHTML(finalInfo(r).name)} · ${dateLabel(r.timestamp)}</option>`).join('');
+    leaderSelect.value=exp.passiveRecordId||'';
+    qs('passive-leader-status').textContent=passiveLeader()?thirdStatus(passiveLeader().thirdEvolution):'LV.30 완료 개미 한 마리를 대표로 선택하세요. 원정대 기본 보너스와 별도로 대표 패시브만 적용됩니다.';
     qs('expedition-tickets').textContent=`${exp.tickets} / ${B.expeditions.maxTickets}`;
     const unlocked=game.level>=10;
     const notice=qs('expedition-level-notice');
@@ -1195,6 +1286,7 @@
         <div class="region-content"><strong>${escapeHTML(region.name)} <small>LV.${region.minLevel}+</small></strong>
           <p>${escapeHTML(region.description)}</p><small>원정권 1장 · ${escapeHTML(B.resources.find(r=>r.id===region.main).name)} ${min}~${max}개</small>
           <small class="squad-bonus-detail">왕국 +${b.total} · 원정대 +${squadTotal}</small>
+          ${THIRD_TYPES[passiveLeader()?.thirdEvolution]?.effect==='details'?`<small>별의 기록 · 추가 보상 확률 ${percent(region.bonusChance)} · 희귀 발견 ${RARE_BY_REGION[region.id]?.name||'없음'} (${percent(RARE_BY_REGION[region.id]?.chance||0)}) · ${exp.discoveries.includes(RARE_BY_REGION[region.id]?.id)?'발견 완료':'미발견'}</small>`:''}
           <details class="kingdom-reward-breakdown"><summary>보너스 상세</summary>기본 ${region.reward} · 시설 +${b.facilityBonus} · 일꾼 +${b.workerBonus} · 원정대 +${squadTotal} · 특별 발견 시 +${region.bonus}</details></div>
         <button class="mini-button" data-expedition="${region.id}" type="button" ${allowed?'':'disabled'}>${!opened?'잠김':!exp.tickets?'원정권 부족':resourceCount(region.main)>=maximumResource?'재고 한도':'탐험'}</button></article>`;
     }).join('');
@@ -1213,7 +1305,7 @@
     qs('expedition-history').innerHTML=exp.trips.length?exp.trips.slice(0,6).map(t=>{
       const region=B.expeditions.regions.find(r=>r.id===t.region);
       const resource=B.resources.find(r=>r.id===t.resource);
-      return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}${t.rareId && RARE_IDS.has(t.rareId)?' ✨':''}</span><strong>${resource.icon} +${t.amount}</strong></div>`;
+      return `<div class="expedition-trip"><span>${region.icon} ${escapeHTML(region.name)}${t.rareId && RARE_IDS.has(t.rareId)?' ✨':''}</span><strong>${resource.icon} +${t.amount}</strong>${THIRD_TYPES[passiveLeader()?.thirdEvolution]?.effect==='details'?`<small class="trip-details">${dateLabel(t.at)} · 기본 ${t.base??'과거 기록 없음'} / 추가 ${t.randomBonus??'?'} / 시설 ${t.facilityBonus??'?'} / 일꾼 ${t.workerBonus??'?'} / 원정대 ${t.squadBonus} / 패시브 ${t.passiveBonus||0}${t.rareId?' · 발견: '+escapeHTML(B.rareFinds.find(r=>r.id===t.rareId)?.name||''):''}</small>`:''}</div>`;
     }).join(''):'아직 원정 기록이 없습니다.';
   }
 
@@ -1267,6 +1359,8 @@ function renderDecorMarkup(item) {
   }
 
 function renderNestScene() {
+  const extra=hasExtraSlot()?ALL_DECOR.find(d=>d.id===game.decor.equipped.extra):null;
+  qs('nest-extra-display').innerHTML=extra?renderDecorMarkup(extra):'';
   const theme=nestTheme();
   qs('habitat').dataset.theme=theme.id;
   qs('scene-location').textContent=`⌂  ${theme.label}`;
@@ -1281,6 +1375,10 @@ function renderNestScene() {
 function renderDecorations() {
 
     const owned=new Set(game.decor.unlocked);
+    qs('extra-decor-slot').hidden=!hasExtraSlot();
+    const extra=qs('extra-decoration');
+    extra.innerHTML='<option value="">추가 장식 없음</option>'+ALL_DECOR.filter(d=>owned.has(d.id) && !['floor','wall','light'].some(s=>game.decor.equipped[s]===d.id)).map(d=>`<option value="${d.id}">${escapeHTML(d.name)}</option>`).join('');
+    extra.value=game.decor.equipped.extra||'';
     qs('decor-count').textContent=`${owned.size} / ${ALL_DECOR.length}`;
     qs('decor-progress').style.width=`${Math.round(100*owned.size/ALL_DECOR.length)}%`;
     qs('nest-theme-caption').textContent=`현재 개미집 분위기: ${nestTheme().label}`;
@@ -1290,7 +1388,7 @@ function renderDecorations() {
       return `<article class="decor-card ${unlocked?'':'locked'} ${equipped?'equipped':''}">
         <span class="decor-icon" aria-hidden="true">${unlocked?escapeHTML(item.icon):'🔒'}</span>
         <div class="decor-info"><strong>${escapeHTML(item.name)}</strong>
-          <small>${unlocked?escapeHTML(item.desc):validCraft(item.id)?'원정에서 재료를 모아 제작하세요':`해금 조건 · ${escapeHTML(item.hint)}`}</small>
+          <small>${unlocked?escapeHTML(item.desc):validCraft(item.id)?'원정에서 재료를 모아 제작하세요':item.third?'해금 조건 · '+escapeHTML(THIRD_TYPES[item.third].name)+' 수집':`해금 조건 · ${escapeHTML(item.hint)}`}</small>
           <span class="decor-slot">${{floor:'바닥',wall:'벽',light:'조명'}[item.slot]}</span></div>
         <button class="decor-action" type="button" data-decor-id="${escapeHTML(item.id)}" ${unlocked?'':'disabled'} aria-label="${escapeHTML(item.name)} ${equipped?'해제':unlocked?'배치':'잠김'}">${equipped?'해제':unlocked?'배치':'미해금'}</button>
       </article>`;
@@ -1301,8 +1399,7 @@ function renderDecorations() {
     const item=ALL_DECOR.find(d=>d.id===id);
     if(!item)return;
     const equipped=game.decor.equipped[item.slot]===id;
-    game.decor.equipped[item.slot]=equipped?null:id;
-    saveState();render();
+    if(!applyKingdomTransaction(draft=>{draft.decor.equipped[item.slot]=equipped?null:id;if(draft.decor.equipped.extra===id)draft.decor.equipped.extra=null;return true;}))return;
     toast(equipped?`${item.name} 장식을 해제했어요.`:`${item.name}을(를) 개미집에 배치했어요!`);
   }
 
@@ -1318,25 +1415,30 @@ function renderDecorations() {
     game.stage2Counters={carrot:0,whip:0};
     game.tutorialCompleted=true;
   }
+  function finishSecondEvolution() {
+    if(game.phase!=='phase2')return;
+    game.secondEvolution=secondEvolutionType();
+    game.secondReachedAt=Date.now();game.stage3Counters={carrot:0,whip:0};game.phase='phase3';
+  }
   function finishFinalEvolution() {
-    if(game.finished || game.phase!=='phase2')return;
-    const type=secondEvolutionType();
+    if(game.finished || game.phase!=='phase3')return;
+    const type=thirdTypeFor(game.secondEvolution,stage3Ratio());
     if(!type)return;
-    game.secondEvolution=type;
-    game.finished=true;
-    game.phase='completed';
-    game.exp=0;
+    game.thirdEvolution=type;game.finished=true;game.phase='completed';game.exp=0;
     const record={
-      id:`ant-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
-      timestamp:Date.now(),type:game.evolution,secondEvolution:type,level:20,
-      firstEvolution:{...game.firstEvolution,statsAtFirst:{...game.firstEvolution.statsAtFirst}},
-      stage2Counters:{...game.stage2Counters},
+      id:game.finishedRecordId||`ant-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+      timestamp:Date.now(),type:game.evolution,secondEvolution:game.secondEvolution,thirdEvolution:type,level:30,
+      firstEvolution:game.firstEvolution?{...game.firstEvolution,statsAtFirst:{...game.firstEvolution.statsAtFirst}}:null,
+      stage2Counters:{...game.stage2Counters},stage3Counters:{...game.stage3Counters},secondReachedAt:game.secondReachedAt,
       stats:{...game.stats},carrotCount:game.carrotCount,whipCount:game.whipCount,
-      totalExp:game.totalExp,eventCount:game.eventCount,balanceVersion:B.version,
-      eventsByType:{...game.eventsByType}
+      totalExp:game.totalExp,eventCount:game.eventCount,balanceVersion:B.version,eventsByType:{...game.eventsByType}
     };
+    // An explicitly resumed legacy ant upgrades its record in place; no duplicate workers or rewards.
+    const index=game.records.findIndex(r=>r.id===record.id);
+    if(index>=0){record.legacyLevel20=game.records[index];game.records[index]=record;}
+    else game.records.unshift(record);
     game.finishedRecordId=record.id;
-    game.records.unshift(record);
+    if(!game.expedition.passiveRecordId)game.expedition.passiveRecordId=record.id;
     game.tutorialCompleted=true;
   }
   function findFinishRecord() {return game.records.find(r=>r.id===game.finishedRecordId)||game.records[0]||null;}
@@ -1380,18 +1482,18 @@ function moodLabel(){
   function render() {
     const firstName=B.types[game.evolution]?.name||'신입 개미';
     const secondName=SECOND_TYPES[game.secondEvolution]?.name;
-    qs('ant-name').textContent=game.phase==='completed' && secondName ? secondName : game.phase==='phase1' ? '신입 개미' : firstName;
-    qs('evolution-stage').textContent=game.phase==='phase1'?'첫 번째 여정':game.phase==='phase2'?'두 번째 여정':game.phase==='legacyComplete'?'첫 진화 달성':'두 번째 진화 달성';
+    qs('ant-name').textContent=THIRD_TYPES[game.thirdEvolution]?.name || secondName || (game.phase==='phase1'?'신입 개미':firstName);
+    qs('evolution-stage').textContent=game.phase==='phase1'?'첫 번째 여정':game.phase==='phase2'?'두 번째 여정':game.phase==='phase3'?'세 번째 여정':game.phase==='legacyComplete'?'첫 진화 달성':game.thirdEvolution?'세 번째 진화 달성':'두 번째 진화 달성';
     qs('growth-stage-label').textContent=game.phase==='phase1'?'첫 번째 성장 · LV.1~10':
-      game.phase==='legacyComplete'?'구버전 육성 완료 · LV.10':'두 번째 성장 · LV.10~20';
+      game.phase==='legacyComplete'?'구버전 육성 완료 · LV.10':game.finished && game.level===20?'구버전 육성 완료 · LV.20':game.level>=20?'세 번째 성장 · LV.20~30':'두 번째 성장 · LV.10~20';
     qs('level-badge').textContent=`LV. ${game.level}`;
     const required=game.finished?0:B.expRequired(game.level);
     qs('xp-text').textContent=game.finished?'MAX LEVEL':`${game.exp} / ${required} EXP`;
     qs('xp-fill').style.width=`${game.finished?100:Math.min(100,(game.exp/required)*100)}%`;
     qs('xp-progress').setAttribute('aria-valuenow',String(game.finished?100:Math.round(game.exp/required*100)));
-    qs('evolution-hint').textContent=game.finished?'육성 완료':game.phase==='phase1'?'LV.10 첫 진화':'LV.20 두 번째 진화';
+    qs('evolution-hint').textContent=game.finished?'육성 완료':game.phase==='phase1'?'LV.10 첫 진화':game.phase==='phase3'?'LV.30 세 번째 진화':'LV.20 두 번째 진화';
     qs('progress-narration').textContent=game.finished?'성장의 발자국 완성!':
-      game.phase==='phase1'?`첫 진화까지 ${10-game.level}레벨`:`두 번째 진화까지 ${20-game.level}레벨`;
+      game.phase==='phase1'?`첫 진화까지 ${10-game.level}레벨`:game.phase==='phase3'?`세 번째 진화까지 ${30-game.level}레벨`:`두 번째 진화까지 ${20-game.level}레벨`;
     qs('scene-status').textContent=`● ${B.eventTiers[statusTier(game.stats)].label} 상태`;
     qs('scene-action-text').textContent=game.finished?'새로운 가능성 발견':`${game.carrotCount+game.whipCount}번의 작은 선택`;
     qs('speech-bubble').textContent=game.lastSpeech;
@@ -1399,6 +1501,7 @@ function moodLabel(){
     const ant=qs('ant-figure');
     ant.dataset.evolution=game.evolution||'newbie';
     ant.dataset.secondEvolution=game.secondEvolution||'none';
+    ant.dataset.thirdEvolution=game.thirdEvolution||'none';
     const secondMark=qs('second-evolution-mark');
     secondMark.hidden=!game.secondEvolution;
     secondMark.textContent=SECOND_TYPES[game.secondEvolution]?.icon||'';
@@ -1406,10 +1509,10 @@ function moodLabel(){
     ant.dataset.mood=reactionMood();
     ant.setAttribute('aria-label',`${qs('ant-name').textContent} 캐릭터`);
     const passive=qs('active-passive');
-    passive.hidden=game.phase!=='phase2';
-    if(game.phase==='phase2') {
+    passive.hidden=!game.evolution;
+    if(game.evolution) {
       qs('passive-name').textContent=`${firstName} · ${B.types[game.evolution].passive}`;
-      qs('passive-effect').textContent=passiveDescription(game.evolution);
+      qs('passive-effect').textContent=passiveDescription(game.evolution)+(game.secondEvolution?' · '+B.secondPassives[game.secondEvolution].name+': '+B.secondPassives[game.secondEvolution].description+secondPassiveProgress():'')+(game.thirdEvolution?' · '+thirdStatus(game.thirdEvolution):'');
     }
     for(const stat of ['motivation','stress','laziness']) {
       qs(`${stat}-value`).textContent=game.stats[stat];
@@ -1424,6 +1527,7 @@ function moodLabel(){
     qs('count-event').textContent=game.eventCount;
     qs('carrot-button').disabled=game.finished||Boolean(game.pendingChoice);
     qs('whip-button').disabled=game.finished||Boolean(game.pendingChoice);
+    qs('resume-level20').hidden=!(game.finished && game.level===20 && game.secondEvolution);
     renderEvolutionGuide();
     renderAutoCare();
     renderRecentActions();
@@ -1433,8 +1537,8 @@ function moodLabel(){
     renderKingdom();
     qs('finished-panel').hidden=!game.finished;
     if(game.finished) {
-      qs('finished-name').textContent=game.phase==='completed'?secondName:firstName;
-      qs('finished-caption').textContent=game.phase==='completed'?'두 번째 진화를 마쳤어요!':'첫 진화를 마쳤어요! (구버전 기록)';
+      qs('finished-name').textContent=THIRD_TYPES[game.thirdEvolution]?.name || secondName || firstName;
+      qs('finished-caption').textContent=game.thirdEvolution?'세 번째 진화 완료 · 탐험과 개미집 활동을 계속할 수 있어요.':game.level===20?'두 번째 진화를 마쳤어요!':'첫 진화를 마쳤어요! (구버전 기록)';
     }
     renderTutorial();
     renderRecords();
@@ -1443,18 +1547,19 @@ function moodLabel(){
     showScreen(activeScreen,false);
   }
   function renderEvolutionGuide() {
-    const inSecond=game.phase==='phase2' || game.phase==='completed';
-    const count=inSecond ? game.stage2Counters.carrot+game.stage2Counters.whip : game.carrotCount+game.whipCount;
-    const ratio=inSecond ? stage2Ratio() : getRatio();
-    const type=inSecond ? secondEvolutionType() : evolutionType();
-    const prediction=inSecond ? SECOND_TYPES[type]?.name : B.types[type]?.name;
-    qs('guide-stage-label').textContent=inSecond?'LV.20 두 번째 진화':'LV.10 첫 진화';
+    const inThird=game.phase==='phase3' || Boolean(game.thirdEvolution);
+    const inSecond=game.phase==='phase2' || game.phase==='completed' || inThird;
+    const count=inThird ? game.stage3Counters.carrot+game.stage3Counters.whip : inSecond ? game.stage2Counters.carrot+game.stage2Counters.whip : game.carrotCount+game.whipCount;
+    const ratio=inThird ? stage3Ratio() : inSecond ? stage2Ratio() : getRatio();
+    const type=inThird ? thirdTypeFor(game.secondEvolution,stage3Ratio()) : inSecond ? secondEvolutionType() : evolutionType();
+    const prediction=inThird ? THIRD_TYPES[type]?.name : inSecond ? SECOND_TYPES[type]?.name : B.types[type]?.name;
+    qs('guide-stage-label').textContent=inThird?'LV.30 세 번째 진화':inSecond?'LV.20 두 번째 진화':'LV.10 첫 진화';
     qs('guide-prediction').textContent=game.finished ?
-      (game.phase==='completed'?`${SECOND_TYPES[game.secondEvolution]?.name||'최종 개미'} · 확정`:`${B.types[game.evolution]?.name||'태평 개미'} · 확정`) :
+      (game.phase==='completed'?`${THIRD_TYPES[game.thirdEvolution]?.name||SECOND_TYPES[game.secondEvolution]?.name||'최종 개미'} · 확정`:`${B.types[game.evolution]?.name||'태평 개미'} · 확정`) :
       count ? prediction||'아직 미정' : '아직 미정';
     qs('guide-ratio').textContent=count?`채찍 ${percent(ratio)}`:'행동 기록 없음';
     qs('guide-note').textContent=game.finished?'최종 진화가 확정되었습니다. 새 개미를 만나 또 다른 길을 찾아보세요.':
-      inSecond?'LV.10 이후의 행동 비율만 두 번째 진화에 적용됩니다. 현재 예상은 바뀔 수 있습니다.':
+      inThird?'LV.20 이후 행동 비율만 세 번째 진화에 적용됩니다. 55% 미만 A / 55% 이상 B.':inSecond?'LV.10 이후의 행동 비율만 두 번째 진화에 적용됩니다. 현재 예상은 바뀔 수 있습니다.':
         '첫 진화는 누적 행동 비율로 계산되며 LV.10까지 달라질 수 있습니다.';
     qs('guide-bar').dataset.phase=inSecond?'phase2':'phase1';
     qs('guide-bar').setAttribute('aria-label',count?`현재 채찍 비율 ${percent(ratio)}, 예상 진화 ${prediction}`:'아직 행동하지 않아 진화를 예측할 수 없습니다');
@@ -1491,7 +1596,7 @@ function moodLabel(){
   }
   function renderRecords() {
     const discovered=new Set(game.records.map(r=>r.type));
-    if(game.phase==='phase2' && validFirst(game.evolution))discovered.add(game.evolution);
+    if(hasFirstPassive() && validFirst(game.evolution))discovered.add(game.evolution);
     qs('collection-count').textContent=`${discovered.size} / 3`;
     qs('collection-fill').style.width=`${100*discovered.size/3}%`;
     qs('record-count').textContent=`${game.records.length}개의 완료 기록`;
@@ -1500,7 +1605,11 @@ function moodLabel(){
       const active=game.phase==='phase2' && game.evolution===type;
       return `<div class="collection-item ${count||active?'':'locked'}"><div class="collection-portrait">${count||active?portraitEmoji[type]:'?'}</div><h3>${count||active?info.name:'??? 개미'}</h3><p>${active?'현재 육성 중':count?`${count}번 발견`:'미발견'}</p></div>`;
     }).join('');
+    const thirdFound=new Set(game.records.map(r=>r.thirdEvolution).filter(id=>THIRD_TYPES[id]));
+    qs('third-collection-count').textContent=`${thirdFound.size} / 12`;
+    qs('third-collection-grid').innerHTML=Object.entries(THIRD_TYPES).map(([id,info])=>`<div class="second-ant-card ${thirdFound.has(id)?'':'locked'}"><span class="second-icon">${thirdFound.has(id)?info.icon:'🔒'}</span><span class="second-info"><strong>${thirdFound.has(id)?escapeHTML(info.name):'미발견 개미'}</strong><small>${escapeHTML(SECOND_TYPES[info.parent].name)} · ${info.branch} (${info.branch==='A'?'<55%':'≥55%'})</small>${thirdFound.has(id)?`<small>칭호: ${escapeHTML(info.title)}</small><small>${escapeHTML(thirdStatus(id))}</small>`:''}</span></div>`).join('');
     const secondFound=new Set(game.records.filter(r=>validSecond(r.secondEvolution,r.type)).map(r=>r.secondEvolution));
+    if(game.secondEvolution)secondFound.add(game.secondEvolution);
     qs('second-collection-count').textContent=`${secondFound.size} / ${secondEvolutionIds.length}`;
     qs('second-collection-fill').style.width=`${100*secondFound.size/secondEvolutionIds.length}%`;
     qs('second-collection-grid').innerHTML=secondEvolutionIds.map(id=>{
@@ -1510,8 +1619,9 @@ function moodLabel(){
     const list=qs('record-list');
     if(!game.records.length) {list.innerHTML='<div class="empty-records">아직 완료한 육성 기록이 없어요.<br>LV.20에서 두 번째 진화에 도전해 보세요!</div>';return;}
     list.innerHTML=game.records.map(r=>{
-      const next=r.level===20 && validSecond(r.secondEvolution,r.type)?SECOND_TYPES[r.secondEvolution]:null;
-      return `<button type="button" class="record-row" data-record-id="${escapeHTML(r.id)}"><span class="record-icon">${next?escapeHTML(next.icon):portraitEmoji[r.type]}</span><span class="record-info"><strong>${next?escapeHTML(next.name):escapeHTML(B.types[r.type].name)}</strong><small>LV.${r.level} ${next?'두 번째 진화':'첫 번째 진화 · 구버전'} · ${dateLabel(r.timestamp)} · ${r.carrotCount+r.whipCount}회 행동</small></span><span class="record-arrow">›</span></button>`;
+      const next=r.secondEvolution?finalInfo(r):null;
+      const third=THIRD_TYPES[r.thirdEvolution];
+      return `<button type="button" class="record-row" data-record-id="${escapeHTML(r.id)}"><span class="record-icon">${next?escapeHTML(next.icon):portraitEmoji[r.type]}</span><span class="record-info"><strong>${next?escapeHTML(next.name):escapeHTML(B.types[r.type].name)}</strong><small>LV.${r.level} ${third?'세 번째 진화':next?'두 번째 진화':'첫 번째 진화 · 구버전'} · ${dateLabel(r.timestamp)} · ${r.carrotCount+r.whipCount}회 행동</small></span><span class="record-arrow">›</span></button>`;
     }).join('');
   }
   function renderSettings() {
@@ -1751,20 +1861,22 @@ function toast(message) {
     if(!record)return;
     const type=B.types[record.type];
     const next=validSecond(record.secondEvolution,record.type)?SECOND_TYPES[record.secondEvolution]:null;
-    const name=next?.name||type.name;
-    showModal(`<p class="modal-eyebrow">✦ ${next?'SECOND EVOLUTION':'FIRST EVOLUTION · LEGACY'} ✦</p>
-      <h2 id="modal-title">${escapeHTML(name)}</h2><p class="modal-subtitle">${next?'LV.20 두 번째 진화를 달성했습니다!':'구버전 LV.10 진화 기록입니다.'}</p>
+    const third=THIRD_TYPES[record.thirdEvolution];
+    const name=third?.name||next?.name||type.name;
+    showModal(`<p class="modal-eyebrow">✦ ${third?'THIRD EVOLUTION':next?'SECOND EVOLUTION':'FIRST EVOLUTION · LEGACY'} ✦</p>
+      <h2 id="modal-title">${escapeHTML(name)}</h2><p class="modal-subtitle">${third?'LV.30 세 번째 진화를 달성했습니다!':next?'LV.20 두 번째 진화를 달성했습니다!':'구버전 LV.10 진화 기록입니다.'}</p>
       <div class="evolution-portrait" id="modal-portrait"></div>
       <div class="evolution-quote">“${escapeHTML(next?.quote||type.quote)}”</div>
-      <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(passiveDescription(record.type))}${next?`<br><strong>${escapeHTML(next.label)}</strong>`:''}</div>
+      <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(passiveDescription(record.type))}${next?`<br><strong>${escapeHTML(next.label)}</strong><br>${escapeHTML(B.secondPassives[record.secondEvolution].name)} · ${escapeHTML(B.secondPassives[record.secondEvolution].description)}`:''}</div>
       ${next?`<div class="second-evolution-badge">${escapeHTML(growthRating(record.stats))}</div>`:''}
-      ${recordSummary(record)}
+      ${third?`<div class="passive-chip"><strong>칭호 · ${escapeHTML(third.title)}</strong><br>${escapeHTML(thirdStatus(record.thirdEvolution))}<br>계보: ${escapeHTML(type.name)} → ${escapeHTML(next.name)} → ${escapeHTML(third.name)}</div>`:''}${recordSummary(record)}
       <div class="modal-buttons"><button class="modal-primary" id="modal-new-ant" type="button">새로운 개미 키우기</button><button class="modal-secondary" id="modal-keep" type="button">지금 결과 더 살펴보기</button></div>`);
     const clone=qs('ant-figure').cloneNode(true);
     clone.removeAttribute('id');clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
+    clone.dataset.thirdEvolution=record.thirdEvolution||'none';
     clone.dataset.evolution=record.type;clone.dataset.secondEvolution=next?record.secondEvolution:'none';clone.dataset.mood='happy';
     qs('modal-portrait').appendChild(clone);
-    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(next.icon)}</span>`);
+    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(third?.icon||next.icon)}</span>`);
     qs('modal-new-ant').addEventListener('click',()=>{closeModal();confirmNewAnt();});
     qs('modal-keep').addEventListener('click',closeModal);
   }
@@ -1773,18 +1885,20 @@ function toast(message) {
     if(!record)return;
     const type=B.types[record.type];
     const next=validSecond(record.secondEvolution,record.type)?SECOND_TYPES[record.secondEvolution]:null;
-    showModal(`<p class="modal-eyebrow">ANT NEST ARCHIVE</p><h2 id="modal-title">${escapeHTML(next?.name||type.name)}</h2>
-      <p class="modal-subtitle">${dateLabel(record.timestamp)} · LV.${record.level} ${next?'두 번째 진화':'첫 번째 진화 · 구버전'}</p>
+    const third=THIRD_TYPES[record.thirdEvolution];
+    showModal(`<p class="modal-eyebrow">ANT NEST ARCHIVE</p><h2 id="modal-title">${escapeHTML(third?.name||next?.name||type.name)}</h2>
+      <p class="modal-subtitle">${dateLabel(record.timestamp)} · LV.${record.level} ${third?'세 번째 진화':next?'두 번째 진화':'첫 번째 진화 · 구버전'}</p>
       <div class="evolution-portrait" id="modal-portrait"></div>
       <div class="passive-chip"><strong>✦ ${escapeHTML(type.passive)}</strong><br>${escapeHTML(type.description)}</div>
       ${next?`<div class="second-evolution-badge">${escapeHTML(growthRating(record.stats))}</div>`:''}
-      ${recordSummary(record)}<p class="modal-subtitle">총 획득 경험치 ${record.totalExp} EXP · 누적 행동 ${record.carrotCount+record.whipCount}회 · 밸런스 v${escapeHTML(record.balanceVersion||'0.1.0')}</p>
+      ${third?`<div class="passive-chip"><strong>칭호 · ${escapeHTML(third.title)}</strong><br>${escapeHTML(thirdStatus(record.thirdEvolution))}<br>계보: ${escapeHTML(type.name)} → ${escapeHTML(next.name)} → ${escapeHTML(third.name)}</div>`:''}${recordSummary(record)}${record.legacyLevel20?`<p class="modal-subtitle">보존된 LV.20 기록 · 당근 ${record.legacyLevel20.carrotCount}회 / 채찍 ${record.legacyLevel20.whipCount}회 · v${escapeHTML(record.legacyLevel20.balanceVersion||'구버전')}</p>`:''}<p class="modal-subtitle">총 획득 경험치 ${record.totalExp} EXP · 누적 행동 ${record.carrotCount+record.whipCount}회 · 밸런스 v${escapeHTML(record.balanceVersion||'0.1.0')}</p>
       <div class="modal-buttons"><button type="button" class="modal-primary" id="record-close">기록 닫기</button></div>`);
     const clone=qs('ant-figure').cloneNode(true);
     clone.removeAttribute('id');clone.classList.remove('reaction-whip','reaction-carrot','reaction-event');
+    clone.dataset.thirdEvolution=record.thirdEvolution||'none';
     clone.dataset.evolution=record.type;clone.dataset.secondEvolution=next?record.secondEvolution:'none';clone.dataset.mood='happy';
     qs('modal-portrait').appendChild(clone);
-    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(next.icon)}</span>`);
+    if(next)qs('modal-portrait').insertAdjacentHTML('beforeend',`<span class="second-emblem" aria-hidden="true">${escapeHTML(third?.icon||next.icon)}</span>`);
     qs('record-close').addEventListener('click',closeModal);
   }
   function confirmNewAnt() {
@@ -1814,7 +1928,7 @@ function toast(message) {
       <strong>2. 채찍</strong> · 경험치 획득, 의욕 −5, 스트레스 +15, 나태함 −5<br>
       <strong>3. 상태 관리</strong> · 의욕·스트레스·나태함이 성장 효율 및 이벤트 확률에 영향<br>
       <strong>추가 회복</strong> · 행동 직전 스트레스 60 이상: 당근 스트레스 −10 추가 / 나태함 60 이상: 채찍 나태함 −5 추가<br>
-      <strong>4. 두 단계 진화</strong> · LV.10에서 첫 진화와 고유 패시브, LV.20에서 두 번째 진화 6종 중 하나 완성</div>
+      <strong>4. 세 단계 진화</strong> · LV.10에서 첫 진화와 고유 패시브, LV.20에서 두 번째 진화 6종, LV.30에서 세 번째 진화 12종 중 하나 완성</div>
       <div class="modal-buttons"><button class="modal-primary" id="tutorial-review-close" type="button">확인</button></div>`);
     qs('tutorial-review-close').addEventListener('click',closeModal);
   }
@@ -1853,13 +1967,16 @@ function toast(message) {
     const error=message=>{if(errors.length<10)errors.push(message);};
     if(!raw || typeof raw!=='object' || Array.isArray(raw) || raw.schemaVersion!==1)
       return ['지원하지 않는 저장 스키마입니다.'];
-    if(!isCount(raw.level,20)||raw.level<1 || !isCount(raw.exp) || !isStats(raw.stats))error('현재 개미의 레벨·경험치·능력치가 잘못됐습니다.');
+    if(!isCount(raw.level,B.maxLevel)||raw.level<1 || !isCount(raw.exp) || !isStats(raw.stats))error('현재 개미의 레벨·경험치·능력치가 잘못됐습니다.');
     for(const name of ['carrotCount','whipCount','totalExp','eventCount'])
       if(raw[name]!==undefined&&!isCount(raw[name],100000000))error(`행동 기록 ${name}이 올바르지 않습니다.`);
     if(typeof raw.finished!=='boolean')error('현재 개미 완료 상태가 잘못됐습니다.');
-    if(raw.phase!==undefined && !['phase1','phase2','completed','legacyComplete'].includes(raw.phase))error('진화 단계가 잘못됐습니다.');
+    if(raw.phase!==undefined && !['phase1','phase2','phase3','completed','legacyComplete'].includes(raw.phase))error('진화 단계가 잘못됐습니다.');
     if(raw.evolution!==null && raw.evolution!==undefined && !validFirst(raw.evolution))error('알 수 없는 1차 진화 유형입니다.');
     if(raw.secondEvolution && !validSecond(raw.secondEvolution,raw.evolution))error('2차 진화 정보가 잘못됐습니다.');
+    if(raw.thirdEvolution && (raw.level!==30 || !raw.finished || !validThird(raw.thirdEvolution,raw.secondEvolution)))error('3차 진화 계보가 잘못됐습니다.');
+    if(raw.level>=30 && !raw.thirdEvolution)error('LV.30에는 3차 진화 결과가 필요합니다.');
+    for(const counts of [raw.stage2Counters,raw.stage3Counters])if(counts && (!isCount(counts.carrot)||!isCount(counts.whip)))error('진화 행동 기록이 잘못됐습니다.');
     if(raw.pendingChoice!==undefined && raw.pendingChoice!==null && (
        !B.events[raw.pendingChoice.eventId]?.choices ||
        !['carrot','whip'].includes(raw.pendingChoice.action) ||
@@ -1871,12 +1988,15 @@ function toast(message) {
     for(const rec of records){
       if(!rec || typeof rec.id!=='string' || !rec.id || rec.id.length>96 || ids.has(rec.id) ||
          !validFirst(rec.type) || !isStats(rec.stats) ||
-         (rec.level!==undefined && rec.level!==10 && rec.level!==20) ||
+         (rec.level!==undefined && rec.level!==10 && rec.level!==20 && rec.level!==30) ||
          (rec.secondEvolution && !validSecond(rec.secondEvolution,rec.type)) ||
+         (rec.thirdEvolution && (rec.level!==30 || !validThird(rec.thirdEvolution,rec.secondEvolution))) ||
+         (rec.level===30 && !validThird(rec.thirdEvolution,rec.secondEvolution)) ||
          (rec.carrotCount!==undefined&&!isCount(rec.carrotCount,100000000)) ||
          (rec.whipCount!==undefined&&!isCount(rec.whipCount,100000000))){
         error('완료 개미 기록이 중복되었거나 잘못됐습니다.');break;
       }
+      if(rec.legacyLevel20 && (rec.legacyLevel20.level!==20 || !validFirst(rec.legacyLevel20.type) || !validSecond(rec.legacyLevel20.secondEvolution,rec.legacyLevel20.type) || !isCount(rec.legacyLevel20.carrotCount) || !isCount(rec.legacyLevel20.whipCount)))error('보존된 LV.20 기록이 잘못됐습니다.');
       ids.add(rec.id);
     }
     if(raw.expedition!==undefined){
@@ -1893,6 +2013,8 @@ function toast(message) {
       if(ex.discoveries!==undefined && (!Array.isArray(ex.discoveries)||
         new Set(ex.discoveries).size!==ex.discoveries.length || ex.discoveries.some(id=>!RARE_IDS.has(id))))
         error('희귀 발견물 기록이 올바르지 않습니다.');
+      if(ex.passiveRecordId && !records.some(r=>r.id===ex.passiveRecordId && validThird(r.thirdEvolution,r.secondEvolution)))error('원정 대표 개미가 잘못됐습니다.');
+      if(ex.bonusRemainders && (typeof ex.bonusRemainders!=='object' || Object.entries(ex.bonusRemainders).some(([key,v])=>!Object.keys(THIRD_TYPES).some(t=>RESOURCE_IDS.some(r=>key===t+':'+r)) || !Number.isInteger(v)||v<0||v>=100)))error('패시브 소수 누적값이 잘못됐습니다.');
       if(ex.ticketRuleVersion!==undefined && ex.ticketRuleVersion!==2)error('원정권 지급 규칙 버전이 올바르지 않습니다.');
     }
     if(raw.weekly!==undefined && (!raw.weekly||typeof raw.weekly.key!=='string'||
@@ -1907,6 +2029,7 @@ function toast(message) {
          !raw.decor.equipped || ['floor','wall','light'].some(slot=>raw.decor.equipped[slot] &&
            !ALL_DECOR.some(d=>d.id===raw.decor.equipped[slot] && d.slot===slot)))
         error('장식 해금·배치 데이터가 잘못됐습니다.');
+      if(raw.decor?.equipped?.extra && (!records.some(r=>r.thirdEvolution==='grand_architect') || !raw.decor.unlocked.includes(raw.decor.equipped.extra) || !ALL_DECOR.some(d=>d.id===raw.decor.equipped.extra) || ['floor','wall','light'].some(s=>raw.decor.equipped[s]===raw.decor.equipped.extra)))error('추가 장식 슬롯 배치가 잘못됐습니다.');
     }
     if(raw.settings?.autoCare){
       const ac=raw.settings.autoCare;
@@ -2077,6 +2200,15 @@ function toast(message) {
   }
 
   function bindEvents() {
+    qs('resume-level20').addEventListener('click',resumeLevel20);
+    qs('passive-leader').addEventListener('change',e=>{
+      const id=e.target.value;
+      applyKingdomTransaction(draft=>{if(id && !draft.records.some(r=>r.id===id && validThird(r.thirdEvolution,r.secondEvolution)))return false;draft.expedition.passiveRecordId=id||null;return true;});
+    });
+    qs('extra-decoration').addEventListener('change',e=>{
+      const id=e.target.value;
+      applyKingdomTransaction(draft=>{if(!hasExtraSlot(draft) || (id && (!draft.decor.unlocked.includes(id) || ['floor','wall','light'].some(s=>draft.decor.equipped[s]===id))))return false;draft.decor.equipped.extra=id||null;return true;});
+    });
     qs('carrot-button').addEventListener('click',()=>{stopAuto();playAction('carrot');});
     qs('whip-button').addEventListener('click',()=>{stopAuto();playAction('whip');});
     qs('auto-toggle').addEventListener('click',toggleAutoCare);

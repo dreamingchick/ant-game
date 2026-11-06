@@ -1,0 +1,3838 @@
+{
+  "baselineCommit": "997f5105f2cc2b213b07acd09fd1bca6cefbe39a",
+  "confirmation": {
+    "version": "1.1.0",
+    "runsPerCondition": 100,
+    "totalRuns": 12600,
+    "changesAppliedToGame": false,
+    "method": "Actual production engine. 20->30, paired independent event/action RNG, fixed ratio per shuffled ten-action block. Default stats 60/20/10, first event option. Counterfactuals restore every config. State-aware choices maximize efficiency minus 40 for danger or 15 for warning; ties use first option. Held-out seeds add 10000. Direct-stat benefit counts detect a nonzero immediate clamped delta in the action phase for four stat passives; they exclude later event effects, EXP and event-amplifier passives (null).",
+    "variants": {
+      "no_passives": {
+        "options": {
+          "first": false,
+          "second": false
+        },
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 0.0,
+            "within10Percent": true
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 0.0,
+            "within10Percent": true
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 0.0,
+            "within10Percent": true
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 446.0,
+            "meanActions": 445.56,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.73,
+              "laziness": 71.78
+            },
+            "meanEvents": 104.45,
+            "meanPassiveOpportunities": 267.23,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.0,
+            "meanActions": 416.98,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.13,
+              "laziness": 50.81
+            },
+            "meanEvents": 71.69,
+            "meanPassiveOpportunities": 208.42,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 415.22,
+            "meanStats": {
+              "motivation": 89.65,
+              "stress": 69.38,
+              "laziness": 33.74
+            },
+            "meanEvents": 94.11,
+            "meanPassiveOpportunities": 166,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 446.0,
+            "meanActions": 445.56,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.73,
+              "laziness": 71.78
+            },
+            "meanEvents": 104.45,
+            "meanPassiveOpportunities": 267.23,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.0,
+            "meanActions": 416.98,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.13,
+              "laziness": 50.81
+            },
+            "meanEvents": 71.69,
+            "meanPassiveOpportunities": 208.42,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 415.22,
+            "meanStats": {
+              "motivation": 89.65,
+              "stress": 69.38,
+              "laziness": 33.74
+            },
+            "meanEvents": 94.11,
+            "meanPassiveOpportunities": 166,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 446.0,
+            "meanActions": 445.56,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.73,
+              "laziness": 71.78
+            },
+            "meanEvents": 104.45,
+            "meanPassiveOpportunities": 17.97,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.0,
+            "meanActions": 416.98,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.13,
+              "laziness": 50.81
+            },
+            "meanEvents": 71.69,
+            "meanPassiveOpportunities": 20.02,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 415.22,
+            "meanStats": {
+              "motivation": 89.65,
+              "stress": 69.38,
+              "laziness": 33.74
+            },
+            "meanEvents": 94.11,
+            "meanPassiveOpportunities": 17.55,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 446.0,
+            "meanActions": 445.56,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.73,
+              "laziness": 71.78
+            },
+            "meanEvents": 104.45,
+            "meanPassiveOpportunities": 178.33,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.0,
+            "meanActions": 416.98,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.13,
+              "laziness": 50.81
+            },
+            "meanEvents": 71.69,
+            "meanPassiveOpportunities": 208.56,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 415.22,
+            "meanStats": {
+              "motivation": 89.65,
+              "stress": 69.38,
+              "laziness": 33.74
+            },
+            "meanEvents": 94.11,
+            "meanPassiveOpportunities": 249.22,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 446.0,
+            "meanActions": 445.56,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.73,
+              "laziness": 71.78
+            },
+            "meanEvents": 104.45,
+            "meanPassiveOpportunities": 178.33,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.0,
+            "meanActions": 416.98,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.13,
+              "laziness": 50.81
+            },
+            "meanEvents": 71.69,
+            "meanPassiveOpportunities": 208.56,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 415.22,
+            "meanStats": {
+              "motivation": 89.65,
+              "stress": 69.38,
+              "laziness": 33.74
+            },
+            "meanEvents": 94.11,
+            "meanPassiveOpportunities": 249.22,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 446.0,
+            "meanActions": 445.56,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.73,
+              "laziness": 71.78
+            },
+            "meanEvents": 104.45,
+            "meanPassiveOpportunities": 178.33,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.0,
+            "meanActions": 416.98,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.13,
+              "laziness": 50.81
+            },
+            "meanEvents": 71.69,
+            "meanPassiveOpportunities": 208.56,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 415.22,
+            "meanStats": {
+              "motivation": 89.65,
+              "stress": 69.38,
+              "laziness": 33.74
+            },
+            "meanEvents": 94.11,
+            "meanPassiveOpportunities": 249.22,
+            "meanDirectStatBenefitActions": 0
+          }
+        ]
+      },
+      "first_only": {
+        "options": {
+          "second": false
+        },
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 11.0,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 21.75,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 26.56,
+            "within10Percent": false
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 424.0,
+            "meanActions": 423.49,
+            "meanStats": {
+              "motivation": 95.16,
+              "stress": 12.81,
+              "laziness": 71.07
+            },
+            "meanEvents": 96.65,
+            "meanPassiveOpportunities": 253.92,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 342.36,
+            "meanStats": {
+              "motivation": 94.26,
+              "stress": 26.2,
+              "laziness": 46.18
+            },
+            "meanEvents": 46.12,
+            "meanPassiveOpportunities": 171.21,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 327.5,
+            "meanActions": 329.2,
+            "meanStats": {
+              "motivation": 90.74,
+              "stress": 54.5,
+              "laziness": 19.35
+            },
+            "meanEvents": 54.29,
+            "meanPassiveOpportunities": 131.77,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 424.0,
+            "meanActions": 423.49,
+            "meanStats": {
+              "motivation": 95.16,
+              "stress": 12.81,
+              "laziness": 71.07
+            },
+            "meanEvents": 96.65,
+            "meanPassiveOpportunities": 253.92,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 342.36,
+            "meanStats": {
+              "motivation": 94.26,
+              "stress": 26.2,
+              "laziness": 46.18
+            },
+            "meanEvents": 46.12,
+            "meanPassiveOpportunities": 171.21,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 327.5,
+            "meanActions": 329.2,
+            "meanStats": {
+              "motivation": 90.74,
+              "stress": 54.5,
+              "laziness": 19.35
+            },
+            "meanEvents": 54.29,
+            "meanPassiveOpportunities": 131.77,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 444.0,
+            "meanActions": 444.32,
+            "meanStats": {
+              "motivation": 95.12,
+              "stress": 21.65,
+              "laziness": 71.69
+            },
+            "meanEvents": 103.87,
+            "meanPassiveOpportunities": 18,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 417.0,
+            "meanActions": 416.69,
+            "meanStats": {
+              "motivation": 93.92,
+              "stress": 49.0,
+              "laziness": 50.83
+            },
+            "meanEvents": 71.96,
+            "meanPassiveOpportunities": 20.26,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.5,
+            "meanActions": 414.7,
+            "meanStats": {
+              "motivation": 89.64,
+              "stress": 69.22,
+              "laziness": 34.16
+            },
+            "meanEvents": 93.66,
+            "meanPassiveOpportunities": 17.55,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 444.0,
+            "meanActions": 444.32,
+            "meanStats": {
+              "motivation": 95.12,
+              "stress": 21.65,
+              "laziness": 71.69
+            },
+            "meanEvents": 103.87,
+            "meanPassiveOpportunities": 177.85,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 417.0,
+            "meanActions": 416.69,
+            "meanStats": {
+              "motivation": 93.92,
+              "stress": 49.0,
+              "laziness": 50.83
+            },
+            "meanEvents": 71.96,
+            "meanPassiveOpportunities": 208.4,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 414.5,
+            "meanActions": 414.7,
+            "meanStats": {
+              "motivation": 89.64,
+              "stress": 69.22,
+              "laziness": 34.16
+            },
+            "meanEvents": 93.66,
+            "meanPassiveOpportunities": 248.83,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 400.0,
+            "meanActions": 398.68,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.8,
+              "laziness": 71.19
+            },
+            "meanEvents": 92.36,
+            "meanPassiveOpportunities": 159.59,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 368.5,
+            "meanActions": 368.79,
+            "meanStats": {
+              "motivation": 93.91,
+              "stress": 49.1,
+              "laziness": 50.17
+            },
+            "meanEvents": 63.35,
+            "meanPassiveOpportunities": 184.6,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 365.5,
+            "meanActions": 366.99,
+            "meanStats": {
+              "motivation": 89.61,
+              "stress": 69.22,
+              "laziness": 33.38
+            },
+            "meanEvents": 82.83,
+            "meanPassiveOpportunities": 220.17,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 400.0,
+            "meanActions": 398.68,
+            "meanStats": {
+              "motivation": 95.1,
+              "stress": 21.8,
+              "laziness": 71.19
+            },
+            "meanEvents": 92.36,
+            "meanPassiveOpportunities": 159.59,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 368.5,
+            "meanActions": 368.79,
+            "meanStats": {
+              "motivation": 93.91,
+              "stress": 49.1,
+              "laziness": 50.17
+            },
+            "meanEvents": 63.35,
+            "meanPassiveOpportunities": 184.6,
+            "meanDirectStatBenefitActions": 0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 365.5,
+            "meanActions": 366.99,
+            "meanStats": {
+              "motivation": 89.61,
+              "stress": 69.22,
+              "laziness": 33.38
+            },
+            "meanEvents": 82.83,
+            "meanPassiveOpportunities": 220.17,
+            "meanDirectStatBenefitActions": 0
+          }
+        ]
+      },
+      "approved_current": {
+        "options": {},
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 27.22,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 47.7,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 34.91,
+            "within10Percent": false
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 424.0,
+            "meanActions": 423.15,
+            "meanStats": {
+              "motivation": 95.3,
+              "stress": 12.81,
+              "laziness": 71.06
+            },
+            "meanEvents": 96.56,
+            "meanPassiveOpportunities": 253.68,
+            "meanDirectStatBenefitActions": 16.36
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 342.04,
+            "meanStats": {
+              "motivation": 94.45,
+              "stress": 26.2,
+              "laziness": 46.17
+            },
+            "meanEvents": 46.05,
+            "meanPassiveOpportunities": 171.03,
+            "meanDirectStatBenefitActions": 15.52
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 326.5,
+            "meanActions": 327.75,
+            "meanStats": {
+              "motivation": 91.32,
+              "stress": 54.51,
+              "laziness": 19.35
+            },
+            "meanEvents": 54.04,
+            "meanPassiveOpportunities": 131.15,
+            "meanDirectStatBenefitActions": 29.87
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 349.0,
+            "meanActions": 346.39,
+            "meanStats": {
+              "motivation": 96.29,
+              "stress": 13.27,
+              "laziness": 36.61
+            },
+            "meanEvents": 41.3,
+            "meanPassiveOpportunities": 207.6,
+            "meanDirectStatBenefitActions": 207.37
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 282.0,
+            "meanActions": 283.3,
+            "meanStats": {
+              "motivation": 94.55,
+              "stress": 26.51,
+              "laziness": 8.85
+            },
+            "meanEvents": 35.68,
+            "meanPassiveOpportunities": 141.5,
+            "meanDirectStatBenefitActions": 141.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 306.5,
+            "meanActions": 307.18,
+            "meanStats": {
+              "motivation": 90.78,
+              "stress": 54.42,
+              "laziness": 8.03
+            },
+            "meanEvents": 50.53,
+            "meanPassiveOpportunities": 122.83,
+            "meanDirectStatBenefitActions": 122.83
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 444.0,
+            "meanActions": 443.89,
+            "meanStats": {
+              "motivation": 95.13,
+              "stress": 21.65,
+              "laziness": 71.69
+            },
+            "meanEvents": 103.74,
+            "meanPassiveOpportunities": 17.98,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 416.5,
+            "meanActions": 416.28,
+            "meanStats": {
+              "motivation": 93.94,
+              "stress": 49.0,
+              "laziness": 50.82
+            },
+            "meanEvents": 71.9,
+            "meanPassiveOpportunities": 20.24,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 413.5,
+            "meanActions": 414.07,
+            "meanStats": {
+              "motivation": 89.67,
+              "stress": 69.22,
+              "laziness": 34.15
+            },
+            "meanEvents": 93.55,
+            "meanPassiveOpportunities": 17.51,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 397.0,
+            "meanActions": 396.34,
+            "meanStats": {
+              "motivation": 95.95,
+              "stress": 23.5,
+              "laziness": 52.07
+            },
+            "meanEvents": 58.35,
+            "meanPassiveOpportunities": 158.68,
+            "meanDirectStatBenefitActions": 158.15
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 345.0,
+            "meanActions": 346.3,
+            "meanStats": {
+              "motivation": 94.27,
+              "stress": 49.83,
+              "laziness": 18.26
+            },
+            "meanEvents": 49.84,
+            "meanPassiveOpportunities": 173.26,
+            "meanDirectStatBenefitActions": 145.88
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 365.5,
+            "meanActions": 365.4,
+            "meanStats": {
+              "motivation": 89.67,
+              "stress": 69.25,
+              "laziness": 12.6
+            },
+            "meanEvents": 80.58,
+            "meanPassiveOpportunities": 219.21,
+            "meanDirectStatBenefitActions": 145.23
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 379.0,
+            "meanActions": 379.38,
+            "meanStats": {
+              "motivation": 95.11,
+              "stress": 21.81,
+              "laziness": 70.91
+            },
+            "meanEvents": 87.41,
+            "meanPassiveOpportunities": 151.84,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 347.5,
+            "meanActions": 347.97,
+            "meanStats": {
+              "motivation": 93.89,
+              "stress": 48.98,
+              "laziness": 49.83
+            },
+            "meanEvents": 59.46,
+            "meanPassiveOpportunities": 174.03,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 343.0,
+            "meanActions": 343.26,
+            "meanStats": {
+              "motivation": 89.62,
+              "stress": 69.15,
+              "laziness": 33.12
+            },
+            "meanEvents": 77.72,
+            "meanPassiveOpportunities": 205.89,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 386.0,
+            "meanActions": 384.57,
+            "meanStats": {
+              "motivation": 95.15,
+              "stress": 15.56,
+              "laziness": 70.51
+            },
+            "meanEvents": 86.92,
+            "meanPassiveOpportunities": 153.98,
+            "meanDirectStatBenefitActions": 153.98
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 342.99,
+            "meanStats": {
+              "motivation": 94.2,
+              "stress": 42.01,
+              "laziness": 47.34
+            },
+            "meanEvents": 49.56,
+            "meanPassiveOpportunities": 171.55,
+            "meanDirectStatBenefitActions": 171.05
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 329.0,
+            "meanActions": 330.09,
+            "meanStats": {
+              "motivation": 90.16,
+              "stress": 62.77,
+              "laziness": 26.51
+            },
+            "meanEvents": 63.86,
+            "meanPassiveOpportunities": 198.06,
+            "meanDirectStatBenefitActions": 183.1
+          }
+        ]
+      },
+      "state_aware_choices": {
+        "options": {
+          "choicePolicy": "state"
+        },
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 31.16,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 46.26,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 33.77,
+            "within10Percent": false
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 402.0,
+            "meanActions": 403.92,
+            "meanStats": {
+              "motivation": 95.56,
+              "stress": 13.96,
+              "laziness": 63.0
+            },
+            "meanEvents": 77.26,
+            "meanPassiveOpportunities": 242.19,
+            "meanDirectStatBenefitActions": 13.48
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 332.0,
+            "meanActions": 331.82,
+            "meanStats": {
+              "motivation": 94.52,
+              "stress": 27.54,
+              "laziness": 39.68
+            },
+            "meanEvents": 40.94,
+            "meanPassiveOpportunities": 165.8,
+            "meanDirectStatBenefitActions": 14.48
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 323.0,
+            "meanActions": 324.38,
+            "meanStats": {
+              "motivation": 91.29,
+              "stress": 54.54,
+              "laziness": 17.6
+            },
+            "meanEvents": 53.14,
+            "meanPassiveOpportunities": 129.7,
+            "meanDirectStatBenefitActions": 29.75
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 329.0,
+            "meanActions": 328.97,
+            "meanStats": {
+              "motivation": 96.29,
+              "stress": 13.47,
+              "laziness": 24.52
+            },
+            "meanEvents": 38.81,
+            "meanPassiveOpportunities": 197.2,
+            "meanDirectStatBenefitActions": 197.2
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 281.0,
+            "meanActions": 281.98,
+            "meanStats": {
+              "motivation": 94.44,
+              "stress": 26.5,
+              "laziness": 7.72
+            },
+            "meanEvents": 35.51,
+            "meanPassiveOpportunities": 140.84,
+            "meanDirectStatBenefitActions": 140.84
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 306.5,
+            "meanActions": 306.55,
+            "meanStats": {
+              "motivation": 90.71,
+              "stress": 54.38,
+              "laziness": 7.67
+            },
+            "meanEvents": 50.29,
+            "meanPassiveOpportunities": 122.56,
+            "meanDirectStatBenefitActions": 122.56
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 431.5,
+            "meanActions": 431.44,
+            "meanStats": {
+              "motivation": 95.43,
+              "stress": 25.32,
+              "laziness": 63.92
+            },
+            "meanEvents": 83.62,
+            "meanPassiveOpportunities": 20.15,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 411.0,
+            "meanActions": 410.68,
+            "meanStats": {
+              "motivation": 93.96,
+              "stress": 51.01,
+              "laziness": 46.91
+            },
+            "meanEvents": 67.46,
+            "meanPassiveOpportunities": 20.2,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 410.0,
+            "meanActions": 409.45,
+            "meanStats": {
+              "motivation": 89.66,
+              "stress": 69.64,
+              "laziness": 31.7
+            },
+            "meanEvents": 91.54,
+            "meanPassiveOpportunities": 17.08,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 387.0,
+            "meanActions": 385.15,
+            "meanStats": {
+              "motivation": 96.09,
+              "stress": 25.78,
+              "laziness": 45.22
+            },
+            "meanEvents": 48.87,
+            "meanPassiveOpportunities": 154.2,
+            "meanDirectStatBenefitActions": 153.24
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 341.5,
+            "meanActions": 342.31,
+            "meanStats": {
+              "motivation": 94.21,
+              "stress": 49.84,
+              "laziness": 16.07
+            },
+            "meanEvents": 49.09,
+            "meanPassiveOpportunities": 171.21,
+            "meanDirectStatBenefitActions": 137.28
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 365.0,
+            "meanActions": 364.71,
+            "meanStats": {
+              "motivation": 89.61,
+              "stress": 69.26,
+              "laziness": 12.22
+            },
+            "meanEvents": 80.5,
+            "meanPassiveOpportunities": 218.81,
+            "meanDirectStatBenefitActions": 141.77
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 367.0,
+            "meanActions": 368.17,
+            "meanStats": {
+              "motivation": 95.41,
+              "stress": 25.62,
+              "laziness": 62.89
+            },
+            "meanEvents": 70.7,
+            "meanPassiveOpportunities": 147.46,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 344.0,
+            "meanActions": 344.57,
+            "meanStats": {
+              "motivation": 93.88,
+              "stress": 50.74,
+              "laziness": 46.55
+            },
+            "meanEvents": 56.32,
+            "meanPassiveOpportunities": 172.34,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 341.5,
+            "meanActions": 341.12,
+            "meanStats": {
+              "motivation": 89.52,
+              "stress": 69.54,
+              "laziness": 31.31
+            },
+            "meanEvents": 77.09,
+            "meanPassiveOpportunities": 204.7,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 370.0,
+            "meanActions": 370.96,
+            "meanStats": {
+              "motivation": 95.43,
+              "stress": 17.92,
+              "laziness": 62.73
+            },
+            "meanEvents": 70.69,
+            "meanPassiveOpportunities": 148.6,
+            "meanDirectStatBenefitActions": 148.6
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 340.5,
+            "meanActions": 339.41,
+            "meanStats": {
+              "motivation": 94.18,
+              "stress": 43.87,
+              "laziness": 43.51
+            },
+            "meanEvents": 47.27,
+            "meanPassiveOpportunities": 169.84,
+            "meanDirectStatBenefitActions": 169.21
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 324.5,
+            "meanActions": 326.77,
+            "meanStats": {
+              "motivation": 90.08,
+              "stress": 63.18,
+              "laziness": 24.11
+            },
+            "meanEvents": 63.01,
+            "meanPassiveOpportunities": 196.12,
+            "meanDirectStatBenefitActions": 180.88
+          }
+        ]
+      },
+      "candidate_second_only": {
+        "options": {
+          "secondValues": {
+            "star_scholar": 0.3,
+            "meadow_explorer": -1,
+            "clockwork_inventor": -1
+          }
+        },
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 16.62,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 38.06,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 30.57,
+            "within10Percent": false
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 424.0,
+            "meanActions": 423.15,
+            "meanStats": {
+              "motivation": 95.3,
+              "stress": 12.81,
+              "laziness": 71.06
+            },
+            "meanEvents": 96.56,
+            "meanPassiveOpportunities": 253.68,
+            "meanDirectStatBenefitActions": 16.36
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 342.04,
+            "meanStats": {
+              "motivation": 94.45,
+              "stress": 26.2,
+              "laziness": 46.17
+            },
+            "meanEvents": 46.05,
+            "meanPassiveOpportunities": 171.03,
+            "meanDirectStatBenefitActions": 15.52
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 326.5,
+            "meanActions": 327.75,
+            "meanStats": {
+              "motivation": 91.32,
+              "stress": 54.51,
+              "laziness": 19.35
+            },
+            "meanEvents": 54.04,
+            "meanPassiveOpportunities": 131.15,
+            "meanDirectStatBenefitActions": 29.87
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 388.0,
+            "meanActions": 387.98,
+            "meanStats": {
+              "motivation": 95.76,
+              "stress": 13.07,
+              "laziness": 57.6
+            },
+            "meanEvents": 63.56,
+            "meanPassiveOpportunities": 232.5,
+            "meanDirectStatBenefitActions": 228.01
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 299.5,
+            "meanActions": 301.18,
+            "meanStats": {
+              "motivation": 94.54,
+              "stress": 26.55,
+              "laziness": 21.24
+            },
+            "meanEvents": 37.19,
+            "meanPassiveOpportunities": 150.52,
+            "meanDirectStatBenefitActions": 150.52
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 314.0,
+            "meanActions": 314.09,
+            "meanStats": {
+              "motivation": 90.8,
+              "stress": 54.4,
+              "laziness": 11.7
+            },
+            "meanEvents": 51.59,
+            "meanPassiveOpportunities": 125.7,
+            "meanDirectStatBenefitActions": 125.7
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 442.0,
+            "meanActions": 442.8,
+            "meanStats": {
+              "motivation": 95.14,
+              "stress": 21.49,
+              "laziness": 71.68
+            },
+            "meanEvents": 103.47,
+            "meanPassiveOpportunities": 17.94,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 413.5,
+            "meanActions": 413.3,
+            "meanStats": {
+              "motivation": 93.97,
+              "stress": 48.79,
+              "laziness": 50.51
+            },
+            "meanEvents": 70.39,
+            "meanPassiveOpportunities": 19.86,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 410.0,
+            "meanActions": 411.7,
+            "meanStats": {
+              "motivation": 89.71,
+              "stress": 69.02,
+              "laziness": 33.76
+            },
+            "meanEvents": 92.86,
+            "meanPassiveOpportunities": 17.51,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 420.0,
+            "meanActions": 419.91,
+            "meanStats": {
+              "motivation": 95.63,
+              "stress": 22.79,
+              "laziness": 61.9
+            },
+            "meanEvents": 77.38,
+            "meanPassiveOpportunities": 168.09,
+            "meanDirectStatBenefitActions": 167.69
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 378.0,
+            "meanActions": 377.14,
+            "meanStats": {
+              "motivation": 94.2,
+              "stress": 49.73,
+              "laziness": 33.74
+            },
+            "meanEvents": 56.42,
+            "meanPassiveOpportunities": 188.59,
+            "meanDirectStatBenefitActions": 182.16
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 378.0,
+            "meanActions": 379.03,
+            "meanStats": {
+              "motivation": 89.63,
+              "stress": 69.38,
+              "laziness": 18.46
+            },
+            "meanEvents": 83.68,
+            "meanPassiveOpportunities": 227.48,
+            "meanDirectStatBenefitActions": 179.12
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 379.0,
+            "meanActions": 379.38,
+            "meanStats": {
+              "motivation": 95.11,
+              "stress": 21.81,
+              "laziness": 70.91
+            },
+            "meanEvents": 87.41,
+            "meanPassiveOpportunities": 151.84,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 347.5,
+            "meanActions": 347.97,
+            "meanStats": {
+              "motivation": 93.89,
+              "stress": 48.98,
+              "laziness": 49.83
+            },
+            "meanEvents": 59.46,
+            "meanPassiveOpportunities": 174.03,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 343.0,
+            "meanActions": 343.26,
+            "meanStats": {
+              "motivation": 89.62,
+              "stress": 69.15,
+              "laziness": 33.12
+            },
+            "meanEvents": 77.72,
+            "meanPassiveOpportunities": 205.89,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 386.0,
+            "meanActions": 384.57,
+            "meanStats": {
+              "motivation": 95.15,
+              "stress": 15.56,
+              "laziness": 70.51
+            },
+            "meanEvents": 86.92,
+            "meanPassiveOpportunities": 153.98,
+            "meanDirectStatBenefitActions": 153.98
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 342.99,
+            "meanStats": {
+              "motivation": 94.2,
+              "stress": 42.01,
+              "laziness": 47.34
+            },
+            "meanEvents": 49.56,
+            "meanPassiveOpportunities": 171.55,
+            "meanDirectStatBenefitActions": 171.05
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 329.0,
+            "meanActions": 330.09,
+            "meanStats": {
+              "motivation": 90.16,
+              "stress": 62.77,
+              "laziness": 26.51
+            },
+            "meanEvents": 63.86,
+            "meanPassiveOpportunities": 198.06,
+            "meanDirectStatBenefitActions": 183.1
+          }
+        ]
+      },
+      "held_out_seeds": {
+        "options": {
+          "seedOffset": 10000
+        },
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 29.3,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 46.81,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 33.82,
+            "within10Percent": false
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 423.0,
+            "meanActions": 421.96,
+            "meanStats": {
+              "motivation": 95.3,
+              "stress": 12.66,
+              "laziness": 71.07
+            },
+            "meanEvents": 95.49,
+            "meanPassiveOpportunities": 253.06,
+            "meanDirectStatBenefitActions": 16.19
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 339.0,
+            "meanActions": 338.72,
+            "meanStats": {
+              "motivation": 94.55,
+              "stress": 26.45,
+              "laziness": 44.52
+            },
+            "meanEvents": 42.74,
+            "meanPassiveOpportunities": 169.32,
+            "meanDirectStatBenefitActions": 14.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 327.0,
+            "meanActions": 327.86,
+            "meanStats": {
+              "motivation": 91.41,
+              "stress": 54.64,
+              "laziness": 19.67
+            },
+            "meanEvents": 52.65,
+            "meanPassiveOpportunities": 131.04,
+            "meanDirectStatBenefitActions": 29.27
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 343.0,
+            "meanActions": 342.67,
+            "meanStats": {
+              "motivation": 96.36,
+              "stress": 13.28,
+              "laziness": 34.4
+            },
+            "meanEvents": 39.37,
+            "meanPassiveOpportunities": 205.32,
+            "meanDirectStatBenefitActions": 205.15
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 282.0,
+            "meanActions": 282.5,
+            "meanStats": {
+              "motivation": 94.68,
+              "stress": 26.71,
+              "laziness": 8.39
+            },
+            "meanEvents": 33.69,
+            "meanPassiveOpportunities": 141.12,
+            "meanDirectStatBenefitActions": 141.12
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 306.0,
+            "meanActions": 306.5,
+            "meanStats": {
+              "motivation": 90.9,
+              "stress": 54.57,
+              "laziness": 7.88
+            },
+            "meanEvents": 48.76,
+            "meanPassiveOpportunities": 122.53,
+            "meanDirectStatBenefitActions": 122.53
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 443.5,
+            "meanActions": 442.82,
+            "meanStats": {
+              "motivation": 95.17,
+              "stress": 21.8,
+              "laziness": 71.41
+            },
+            "meanEvents": 101.44,
+            "meanPassiveOpportunities": 16.82,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 414.0,
+            "meanActions": 414.6,
+            "meanStats": {
+              "motivation": 93.98,
+              "stress": 49.23,
+              "laziness": 50.4
+            },
+            "meanEvents": 69.22,
+            "meanPassiveOpportunities": 19.04,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 409.5,
+            "meanActions": 409.75,
+            "meanStats": {
+              "motivation": 89.79,
+              "stress": 69.76,
+              "laziness": 31.59
+            },
+            "meanEvents": 88.69,
+            "meanPassiveOpportunities": 15.43,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 392.0,
+            "meanActions": 394.05,
+            "meanStats": {
+              "motivation": 96.03,
+              "stress": 23.68,
+              "laziness": 51.36
+            },
+            "meanEvents": 55.34,
+            "meanPassiveOpportunities": 157.76,
+            "meanDirectStatBenefitActions": 156.83
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 344.0,
+            "meanActions": 345.03,
+            "meanStats": {
+              "motivation": 94.36,
+              "stress": 49.83,
+              "laziness": 17.93
+            },
+            "meanEvents": 47.78,
+            "meanPassiveOpportunities": 172.65,
+            "meanDirectStatBenefitActions": 144.39
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 364.0,
+            "meanActions": 364.55,
+            "meanStats": {
+              "motivation": 89.78,
+              "stress": 69.91,
+              "laziness": 11.66
+            },
+            "meanEvents": 77,
+            "meanPassiveOpportunities": 218.86,
+            "meanDirectStatBenefitActions": 139.59
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 380.5,
+            "meanActions": 378.6,
+            "meanStats": {
+              "motivation": 95.14,
+              "stress": 21.83,
+              "laziness": 70.94
+            },
+            "meanEvents": 86.34,
+            "meanPassiveOpportunities": 151.53,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 348.5,
+            "meanActions": 347.46,
+            "meanStats": {
+              "motivation": 93.86,
+              "stress": 49.26,
+              "laziness": 49.29
+            },
+            "meanEvents": 58.21,
+            "meanPassiveOpportunities": 173.8,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 342.0,
+            "meanActions": 340.89,
+            "meanStats": {
+              "motivation": 89.61,
+              "stress": 69.59,
+              "laziness": 31.15
+            },
+            "meanEvents": 74.43,
+            "meanPassiveOpportunities": 204.58,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 386.5,
+            "meanActions": 384.56,
+            "meanStats": {
+              "motivation": 95.11,
+              "stress": 15.47,
+              "laziness": 70.88
+            },
+            "meanEvents": 87.23,
+            "meanPassiveOpportunities": 153.98,
+            "meanDirectStatBenefitActions": 153.98
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 342.5,
+            "meanActions": 341.71,
+            "meanStats": {
+              "motivation": 94.18,
+              "stress": 42.29,
+              "laziness": 46.52
+            },
+            "meanEvents": 48.1,
+            "meanPassiveOpportunities": 170.93,
+            "meanDirectStatBenefitActions": 170.36
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 325.5,
+            "meanActions": 326.12,
+            "meanStats": {
+              "motivation": 90.3,
+              "stress": 63.22,
+              "laziness": 24.43
+            },
+            "meanEvents": 61.18,
+            "meanPassiveOpportunities": 195.67,
+            "meanDirectStatBenefitActions": 181.52
+          }
+        ]
+      },
+      "stressed_start": {
+        "options": {
+          "stats": {
+            "motivation": 40,
+            "stress": 60,
+            "laziness": 60
+          }
+        },
+        "strategies": [
+          {
+            "whipRatio": 0.4,
+            "medianSpreadPercent": 23.24,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.5,
+            "medianSpreadPercent": 46.6,
+            "within10Percent": false
+          },
+          {
+            "whipRatio": 0.6,
+            "medianSpreadPercent": 35.53,
+            "within10Percent": false
+          }
+        ],
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 433.0,
+            "meanActions": 433.32,
+            "meanStats": {
+              "motivation": 94.85,
+              "stress": 13.21,
+              "laziness": 74.7
+            },
+            "meanEvents": 104.62,
+            "meanPassiveOpportunities": 259.81,
+            "meanDirectStatBenefitActions": 19.73
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 356.0,
+            "meanActions": 357.14,
+            "meanStats": {
+              "motivation": 93.87,
+              "stress": 27.17,
+              "laziness": 52.44
+            },
+            "meanEvents": 49.19,
+            "meanPassiveOpportunities": 178.52,
+            "meanDirectStatBenefitActions": 18.49
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 346.0,
+            "meanActions": 345.32,
+            "meanStats": {
+              "motivation": 90.35,
+              "stress": 55.48,
+              "laziness": 26.44
+            },
+            "meanEvents": 58.57,
+            "meanPassiveOpportunities": 138.14,
+            "meanDirectStatBenefitActions": 34.18
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 370.0,
+            "meanActions": 370.18,
+            "meanStats": {
+              "motivation": 95.69,
+              "stress": 13.76,
+              "laziness": 49.5
+            },
+            "meanEvents": 47.31,
+            "meanPassiveOpportunities": 221.81,
+            "meanDirectStatBenefitActions": 221.12
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 294.0,
+            "meanActions": 295.55,
+            "meanStats": {
+              "motivation": 93.74,
+              "stress": 27.58,
+              "laziness": 16.02
+            },
+            "meanEvents": 37.58,
+            "meanPassiveOpportunities": 147.72,
+            "meanDirectStatBenefitActions": 147.72
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 318.0,
+            "meanActions": 318.2,
+            "meanStats": {
+              "motivation": 89.43,
+              "stress": 55.46,
+              "laziness": 12.25
+            },
+            "meanEvents": 53.83,
+            "meanPassiveOpportunities": 127.19,
+            "meanDirectStatBenefitActions": 127.19
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 456.0,
+            "meanActions": 455.7,
+            "meanStats": {
+              "motivation": 94.64,
+              "stress": 22.29,
+              "laziness": 74.92
+            },
+            "meanEvents": 112.03,
+            "meanPassiveOpportunities": 17.22,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 431.0,
+            "meanActions": 432.86,
+            "meanStats": {
+              "motivation": 93.2,
+              "stress": 49.45,
+              "laziness": 55.84
+            },
+            "meanEvents": 79,
+            "meanPassiveOpportunities": 20.04,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 431.0,
+            "meanActions": 429.56,
+            "meanStats": {
+              "motivation": 88.66,
+              "stress": 69.99,
+              "laziness": 38.34
+            },
+            "meanEvents": 97.85,
+            "meanPassiveOpportunities": 17.58,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 410.5,
+            "meanActions": 409.57,
+            "meanStats": {
+              "motivation": 95.48,
+              "stress": 24.36,
+              "laziness": 57.12
+            },
+            "meanEvents": 63.5,
+            "meanPassiveOpportunities": 164,
+            "meanDirectStatBenefitActions": 164
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 359.0,
+            "meanActions": 359.94,
+            "meanStats": {
+              "motivation": 93.6,
+              "stress": 50.56,
+              "laziness": 24.02
+            },
+            "meanEvents": 53.65,
+            "meanPassiveOpportunities": 180.1,
+            "meanDirectStatBenefitActions": 160.75
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 374.0,
+            "meanActions": 374.55,
+            "meanStats": {
+              "motivation": 88.66,
+              "stress": 70.17,
+              "laziness": 15.02
+            },
+            "meanEvents": 82.33,
+            "meanPassiveOpportunities": 224.73,
+            "meanDirectStatBenefitActions": 157.71
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 393.5,
+            "meanActions": 392,
+            "meanStats": {
+              "motivation": 94.53,
+              "stress": 22.36,
+              "laziness": 75.03
+            },
+            "meanEvents": 96.67,
+            "meanPassiveOpportunities": 156.95,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 364.0,
+            "meanActions": 364.76,
+            "meanStats": {
+              "motivation": 93.03,
+              "stress": 49.75,
+              "laziness": 55.73
+            },
+            "meanEvents": 66.3,
+            "meanPassiveOpportunities": 182.49,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 361.0,
+            "meanActions": 359.23,
+            "meanStats": {
+              "motivation": 88.4,
+              "stress": 69.98,
+              "laziness": 38.93
+            },
+            "meanEvents": 82.39,
+            "meanPassiveOpportunities": 215.62,
+            "meanDirectStatBenefitActions": null
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "runs": 100,
+            "medianActions": 395.0,
+            "meanActions": 395.86,
+            "meanStats": {
+              "motivation": 94.6,
+              "stress": 16.33,
+              "laziness": 74.31
+            },
+            "meanEvents": 94.72,
+            "meanPassiveOpportunities": 158.47,
+            "meanDirectStatBenefitActions": 158.46
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "runs": 100,
+            "medianActions": 360.0,
+            "meanActions": 360.02,
+            "meanStats": {
+              "motivation": 93.4,
+              "stress": 42.63,
+              "laziness": 53.96
+            },
+            "meanEvents": 56.04,
+            "meanPassiveOpportunities": 180.09,
+            "meanDirectStatBenefitActions": 179.51
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "runs": 100,
+            "medianActions": 348.0,
+            "meanActions": 347.88,
+            "meanStats": {
+              "motivation": 88.88,
+              "stress": 63.62,
+              "laziness": 32.82
+            },
+            "meanEvents": 69.39,
+            "meanPassiveOpportunities": 208.62,
+            "meanDirectStatBenefitActions": 192.7
+          }
+        ]
+      }
+    }
+  },
+  "exploratory": {
+    "runsPerCondition": 30,
+    "trials": 17,
+    "totalRuns": 9180,
+    "efficiencyCandidates": [
+      {
+        "motivation": 0.01,
+        "stress": 0.006,
+        "laziness": 0.004,
+        "gaps": [
+          18.98,
+          28.04,
+          22.22
+        ],
+        "maxGap": 28.04,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 375.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 303.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 288.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 324.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 271.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 279.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 385.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 347.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 341.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 353.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 311.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 314.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 328.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 295.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 286.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 339.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 296.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 281.0
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.004,
+        "laziness": 0.003,
+        "gaps": [
+          18.74,
+          19.35,
+          19.31
+        ],
+        "maxGap": 19.35,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 352.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 284.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 263.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 312.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 262.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 256.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 358.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 311.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 293.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 333.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 289.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 280.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 301.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 261.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 246.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 314.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 268.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 248.0
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.002,
+        "laziness": 0.002,
+        "gaps": [
+          19.11,
+          19.32,
+          21.55
+        ],
+        "maxGap": 21.55,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 332.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 268.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 242.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 300.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 254.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 238.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 333.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 281.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 259.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 315.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 269.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 252.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 280.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 235.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 213.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 294.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 243.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 221.0
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.002,
+        "laziness": 0.004,
+        "gaps": [
+          18.23,
+          19.37,
+          20.0
+        ],
+        "maxGap": 20.0,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 365.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 283.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 249.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 316.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 257.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 241.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 366.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 302.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 273.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 337.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 276.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 256.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 310.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 253.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 227.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 328.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 261.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 230.5
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.004,
+        "laziness": 0.001,
+        "gaps": [
+          18.36,
+          18.76,
+          20.35
+        ],
+        "maxGap": 20.35,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 320.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 267.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 255.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 299.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 258.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 254.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 325.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 288.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 278.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 312.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 281.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 273.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 275.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 242.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 231.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 287.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 249.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 237.5
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.001,
+        "laziness": 0.001,
+        "gaps": [
+          16.91,
+          17.67,
+          19.6
+        ],
+        "maxGap": 19.6,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 314.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 256.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 231.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 293.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 248.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 230.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 314.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 263.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 241.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 303.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 259.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 239.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 269.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 223.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 201.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 279.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 230.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 209.0
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.006,
+        "laziness": 0.002,
+        "gaps": [
+          17.97,
+          20.68,
+          19.89
+        ],
+        "maxGap": 20.68,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 339.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 283.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 279.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 309.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 266.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 275.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 348.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 321.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 319.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 330.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 303.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 308.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 295.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 269.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 266.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 305.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 274.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 268.5
+          }
+        ]
+      },
+      {
+        "motivation": 0.01,
+        "stress": 0.008,
+        "laziness": 0.002,
+        "gaps": [
+          18.44,
+          25.32,
+          20.3
+        ],
+        "maxGap": 25.32,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 344.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 292.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 302.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 313.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 274.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 298.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 356.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 344.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 358.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 339.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 325.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 345.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 301.0
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 290.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 301.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 309.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 291.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 298.5
+          }
+        ]
+      }
+    ],
+    "secondPassiveCandidates": [
+      {
+        "star": 0.3,
+        "meadow": -1,
+        "clock": -1,
+        "gaps": [
+          17.31,
+          36.32,
+          32.75
+        ],
+        "maxGap": 36.32,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 388.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 301.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 313.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 444.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 411.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 415.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 0.3,
+        "meadow": -2,
+        "clock": -1,
+        "gaps": [
+          28.32,
+          45.74,
+          35.56
+        ],
+        "maxGap": 45.74,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 346.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 282.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 306.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 444.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 411.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 415.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 0.5,
+        "meadow": -1,
+        "clock": -1,
+        "gaps": [
+          16.91,
+          36.82,
+          32.27
+        ],
+        "maxGap": 36.82,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 388.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 301.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 313.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 442.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 412.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 414.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 0.5,
+        "meadow": -2,
+        "clock": -1,
+        "gaps": [
+          27.89,
+          46.28,
+          35.07
+        ],
+        "maxGap": 46.28,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 346.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 282.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 306.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 442.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 412.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 414.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 1,
+        "meadow": -1,
+        "clock": -1,
+        "gaps": [
+          16.38,
+          35.49,
+          30.35
+        ],
+        "maxGap": 35.49,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 388.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 301.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 313.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 440.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 408.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 408.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 1,
+        "meadow": -2,
+        "clock": -1,
+        "gaps": [
+          27.31,
+          44.86,
+          33.12
+        ],
+        "maxGap": 44.86,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 346.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 282.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 306.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 440.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 408.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 408.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 2,
+        "meadow": -1,
+        "clock": -1,
+        "gaps": [
+          15.06,
+          32.34,
+          25.88
+        ],
+        "maxGap": 32.34,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 388.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 301.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 313.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 435.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 399.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 394.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 2,
+        "meadow": -2,
+        "clock": -1,
+        "gaps": [
+          25.87,
+          41.49,
+          28.55
+        ],
+        "maxGap": 41.49,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 346.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 282.0
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 306.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 435.5
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 399.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 394.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      },
+      {
+        "star": 0.1,
+        "meadow": -1,
+        "clock": -1,
+        "gaps": [
+          17.57,
+          37.65,
+          32.59
+        ],
+        "maxGap": 37.65,
+        "results": [
+          {
+            "type": "garden_keeper",
+            "ratio": 0.4,
+            "median": 424.5
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.5,
+            "median": 337.0
+          },
+          {
+            "type": "garden_keeper",
+            "ratio": 0.6,
+            "median": 326.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.4,
+            "median": 388.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.5,
+            "median": 301.5
+          },
+          {
+            "type": "meadow_explorer",
+            "ratio": 0.6,
+            "median": 313.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.4,
+            "median": 445.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.5,
+            "median": 415.0
+          },
+          {
+            "type": "star_scholar",
+            "ratio": 0.6,
+            "median": 415.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.4,
+            "median": 421.5
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.5,
+            "median": 380.0
+          },
+          {
+            "type": "clockwork_inventor",
+            "ratio": 0.6,
+            "median": 379.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.4,
+            "median": 378.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.5,
+            "median": 347.5
+          },
+          {
+            "type": "workshop_artisan",
+            "ratio": 0.6,
+            "median": 349.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.4,
+            "median": 386.5
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.5,
+            "median": 340.0
+          },
+          {
+            "type": "steel_guardian",
+            "ratio": 0.6,
+            "median": 330.5
+          }
+        ]
+      }
+    ]
+  },
+  "adoptedGameplayChanges": false
+}

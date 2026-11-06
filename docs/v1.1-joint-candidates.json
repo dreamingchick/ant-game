@@ -1,0 +1,2940 @@
+{
+  "baselineCommit": "3602c40a8a7161ec84eee883978f17f5883d8d09",
+  "scope": "First and second passives jointly tuned; screening only, final verification uses production values and no fast mode.",
+  "firstSecondNumeric": [
+    {
+      "first": {
+        "easy": -1,
+        "genius": 1.5,
+        "diligent": 1.03
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        9.565,
+        13.928,
+        11.321
+      ],
+      "maxGap": 13.928,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 402.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 359.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 373.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 421.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 392.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 394.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 389.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 371.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -1,
+        "genius": 1.5,
+        "diligent": 1.05
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        9.975,
+        13.928,
+        17.664
+      ],
+      "maxGap": 17.664,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 402.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 359.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 373.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 401.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 372.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 377.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 367.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 351.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -1,
+        "genius": 1.5,
+        "diligent": 1.08
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.388,
+        13.928,
+        19.537
+      ],
+      "maxGap": 19.537,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 402.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 359.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 373.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 364.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 364.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 345.5
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -1,
+        "genius": 2.0,
+        "diligent": 1.03
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        9.317,
+        13.788,
+        10.149
+      ],
+      "maxGap": 13.788,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 402.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 359.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 373.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 421.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 392.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 394.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 389.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 371.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -1,
+        "genius": 2.0,
+        "diligent": 1.05
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        9.726,
+        13.788,
+        15.954
+      ],
+      "maxGap": 15.954,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 402.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 359.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 373.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 401.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 372.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 377.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 367.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 351.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -1,
+        "genius": 2.0,
+        "diligent": 1.08
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.138,
+        13.788,
+        17.8
+      ],
+      "maxGap": 17.8,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 402.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 359.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 373.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 364.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 364.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 345.5
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -2,
+        "genius": 1.5,
+        "diligent": 1.03
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.804,
+        17.698,
+        16.011
+      ],
+      "maxGap": 17.698,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 431.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 380.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 380.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 398.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 347.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 356.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 421.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 392.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 394.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 389.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 371.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -2,
+        "genius": 1.5,
+        "diligent": 1.05
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.804,
+        17.698,
+        17.664
+      ],
+      "maxGap": 17.698,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 431.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 380.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 380.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 398.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 347.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 356.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 401.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 372.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 377.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 367.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 351.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -2,
+        "genius": 1.5,
+        "diligent": 1.08
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.804,
+        17.698,
+        19.537
+      ],
+      "maxGap": 19.537,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 431.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 380.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 380.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 398.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 347.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 356.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 364.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 364.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 345.5
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -2,
+        "genius": 2.0,
+        "diligent": 1.03
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.553,
+        17.554,
+        14.326
+      ],
+      "maxGap": 17.554,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 431.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 380.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 380.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 398.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 347.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 356.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 421.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 392.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 394.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 389.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 371.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -2,
+        "genius": 2.0,
+        "diligent": 1.05
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.553,
+        17.554,
+        15.954
+      ],
+      "maxGap": 17.554,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 431.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 380.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 380.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 398.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 347.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 356.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 401.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 372.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 377.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 367.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 351.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -2,
+        "genius": 2.0,
+        "diligent": 1.08
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.553,
+        17.554,
+        17.8
+      ],
+      "maxGap": 17.8,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 431.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 380.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 380.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 398.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 347.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 356.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 364.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 364.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 345.5
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -3,
+        "genius": 1.5,
+        "diligent": 1.03
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        11.223,
+        24.127,
+        20.937
+      ],
+      "maxGap": 24.127,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 358.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 396.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 329.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 341.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 421.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 392.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 394.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 389.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 371.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -3,
+        "genius": 1.5,
+        "diligent": 1.05
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        11.223,
+        24.127,
+        20.937
+      ],
+      "maxGap": 24.127,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 358.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 396.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 329.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 341.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 401.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 372.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 377.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 367.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 351.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -3,
+        "genius": 1.5,
+        "diligent": 1.08
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        11.223,
+        24.127,
+        20.937
+      ],
+      "maxGap": 24.127,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 358.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 396.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 329.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 341.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 409.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 413.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 422.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 376.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 374.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 364.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 364.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 345.5
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -3,
+        "genius": 2.0,
+        "diligent": 1.03
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.971,
+        23.976,
+        19.18
+      ],
+      "maxGap": 23.976,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 358.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 396.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 329.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 341.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 421.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 392.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 394.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 389.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 371.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -3,
+        "genius": 2.0,
+        "diligent": 1.05
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.971,
+        23.976,
+        19.18
+      ],
+      "maxGap": 23.976,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 358.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 396.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 329.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 341.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 401.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 372.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 377.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 367.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 351.0
+        }
+      ]
+    },
+    {
+      "first": {
+        "easy": -3,
+        "genius": 2.0,
+        "diligent": 1.08
+      },
+      "second": {
+        "meadow_explorer": -1,
+        "clockwork_inventor": -1,
+        "star_scholar": 0.3
+      },
+      "gaps": [
+        10.971,
+        23.976,
+        19.18
+      ],
+      "maxGap": 23.976,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 358.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 396.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 329.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 341.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 440.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 408.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 407.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 417.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 369.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 368.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 364.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 407.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 364.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 345.5
+        }
+      ]
+    }
+  ],
+  "cadenceCandidates": [
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -1,
+          "genius": 1.5,
+          "diligent": 1.05
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 2,
+          "clockwork_inventor": 2,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.169,
+        7.33,
+        9.799
+      ],
+      "maxGap": 9.799,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 423.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 383.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 384.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 397.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 392.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 411.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 383.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 390.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 414.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 382.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 372.5
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -1,
+          "genius": 1.5,
+          "diligent": 1.05
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 3,
+          "clockwork_inventor": 3,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.169,
+        7.33,
+        9.799
+      ],
+      "maxGap": 9.799,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 427.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 388.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 388.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 433.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 401.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 411.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 383.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 390.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 414.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 382.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 372.5
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -1,
+          "genius": 1.5,
+          "diligent": 1.08
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 2,
+          "clockwork_inventor": 2,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.43,
+        8.609,
+        12.672
+      ],
+      "maxGap": 12.672,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 423.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 383.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 384.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 397.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 392.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 410.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 376.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 413.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 377.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 363.0
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -1,
+          "genius": 1.5,
+          "diligent": 1.08
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 3,
+          "clockwork_inventor": 3,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.43,
+        8.609,
+        12.672
+      ],
+      "maxGap": 12.672,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 435.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 398.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 400.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 427.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 388.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 388.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 433.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 401.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 410.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 376.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 413.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 377.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 363.0
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -2,
+          "genius": 1.5,
+          "diligent": 1.05
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 2,
+          "clockwork_inventor": 2,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.169,
+        12.792,
+        11.749
+      ],
+      "maxGap": 12.792,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 379.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 381.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 416.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 363.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 366.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 397.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 392.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 411.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 383.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 390.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 414.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 382.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 372.5
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -2,
+          "genius": 1.5,
+          "diligent": 1.05
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 3,
+          "clockwork_inventor": 3,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.169,
+        10.811,
+        10.094
+      ],
+      "maxGap": 10.811,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 379.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 381.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 422.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 370.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 371.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 433.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 401.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 411.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 383.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 390.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 414.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 382.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 372.5
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -2,
+          "genius": 1.5,
+          "diligent": 1.08
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 2,
+          "clockwork_inventor": 2,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.43,
+        12.792,
+        12.672
+      ],
+      "maxGap": 12.792,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 379.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 381.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 416.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 363.5
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 366.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 430.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 397.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 392.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 410.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 376.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 413.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 377.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 363.0
+        }
+      ]
+    },
+    {
+      "options": {
+        "fast": true,
+        "firstValues": {
+          "easy": -2,
+          "genius": 1.5,
+          "diligent": 1.08
+        },
+        "secondValues": {
+          "meadow_explorer": -1,
+          "clockwork_inventor": -1,
+          "star_scholar": 0.3,
+          "steel_guardian": -1
+        },
+        "secondEvery": {
+          "meadow_explorer": 3,
+          "clockwork_inventor": 3,
+          "workshop_artisan": 2
+        }
+      },
+      "gaps": [
+        7.43,
+        10.811,
+        12.672
+      ],
+      "maxGap": 12.672,
+      "rows": [
+        {
+          "type": "garden_keeper",
+          "ratio": 0.4,
+          "median": 429.5
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.5,
+          "median": 379.0
+        },
+        {
+          "type": "garden_keeper",
+          "ratio": 0.6,
+          "median": 381.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.4,
+          "median": 422.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.5,
+          "median": 370.0
+        },
+        {
+          "type": "meadow_explorer",
+          "ratio": 0.6,
+          "median": 371.5
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.4,
+          "median": 441.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.5,
+          "median": 410.0
+        },
+        {
+          "type": "star_scholar",
+          "ratio": 0.6,
+          "median": 409.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.4,
+          "median": 433.5
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.5,
+          "median": 401.0
+        },
+        {
+          "type": "clockwork_inventor",
+          "ratio": 0.6,
+          "median": 399.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.4,
+          "median": 410.5
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.5,
+          "median": 378.0
+        },
+        {
+          "type": "workshop_artisan",
+          "ratio": 0.6,
+          "median": 376.0
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.4,
+          "median": 413.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.5,
+          "median": 377.5
+        },
+        {
+          "type": "steel_guardian",
+          "ratio": 0.6,
+          "median": 363.0
+        }
+      ]
+    }
+  ]
+}

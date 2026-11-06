@@ -1,7 +1,7 @@
 """Non-graphic SVG character interaction and mood regression checks."""
 from pathlib import Path
 import json
-import os
+import os,re
 from playwright.sync_api import sync_playwright
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -19,9 +19,9 @@ def page_make(browser,seed=None):
     p=browser.new_page(viewport={'width':390,'height':844})
     p.set_content(HTML)
     p.add_style_tag(content=CSS)
-    p.evaluate('''({key,seed})=>{
+    p.evaluate('''({key,seed,version})=>{
       const data=Object.create(null);
-      data['little-ant-game-last-patch-seen']='1.0.3';
+      data['little-ant-game-last-patch-seen']=version;
       if(seed) data[key]=JSON.stringify(seed);
       window.__gameStore=data;
       Object.defineProperty(window,'localStorage',{configurable:true,value:{
@@ -30,7 +30,7 @@ def page_make(browser,seed=None):
         removeItem:k=>{delete data[k]}
       }});
       Math.random=()=>0.99;
-    }''',{'key':KEY,'seed':seed})
+    }''',{'key':KEY,'seed':seed,'version':re.search(r"version: *'([^']+)'",BALANCE).group(1)})
     p.add_script_tag(content=BALANCE)
     p.add_script_tag(content=GAME)
     return p

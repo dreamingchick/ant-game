@@ -40,11 +40,14 @@ jobs:
           node --check pwa.js
           node --check sw.js
           python tests/structure.py
+          python tests/test_balance_gate.py
       - name: Run browser regression, animation and PWA install checks
         run: |
           set -o pipefail
           mkdir -p test-results
           python tests/regression.py 2>&1 | tee test-results/regression.log
+          python tests/v11.py 2>&1 | tee test-results/v11.log
+          python tests/balance_validation.py 2>&1 | tee test-results/balance-validation.log
           python tests/motion.py 2>&1 | tee test-results/motion.log
           python tests/pwa.py 2>&1 | tee test-results/pwa.log
       - name: Save evidence (screenshots and logs)
@@ -56,9 +59,25 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  balance-qa:
+    name: Gate release on growth balance (<=10%)
+    needs: verify
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: ant-game-browser-report
+          path: test-results
+      - name: Verify current-source evidence and growth spread
+        run: python tests/balance_gate.py
+
   publish:
     name: Deploy verified installable PWA to GitHub Pages
-    needs: verify
+    needs: [verify, balance-qa]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
