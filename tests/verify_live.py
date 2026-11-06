@@ -1,4 +1,4 @@
-"""Check that GitHub Pages actually serves the four exact tested game files.
+"""Check that GitHub Pages actually serves every app and installation asset.
 
 Runs *after* actions/deploy-pages; never makes claims about successful publishing
 based only on a successful GitHub content upload.
@@ -15,7 +15,11 @@ from urllib.request import Request, urlopen
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = os.environ.get('PAGES_URL', 'https://dreamingchick.github.io/ant-game/').rstrip('/') + '/'
 COMMIT = os.environ.get('GITHUB_SHA', 'manual')
-FILES = ('index.html', 'style.css', 'balance.js', 'game.js')
+FILES = (
+    'index.html', 'style.css', 'balance.js', 'game.js',
+    'manifest.json', 'pwa.js', 'sw.js',
+    'icons/ant-192.png', 'icons/ant-512.png', 'icons/ant-maskable-512.png'
+)
 
 
 def sha256(data: bytes) -> str:
