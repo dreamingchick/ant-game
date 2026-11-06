@@ -4,11 +4,22 @@
  * 이 파일의 숫자를 변경한 후 새로 고침하면 다음 행동부터 새 설정이 적용됩니다.
  */
 window.ANT_BALANCE = Object.freeze({
-  version: '1.0.3',
+  version: '1.1.0',
   // 각 업데이트의 소식은 이 항목에 작성합니다. version은 위 게임 버전과 일치해야 합니다.
   
 
 releaseNotes: {
+  version:'1.1.0',date:'2026-11-06',title:'열두 갈래, 새로운 여정',
+  summary:'LV.30과 세 번째 진화 12종, 두 번째 진화의 육성 패시브 6종을 추가했습니다.',
+  sections:[
+    {heading:'세 번째 성장',items:['LV.20은 체크포인트가 됩니다. LV.20 이후 채찍 비율 55% 미만은 A, 55% 이상은 B로 진화합니다.','기존 LV.20 완료 개미는 결과를 보존하며 계속 키우기를 선택할 수 있습니다.']},
+    {heading:'육성과 원정',items:['2차 패시브는 1차와 함께 적용됩니다. 3차 원정 패시브는 대표 개미 한 마리만 적용됩니다.','실제 지원하지 않는 시간·위험·손실 효과는 미활성 사유를 표시합니다. 식량·일반 자원·제작 재료의 5% 보너스는 소수 몫을 누적합니다.']},
+    {heading:'수집과 개미집',items:['12종 전용 의상·칭호·도감과 LV.30 진화 연출을 추가했습니다.','거대 건축가를 수집하면 추가 장식 한 개를 배치할 수 있습니다. LV.50·총 5회 진화는 향후 확장 목표입니다.']}
+  ]
+},
+
+releaseNotesHistory: [
+{
   version:'1.0.3',date:'2026-11-06',title:'한입의 기쁨과 훈련의 순간',
   summary:'당근을 입으로 가져가 씹는 동작과 채찍 훈련의 몸짓을 추가하고, 행동마다 표정이 실제로 달라집니다.',
   sections:[
@@ -29,8 +40,7 @@ releaseNotes: {
 },
 // 과거 배포 버전을 순서대로 보관합니다.
   // 미배포 v0.2.1은 목록에 포함하지 않습니다.
-  // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.
-  releaseNotesHistory: [
+  // 현재 버전 내용은 releaseNotes에 있으므로 여기에는 이전 배포 기록만 추가합니다.,
     {
       version:'1.0.2',date:'2026-11-06',title:'움직이는 표정, 살아나는 개미굴',
       summary:'당근·채찍 행동 애니메이션과 상태별 기본 표정, 그리고 실제 개미굴처럼 꾸며지는 집 연출을 추가했습니다.',
@@ -269,7 +279,7 @@ releaseNotes: {
     batches: [10, 25, 50, 100],
     speeds: { relaxed: 2200, normal: 1250, fast: 650 }
   },
-  maxLevel: 20, // v0.5: LV.10은 체크포인트, LV.20이 완료. 정식 목표 LV.50.
+  maxLevel: 30, // v1.1: LV.10/20 체크포인트. 장기 목표 LV.50·총 5회 진화.
   initial: { level: 1, exp: 0, motivation: 60, stress: 20, laziness: 10 },
   actions: {
     carrot: { motivation: +15, stress: -10, laziness: +5 },
@@ -298,6 +308,264 @@ releaseNotes: {
       steel_guardian: { parent:'diligent', branch:'B', name:'강철 수호 개미', icon:'🛡️', label:'개미집의 수호자', quote:'우리의 집은 우리가 지킨다!' }
     }
   },
+  secondPassives: {
+    "garden_keeper": {
+      "name": "향긋한 휴식",
+      "description": "당근 사용 시 의욕 +2 추가",
+      "effect": "carrotMotivation",
+      "value": 2
+    },
+    "meadow_explorer": {
+      "name": "야생 적응",
+      "description": "당근 나태함 증가량 −2",
+      "effect": "carrotLaziness",
+      "value": -2
+    },
+    "star_scholar": {
+      "name": "심화 통찰",
+      "description": "긍정 이벤트 유익 효과 증폭률 +10%p (총 30%)",
+      "effect": "eventBenefit",
+      "value": 0.1
+    },
+    "clockwork_inventor": {
+      "name": "정교한 반복",
+      "description": "채찍 사용 시 나태함 −2 추가",
+      "effect": "whipLaziness",
+      "value": -2
+    },
+    "workshop_artisan": {
+      "name": "장인의 집중",
+      "description": "채찍 기초 EXP +5% (효율→근면 순서)",
+      "effect": "baseExp",
+      "value": 0.05
+    },
+    "steel_guardian": {
+      "name": "강인한 정신",
+      "description": "채찍 스트레스 증가량 −2",
+      "effect": "whipStress",
+      "value": -2
+    }
+  },
+  thirdEvolution: { threshold:0.55, types:{
+    "life_gardener": {
+      "parent": "garden_keeper",
+      "branch": "A",
+      "name": "생명의 정원사",
+      "passive": "풍요의 씨앗",
+      "description": "탐험 식량 보상 +5%",
+      "effect": "food",
+      "icon": "🌻",
+      "title": "생명의 정원사의 증표"
+    },
+    "thorn_warden": {
+      "parent": "garden_keeper",
+      "branch": "B",
+      "name": "가시숲 파수꾼",
+      "passive": "숲의 경계",
+      "description": "위험 이벤트 확률 상대 5% 감소",
+      "effect": "risk",
+      "icon": "🌵",
+      "title": "가시숲 파수꾼의 증표"
+    },
+    "wind_guide": {
+      "parent": "meadow_explorer",
+      "branch": "A",
+      "name": "바람길 인도자",
+      "passive": "순풍의 길",
+      "description": "탐험 소요 시간 5% 감소",
+      "effect": "time",
+      "icon": "🪶",
+      "title": "바람길 인도자의 증표"
+    },
+    "earth_pioneer": {
+      "parent": "meadow_explorer",
+      "branch": "B",
+      "name": "대지의 선구자",
+      "passive": "미지의 발자국",
+      "description": "탐험 일반 자원 보상 +5%",
+      "effect": "general",
+      "icon": "⛏️",
+      "title": "대지의 선구자의 증표"
+    },
+    "galaxy_archivist": {
+      "parent": "star_scholar",
+      "branch": "A",
+      "name": "은하의 기록관",
+      "passive": "별의 기록",
+      "description": "탐험 기록 및 발견 정보 상세 표시",
+      "effect": "details",
+      "icon": "🌌",
+      "title": "은하의 기록관의 증표"
+    },
+    "astral_oracle": {
+      "parent": "star_scholar",
+      "branch": "B",
+      "name": "천문 예언자",
+      "passive": "미래의 징조",
+      "description": "탐험 시작 전 위험도 등급 표시",
+      "effect": "riskInfo",
+      "icon": "🔮",
+      "title": "천문 예언자의 증표"
+    },
+    "precision_mechanic": {
+      "parent": "clockwork_inventor",
+      "branch": "A",
+      "name": "정밀 기계공",
+      "passive": "정교한 손길",
+      "description": "탐험 제작 계열 자원 +5%",
+      "effect": "craft",
+      "icon": "🔧",
+      "title": "정밀 기계공의 증표"
+    },
+    "spacetime_inventor": {
+      "parent": "clockwork_inventor",
+      "branch": "B",
+      "name": "시공 발명가",
+      "passive": "시간의 톱니",
+      "description": "탐험 소요 시간 5% 감소",
+      "effect": "time",
+      "icon": "⏳",
+      "title": "시공 발명가의 증표"
+    },
+    "gold_sculptor": {
+      "parent": "workshop_artisan",
+      "branch": "A",
+      "name": "황금 세공장",
+      "passive": "황금의 안목",
+      "description": "탐험 희귀 자원 보상 +5%",
+      "effect": "rare",
+      "icon": "👑",
+      "title": "황금 세공장의 증표"
+    },
+    "grand_architect": {
+      "parent": "workshop_artisan",
+      "branch": "B",
+      "name": "거대 건축가",
+      "passive": "공간 설계",
+      "description": "개미집 장식 배치 슬롯 +1 (중첩 없음)",
+      "effect": "slot",
+      "icon": "🏰",
+      "title": "거대 건축가의 증표"
+    },
+    "unyielding_warden": {
+      "parent": "steel_guardian",
+      "branch": "A",
+      "name": "불굴의 수문장",
+      "passive": "굳건한 방어",
+      "description": "탐험 중 자원 손실량 5% 감소",
+      "effect": "loss",
+      "icon": "🛡️",
+      "title": "불굴의 수문장의 증표"
+    },
+    "royal_captain": {
+      "parent": "steel_guardian",
+      "branch": "B",
+      "name": "왕실 근위대장",
+      "passive": "근위대의 보호",
+      "description": "탐험 결과 자원 손실량 5% 감소",
+      "effect": "loss",
+      "icon": "⚜️",
+      "title": "왕실 근위대장의 증표"
+    }
+  } },
+  thirdRewards: [
+    {
+      "id": "third-life_gardener",
+      "slot": "wall",
+      "name": "생명의 정원사 기념 깃발",
+      "icon": "🌻",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "life_gardener"
+    },
+    {
+      "id": "third-thorn_warden",
+      "slot": "wall",
+      "name": "가시숲 파수꾼 기념 깃발",
+      "icon": "🌵",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "thorn_warden"
+    },
+    {
+      "id": "third-wind_guide",
+      "slot": "wall",
+      "name": "바람길 인도자 기념 깃발",
+      "icon": "🪶",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "wind_guide"
+    },
+    {
+      "id": "third-earth_pioneer",
+      "slot": "wall",
+      "name": "대지의 선구자 기념 깃발",
+      "icon": "⛏️",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "earth_pioneer"
+    },
+    {
+      "id": "third-galaxy_archivist",
+      "slot": "wall",
+      "name": "은하의 기록관 기념 깃발",
+      "icon": "🌌",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "galaxy_archivist"
+    },
+    {
+      "id": "third-astral_oracle",
+      "slot": "wall",
+      "name": "천문 예언자 기념 깃발",
+      "icon": "🔮",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "astral_oracle"
+    },
+    {
+      "id": "third-precision_mechanic",
+      "slot": "wall",
+      "name": "정밀 기계공 기념 깃발",
+      "icon": "🔧",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "precision_mechanic"
+    },
+    {
+      "id": "third-spacetime_inventor",
+      "slot": "wall",
+      "name": "시공 발명가 기념 깃발",
+      "icon": "⏳",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "spacetime_inventor"
+    },
+    {
+      "id": "third-gold_sculptor",
+      "slot": "wall",
+      "name": "황금 세공장 기념 깃발",
+      "icon": "👑",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "gold_sculptor"
+    },
+    {
+      "id": "third-grand_architect",
+      "slot": "wall",
+      "name": "거대 건축가 기념 깃발",
+      "icon": "🏰",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "grand_architect"
+    },
+    {
+      "id": "third-unyielding_warden",
+      "slot": "wall",
+      "name": "불굴의 수문장 기념 깃발",
+      "icon": "🛡️",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "unyielding_warden"
+    },
+    {
+      "id": "third-royal_captain",
+      "slot": "wall",
+      "name": "왕실 근위대장 기념 깃발",
+      "icon": "⚜️",
+      "desc": "LV.30 세 번째 진화 수집 기념품",
+      "third": "royal_captain"
+    }
+  ],
   expRequired(level) { return 50 + 10 * (level - 1); },
   efficiency: {
     min: 0.5, max: 1.5,

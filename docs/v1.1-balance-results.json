@@ -1,0 +1,277 @@
+{
+  "version": "1.1.0",
+  "checksPassed": 129,
+  "runs": 1800,
+  "method": "LV20 same initial stats 60/20/10; exact ratio per shuffled ten-action block; paired seed, independent event/action RNG; first event option; production engine, presentation and storage stubbed only during simulation. Trigger count means eligible action/positive event, including clamped stats. Gaps compare all six lineages and include inherited first passives.",
+  "strategies": [
+    {
+      "whipRatio": 0.4,
+      "medianSpreadPercent": 27.22,
+      "within10Percent": false
+    },
+    {
+      "whipRatio": 0.5,
+      "medianSpreadPercent": 47.7,
+      "within10Percent": false
+    },
+    {
+      "whipRatio": 0.6,
+      "medianSpreadPercent": 34.91,
+      "within10Percent": false
+    }
+  ],
+  "results": [
+    {
+      "type": "garden_keeper",
+      "ratio": 0.4,
+      "runs": 100,
+      "medianActions": 424.0,
+      "meanActions": 423.15,
+      "meanStats": {
+        "motivation": 95.3,
+        "stress": 12.81,
+        "laziness": 71.06
+      },
+      "meanEvents": 96.56,
+      "meanPassiveTriggers": 253.68
+    },
+    {
+      "type": "garden_keeper",
+      "ratio": 0.5,
+      "runs": 100,
+      "medianActions": 342.5,
+      "meanActions": 342.04,
+      "meanStats": {
+        "motivation": 94.45,
+        "stress": 26.2,
+        "laziness": 46.17
+      },
+      "meanEvents": 46.05,
+      "meanPassiveTriggers": 171.03
+    },
+    {
+      "type": "garden_keeper",
+      "ratio": 0.6,
+      "runs": 100,
+      "medianActions": 326.5,
+      "meanActions": 327.75,
+      "meanStats": {
+        "motivation": 91.32,
+        "stress": 54.51,
+        "laziness": 19.35
+      },
+      "meanEvents": 54.04,
+      "meanPassiveTriggers": 131.15
+    },
+    {
+      "type": "meadow_explorer",
+      "ratio": 0.4,
+      "runs": 100,
+      "medianActions": 349.0,
+      "meanActions": 346.39,
+      "meanStats": {
+        "motivation": 96.29,
+        "stress": 13.27,
+        "laziness": 36.61
+      },
+      "meanEvents": 41.3,
+      "meanPassiveTriggers": 207.6
+    },
+    {
+      "type": "meadow_explorer",
+      "ratio": 0.5,
+      "runs": 100,
+      "medianActions": 282.0,
+      "meanActions": 283.3,
+      "meanStats": {
+        "motivation": 94.55,
+        "stress": 26.51,
+        "laziness": 8.85
+      },
+      "meanEvents": 35.68,
+      "meanPassiveTriggers": 141.5
+    },
+    {
+      "type": "meadow_explorer",
+      "ratio": 0.6,
+      "runs": 100,
+      "medianActions": 306.5,
+      "meanActions": 307.18,
+      "meanStats": {
+        "motivation": 90.78,
+        "stress": 54.42,
+        "laziness": 8.03
+      },
+      "meanEvents": 50.53,
+      "meanPassiveTriggers": 122.83
+    },
+    {
+      "type": "star_scholar",
+      "ratio": 0.4,
+      "runs": 100,
+      "medianActions": 444.0,
+      "meanActions": 443.89,
+      "meanStats": {
+        "motivation": 95.13,
+        "stress": 21.65,
+        "laziness": 71.69
+      },
+      "meanEvents": 103.74,
+      "meanPassiveTriggers": 17.98
+    },
+    {
+      "type": "star_scholar",
+      "ratio": 0.5,
+      "runs": 100,
+      "medianActions": 416.5,
+      "meanActions": 416.28,
+      "meanStats": {
+        "motivation": 93.94,
+        "stress": 49.0,
+        "laziness": 50.82
+      },
+      "meanEvents": 71.9,
+      "meanPassiveTriggers": 20.24
+    },
+    {
+      "type": "star_scholar",
+      "ratio": 0.6,
+      "runs": 100,
+      "medianActions": 413.5,
+      "meanActions": 414.07,
+      "meanStats": {
+        "motivation": 89.67,
+        "stress": 69.22,
+        "laziness": 34.15
+      },
+      "meanEvents": 93.55,
+      "meanPassiveTriggers": 17.51
+    },
+    {
+      "type": "clockwork_inventor",
+      "ratio": 0.4,
+      "runs": 100,
+      "medianActions": 397.0,
+      "meanActions": 396.34,
+      "meanStats": {
+        "motivation": 95.95,
+        "stress": 23.5,
+        "laziness": 52.07
+      },
+      "meanEvents": 58.35,
+      "meanPassiveTriggers": 158.68
+    },
+    {
+      "type": "clockwork_inventor",
+      "ratio": 0.5,
+      "runs": 100,
+      "medianActions": 345.0,
+      "meanActions": 346.3,
+      "meanStats": {
+        "motivation": 94.27,
+        "stress": 49.83,
+        "laziness": 18.26
+      },
+      "meanEvents": 49.84,
+      "meanPassiveTriggers": 173.26
+    },
+    {
+      "type": "clockwork_inventor",
+      "ratio": 0.6,
+      "runs": 100,
+      "medianActions": 365.5,
+      "meanActions": 365.4,
+      "meanStats": {
+        "motivation": 89.67,
+        "stress": 69.25,
+        "laziness": 12.6
+      },
+      "meanEvents": 80.58,
+      "meanPassiveTriggers": 219.21
+    },
+    {
+      "type": "workshop_artisan",
+      "ratio": 0.4,
+      "runs": 100,
+      "medianActions": 379.0,
+      "meanActions": 379.38,
+      "meanStats": {
+        "motivation": 95.11,
+        "stress": 21.81,
+        "laziness": 70.91
+      },
+      "meanEvents": 87.41,
+      "meanPassiveTriggers": 151.84
+    },
+    {
+      "type": "workshop_artisan",
+      "ratio": 0.5,
+      "runs": 100,
+      "medianActions": 347.5,
+      "meanActions": 347.97,
+      "meanStats": {
+        "motivation": 93.89,
+        "stress": 48.98,
+        "laziness": 49.83
+      },
+      "meanEvents": 59.46,
+      "meanPassiveTriggers": 174.03
+    },
+    {
+      "type": "workshop_artisan",
+      "ratio": 0.6,
+      "runs": 100,
+      "medianActions": 343.0,
+      "meanActions": 343.26,
+      "meanStats": {
+        "motivation": 89.62,
+        "stress": 69.15,
+        "laziness": 33.12
+      },
+      "meanEvents": 77.72,
+      "meanPassiveTriggers": 205.89
+    },
+    {
+      "type": "steel_guardian",
+      "ratio": 0.4,
+      "runs": 100,
+      "medianActions": 386.0,
+      "meanActions": 384.57,
+      "meanStats": {
+        "motivation": 95.15,
+        "stress": 15.56,
+        "laziness": 70.51
+      },
+      "meanEvents": 86.92,
+      "meanPassiveTriggers": 153.98
+    },
+    {
+      "type": "steel_guardian",
+      "ratio": 0.5,
+      "runs": 100,
+      "medianActions": 342.5,
+      "meanActions": 342.99,
+      "meanStats": {
+        "motivation": 94.2,
+        "stress": 42.01,
+        "laziness": 47.34
+      },
+      "meanEvents": 49.56,
+      "meanPassiveTriggers": 171.55
+    },
+    {
+      "type": "steel_guardian",
+      "ratio": 0.6,
+      "runs": 100,
+      "medianActions": 329.0,
+      "meanActions": 330.09,
+      "meanStats": {
+        "motivation": 90.16,
+        "stress": 62.77,
+        "laziness": 26.51
+      },
+      "meanEvents": 63.86,
+      "meanPassiveTriggers": 198.06
+    }
+  ]
+}

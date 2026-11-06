@@ -45,6 +45,7 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           python tests/regression.py 2>&1 | tee test-results/regression.log
+          python tests/v11.py 2>&1 | tee test-results/v11.log
           python tests/motion.py 2>&1 | tee test-results/motion.log
           python tests/pwa.py 2>&1 | tee test-results/pwa.log
       - name: Save evidence (screenshots and logs)
