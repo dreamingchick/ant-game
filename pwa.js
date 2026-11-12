@@ -8,7 +8,7 @@
       return Boolean(entered || sessionStorage.getItem('garu-arcade-entry') === '1');
     } catch { return Boolean(entered); }
   }
-  if (cameFromArcade()) {
+  if (true) {
     const link = document.getElementById('install-app');
     if (link) {
       link.href = 'https://garu-arcade-hub.snugbrink3.chatgpt.site/';
