@@ -670,3 +670,7 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:3px solid
 .pwa-install-status { margin:10px 0 6px; color:#41684b; font-weight:760; line-height:1.65; font-size:12px; }
 .pwa-install-note { margin:4px 0 0; color:#857769; font-size:11px; line-height:1.7; }
 @media (display-mode:standalone) {.app-shell {padding-bottom:calc(78px + env(safe-area-inset-bottom));}}
+
+/* Arcade entry: compact home control beside settings. */
+.arcade-header-actions{display:flex;align-items:center;gap:8px}
+.arcade-home-button{font-size:23px;text-decoration:none;line-height:1}
