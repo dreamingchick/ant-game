@@ -43,7 +43,7 @@ def main():
             chk('manifest standalone',manifest['display']=='standalone')
             chk('relative project start and scope',manifest['scope']=='./' and manifest['start_url']=='./')
             chk('install section available',page.locator('#pwa-install-section').count()==1)
-            chk('install opens the arcade guide',page.locator('#install-app').get_attribute('href')=='https://garu-arcade-hub.snugbrink3.chatgpt.site/#install-guide')
+            chk('game returns to arcade home',page.locator('#install-app').get_attribute('href')=='https://garu-arcade-hub.snugbrink3.chatgpt.site/' and '대문 홈으로' in page.locator('#install-app').inner_text())
             context.close();browser.close()
             print(f'PASS {len(checks)} local UI checks; full SW/offline check requires unrestricted localhost in GitHub Actions')
             return
@@ -55,7 +55,7 @@ def main():
             resp=page.request.get(origin+'/'+icon['src'].lstrip('./'))
             chk('icon present '+icon['sizes']+' '+icon['purpose'], resp.status==200 and resp.headers.get('content-type','').startswith('image/png'))
         chk('install section available',page.locator('#pwa-install-section').count()==1)
-        chk('install opens the arcade guide',page.locator('#install-app').get_attribute('href')=='https://garu-arcade-hub.snugbrink3.chatgpt.site/#install-guide')
+        chk('game returns to arcade home',page.locator('#install-app').get_attribute('href')=='https://garu-arcade-hub.snugbrink3.chatgpt.site/' and '대문 홈으로' in page.locator('#install-app').inner_text())
         chk('game page does not advertise a separate install',page.locator('link[rel=manifest]').count()==0)
         # The service worker must be registered and control a subsequent navigation.
         page.wait_for_function("navigator.serviceWorker.ready.then(reg => !!reg.active)")
