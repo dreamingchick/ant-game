@@ -1,5 +1,5 @@
 /* Cache only static app assets; save data remains in the browser's own localStorage. */
-const CACHE_NAME = 'ant-game-offline-v1.0.3-arcade';
+const CACHE_NAME = 'ant-game-offline-v1.0.3-arcade-home-1';
 const APP_FILES = [
   './', './index.html', './style.css', './balance.js', './game.js',
   './pwa.js', './manifest.json', './icons/ant-192.png',
