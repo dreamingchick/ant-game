@@ -43,19 +43,7 @@ def main():
             chk('manifest standalone',manifest['display']=='standalone')
             chk('relative project start and scope',manifest['scope']=='./' and manifest['start_url']=='./')
             chk('install section available',page.locator('#pwa-install-section').count()==1)
-            page.evaluate("""() => {
-              const event = new Event('beforeinstallprompt', {cancelable:true});
-              event.prompt = async () => {window.__installPromptCalled=true};
-              event.userChoice = Promise.resolve({outcome:'accepted'});
-              window.dispatchEvent(event);
-            }""")
-            page.evaluate("document.querySelector('#screen-settings').hidden = false")
-            chk('install button enabled on eligible event',page.locator('#install-app').is_visible())
-            page.locator('#install-app').click(force=True)
-            page.wait_for_function('window.__installPromptCalled === true')
-            chk('install button opens prompt',True)
-            page.wait_for_function("document.querySelector('#install-status').textContent.includes('수락')")
-            chk('install status updated',True)
+            chk('install opens the arcade guide',page.locator('#install-app').get_attribute('href')=='https://garu-arcade-hub.snugbrink3.chatgpt.site/#install-guide')
             context.close();browser.close()
             print(f'PASS {len(checks)} local UI checks; full SW/offline check requires unrestricted localhost in GitHub Actions')
             return
@@ -67,20 +55,8 @@ def main():
             resp=page.request.get(origin+'/'+icon['src'].lstrip('./'))
             chk('icon present '+icon['sizes']+' '+icon['purpose'], resp.status==200 and resp.headers.get('content-type','').startswith('image/png'))
         chk('install section available',page.locator('#pwa-install-section').count()==1)
-        # Browser install eligibility depends on Chrome/Android user engagement; mock event for UI logic only.
-        page.evaluate("""() => {
-          const event = new Event('beforeinstallprompt', {cancelable:true});
-          event.prompt = async () => {window.__installPromptCalled=true};
-          event.userChoice = Promise.resolve({outcome:'accepted'});
-          window.dispatchEvent(event);
-        }""")
-        page.evaluate("document.querySelector('#screen-settings').hidden = false")
-        chk('install button enabled on eligible event',page.locator('#install-app').is_visible())
-        page.locator('#install-app').click(force=True)
-        page.wait_for_function('window.__installPromptCalled === true')
-        chk('install button opens prompt',True)
-        page.wait_for_function("document.querySelector('#install-status').textContent.includes('수락')")
-        chk('install status updated',True)
+        chk('install opens the arcade guide',page.locator('#install-app').get_attribute('href')=='https://garu-arcade-hub.snugbrink3.chatgpt.site/#install-guide')
+        chk('game page does not advertise a separate install',page.locator('link[rel=manifest]').count()==0)
         # The service worker must be registered and control a subsequent navigation.
         page.wait_for_function("navigator.serviceWorker.ready.then(reg => !!reg.active)")
         page.reload(wait_until='load')

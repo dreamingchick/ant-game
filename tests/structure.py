@@ -29,7 +29,8 @@ assert manifest['display'] == 'standalone'
 assert manifest['start_url'] == './' and manifest['scope'] == './'
 assert manifest.get('prefer_related_applications') is False
 assert {'192x192','512x512'} <= {entry['sizes'] for entry in manifest['icons']}
-assert 'rel="manifest" href="./manifest.json"' in html
+assert 'rel="manifest"' not in html
+assert 'https://garu-arcade-hub.snugbrink3.chatgpt.site/#install-guide' in html
 assert 'id="install-app"' in html
 assert 'pwa.js' in html and (root/'pwa.js').exists() and (root/'sw.js').exists()
 for filename,wh in [('ant-192.png',192),('ant-512.png',512),('ant-maskable-512.png',512)]:

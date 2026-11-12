@@ -7,11 +7,10 @@
   <meta name="description" content="당근과 채찍으로 개미를 육성하고 LV.20 두 번째 진화를 발견하는 모바일 웹 게임">
   <title>개미 키우기 · Ant Nest</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/ant-192.png">
   <link rel="apple-touch-icon" href="./icons/ant-192.png">
   <meta name="application-name" content="개미 키우기">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <script src="balance.js" defer></script>
   <script src="game.js" defer></script>
@@ -401,11 +400,9 @@
       <section class="setting-group" id="analytics-section" hidden><h3>익명 플레이 통계</h3><p>게임 운영 개선을 위해 페이지 방문, 첫 육성 행동, 진화, 이벤트 선택, 도전과제 달성 여부를 통계로 수집할 수 있습니다. 이름이나 입력 내용은 전송하지 않습니다. 동의하지 않아도 게임을 이용할 수 있습니다.</p><p id="analytics-not-configured" class="analytics-status">관리자 측정 ID가 등록되지 않아 현재 통계를 수집하지 않습니다.</p><div id="analytics-controls" hidden><label class="analytics-switch"><input id="analytics-consent" type="checkbox"><span>게임 이용 통계 수집에 동의</span></label><p>Google Analytics로 통계가 전송됩니다. 언제든 동의를 철회할 수 있습니다. 동의를 철회하면 통계 수집을 중단합니다.</p></div></section>
       <section class="setting-group"><h3>저장 정보</h3><p>게임은 브라우저의 저장 공간에 자동 저장됩니다. 기기나 브라우저를 변경하면 기록이 자동 이동하지 않습니다.</p><span class="save-status" id="save-status"><span class="save-dot"></span> 자동 저장 사용 중</span><p>업데이트 이전 저장 상태는 최초 전환 시 브라우저에 별도 백업됩니다. 현재 게임 데이터를 JSON 파일로 내보내거나, 이전에 내보낸 파일에서 복원할 수 있습니다. 복원은 기존 데이터를 대체하며, 먼저 별도 백업을 만듭니다.</p><div class="settings-actions"><button class="outline-button" type="button" id="export-save">게임 데이터 백업 파일 받기</button><button class="outline-button" type="button" id="import-save">저장 데이터 가져오기</button><button class="outline-button" type="button" id="inspect-save">저장 상태 점검</button></div><input id="import-save-file" type="file" accept=".json,application/json" hidden aria-label="개미 키우기 저장 JSON 파일 선택"><p class="import-help" id="import-help">최대 5MB JSON 파일 · 기존 게임 데이터와 병합하지 않습니다.</p></section>
       <section class="setting-group" id="pwa-install-section" aria-label="앱 설치">
-        <h3>앱으로 설치하기</h3>
-        <p>Chrome에서 개미 키우기를 설치하면 주소창 없이 홈 화면에서 독립된 게임 앱처럼 실행할 수 있습니다.</p>
-        <div class="settings-actions"><button class="outline-button pwa-install-button" type="button" id="install-app" hidden>개미 키우기 앱 설치</button></div>
-        <p id="install-status" class="pwa-install-status" role="status" aria-live="polite">Chrome 오른쪽 상단 ⋮ 메뉴 → <strong>앱 설치</strong> 또는 <strong>홈 화면에 추가</strong>를 확인하세요.</p>
-        <p class="pwa-install-note">설치 시 기존 플레이 기록은 현재 브라우저의 사이트 저장 공간을 사용합니다. 다른 브라우저와 자동 동기화되지 않으므로 JSON 백업을 보관해 주세요.</p>
+        <h3>가루 오락실 앱</h3>
+        <p>홈 화면에서 가루 오락실을 열고 플레이할 게임을 고르세요.</p>
+        <div class="settings-actions"><a class="outline-button pwa-install-button" id="install-app" href="https://garu-arcade-hub.snugbrink3.chatgpt.site/#install-guide" target="_blank" rel="noopener noreferrer">오락실 앱 설치</a></div>
       </section>
       <section class="setting-group launch-help"><h3>정식 출시 이용 안내</h3>
         <details><summary>어떤 순서로 플레이하나요?</summary><p>당근과 채찍으로 LV.10 첫 진화를 달성하고, LV.20 두 번째 진화를 완성하세요. 완료 개미는 왕국 시설에 배치하거나 원정대에 편성할 수 있습니다.</p></details>
