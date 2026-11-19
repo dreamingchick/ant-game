@@ -252,7 +252,7 @@
       kingdom:defaultKingdom(),
       lastSpeech: choose(dialogue.idle), lastFeedback:'작은 선택이 개미의 내일을 바꿉니다.', lastReaction:'idle',
       tutorialCompleted:false, tutorialStep:0,
-      settings:{ soundEnabled:true, volume:65, autoCare:{mode:B.autoCare.defaultMode,batch:B.autoCare.defaultBatch,speed:B.autoCare.defaultSpeed,safeStop:B.autoCare.defaultSafeStop} }
+      settings:{ soundEnabled:false, volume:65, autoCare:{mode:B.autoCare.defaultMode,batch:B.autoCare.defaultBatch,speed:B.autoCare.defaultSpeed,safeStop:B.autoCare.defaultSafeStop} }
     };
   }
 
@@ -367,7 +367,7 @@
         lastReaction:'idle',
         tutorialCompleted:Boolean(prev.tutorialCompleted),tutorialStep: num(prev.tutorialStep,0,3),
         settings: {
-          soundEnabled:prev.settings?.soundEnabled!==false,volume:num(prev.settings?.volume,65,100),
+          soundEnabled:prev.settings?.soundEnabled===true,volume:num(prev.settings?.volume,65,100),
           autoCare:{
             mode:['balanced','growth','recover'].includes(prev.settings?.autoCare?.mode) ? prev.settings.autoCare.mode : B.autoCare.defaultMode,
             batch:B.autoCare.batches.includes(prev.settings?.autoCare?.batch) ? prev.settings.autoCare.batch : B.autoCare.defaultBatch,
